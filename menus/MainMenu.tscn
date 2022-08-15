@@ -1,0 +1,64 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://resources/Subtitle.tres" type="DynamicFont" id=1]
+[ext_resource path="res://menus/MainMenu.gd" type="Script" id=2]
+[ext_resource path="res://resources/Title.tres" type="DynamicFont" id=3]
+
+[node name="MainMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0.0784314, 0.352941, 0.196078, 0.509804 )
+
+[node name="CenterContainer" type="CenterContainer" parent="ColorRect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/CenterContainer"]
+margin_left = 297.0
+margin_top = 184.0
+margin_right = 726.0
+margin_bottom = 416.0
+
+[node name="GameTitle" type="Label" parent="ColorRect/CenterContainer/VBoxContainer"]
+margin_right = 429.0
+margin_bottom = 56.0
+custom_fonts/font = ExtResource( 3 )
+text = "Marble Runner"
+align = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="ColorRect/CenterContainer/VBoxContainer"]
+margin_top = 60.0
+margin_right = 429.0
+margin_bottom = 140.0
+rect_min_size = Vector2( 0, 80 )
+
+[node name="BestScore" type="Label" parent="ColorRect/CenterContainer/VBoxContainer/CenterContainer"]
+margin_left = 109.0
+margin_top = 22.0
+margin_right = 320.0
+margin_bottom = 58.0
+custom_fonts/font = ExtResource( 1 )
+text = "Best Score: 0"
+align = 1
+
+[node name="Play" type="Button" parent="ColorRect/CenterContainer/VBoxContainer"]
+margin_top = 144.0
+margin_right = 429.0
+margin_bottom = 186.0
+custom_fonts/font = ExtResource( 1 )
+text = "Play"
+
+[node name="Quit" type="Button" parent="ColorRect/CenterContainer/VBoxContainer"]
+margin_top = 190.0
+margin_right = 429.0
+margin_bottom = 232.0
+custom_fonts/font = ExtResource( 1 )
+text = "Quit"
+
+[connection signal="button_up" from="ColorRect/CenterContainer/VBoxContainer/Play" to="." method="_on_Play_button_up"]
+[connection signal="button_up" from="ColorRect/CenterContainer/VBoxContainer/Quit" to="." method="_on_Quit_button_up"]
