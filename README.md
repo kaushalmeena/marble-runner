@@ -30,14 +30,6 @@ $ git clone https://github.com/kaushalmeena/marble-runner.git
 
 3. Navigate to `marble-runner` folder and click Open
 
-
-## Screenshots
-
-<img src="./screenshots/MainMenu.png" width="700"> 
-<img src="./screenshots/PauseMenu.png" width="700">
-<img src="./screenshots/GamePlay.png" width="700">
-<img src="./screenshots/GameOver.png" width="700">
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
