@@ -2,6 +2,8 @@
 
 A godot game about endless runner with dynamic obstacle generation.
 
+Live version is deployed at [https://kaushalmeena.github.io/marble-runner/Marble-Runner.html](https://kaushalmeena.github.io/marble-runner/Marble-Runner.html)
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development purposes.
@@ -11,6 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 To install and run this project you need:
 
 - [Godot 3.4](https://godotengine.org/download/ "Godot 3.4")
+- [NodeJS](https://nodejs.org/ "NodeJS")
 - [git](https://git-scm.com/downloads "git") (only to clone this repository)
 
 ### Installation
