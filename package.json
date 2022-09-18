@@ -1,0 +1,14 @@
+{
+  "name": "marble-runner",
+  "version": "1.0.0",
+  "description": "A godot game about endless runner with dynamic obstacle generation.",
+  "repository": "git@github.com:kaushalmeena/marble-runner.git",
+  "author": "Kaushal Meena <kaushal.meena1996@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "deploy": "gh-pages -d dist/web"
+  },
+  "devDependencies": {
+    "gh-pages": "^4.0.0"
+  }
+}

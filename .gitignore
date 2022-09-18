@@ -13,3 +13,9 @@ data_*/
 
 # Misc
 .DS_Store
+
+# Dependency directories
+node_modules/
+
+# Build directories
+dist/
