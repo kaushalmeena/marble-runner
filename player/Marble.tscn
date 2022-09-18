@@ -16,5 +16,5 @@ script = ExtResource( 1 )
 mesh = SubResource( 9 )
 material/0 = null
 
-[node name="Collision" type="CollisionShape" parent="."]
+[node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 10 )
