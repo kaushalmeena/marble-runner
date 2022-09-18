@@ -12,7 +12,7 @@ func _ready() -> void:
 
 
 func _on_Play_button_up() -> void:
-	Global.goto_scene("res://game/Game.tscn")
+	Global.start_game()
 
 
 func _on_Quit_button_up() -> void:
