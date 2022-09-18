@@ -2,7 +2,7 @@
 
 A godot game about endless runner with dynamic obstacle generation.
 
-Live version is deployed at [https://kaushalmeena.github.io/marble-runner/Marble-Runner.html](https://kaushalmeena.github.io/marble-runner/Marble-Runner.html)
+Live version is deployed at [https://kaushalmeena.github.io/marble-runner/](https://kaushalmeena.github.io/marble-runner/)
 
 ## Getting Started
 
