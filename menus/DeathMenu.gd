@@ -14,8 +14,8 @@ func _ready() -> void:
 
 
 func _on_Restart_button_up() -> void:
-	Global.goto_scene("res://game/Game.tscn")
+	Global.start_game()
 
 
 func _on_MainMenu_button_up() -> void:
-	Global.goto_scene("res://menus/MainMenu.tscn")
+	Global.show_main_menu()

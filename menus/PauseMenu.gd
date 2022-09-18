@@ -20,4 +20,4 @@ func _on_Resume_button_up():
 
 func _on_MainMenu_button_up():
 	self.is_paused = false
-	Global.goto_scene("res://menus/MainMenu.tscn")
+	Global.show_main_menu()

@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://resources/Title.tres" type="DynamicFont" id=1]
+[ext_resource path="res://fonts/MinecraftTen56.tres" type="DynamicFont" id=1]
+[ext_resource path="res://hud/ScoreBoard.gd" type="Script" id=2]
 
 [node name="ScoreBoard" type="Control"]
+script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": true
 }
