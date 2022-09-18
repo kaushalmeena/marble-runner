@@ -32,7 +32,7 @@ $ git clone https://github.com/kaushalmeena/marble-runner.git
 
 <img src="./screenshots/MainMenu.png" width="700"> 
 <img src="./screenshots/PauseMenu.png" width="700">
-<img src="./screenshots/Gameplay.png" width="700">
+<img src="./screenshots/GamePlay.png" width="700">
 <img src="./screenshots/GameOver.png" width="700">
 
 ## License
