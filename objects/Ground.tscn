@@ -17,5 +17,5 @@ mesh = SubResource( 11 )
 skeleton = NodePath("")
 material/0 = SubResource( 12 )
 
-[node name="Collision" type="CollisionShape" parent="."]
+[node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 13 )
