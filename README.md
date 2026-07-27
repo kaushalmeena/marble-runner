@@ -30,6 +30,13 @@ git clone https://github.com/kaushalmeena/marble-runner.git
 
 3. Navigate to `marble-runner` folder and click Open
 
+## Contributing
+
+Contributions are welcome! If you find a bug or have a feature request, please
+[open an issue](https://github.com/kaushalmeena/marble-runner/issues/new/choose)
+first to discuss it. For code changes, fork the repository, create a branch,
+and open a pull request.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
