@@ -1,0 +1,145 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://ui/death_menu.gd" id="1_death_menu"]
+
+[sub_resource type="Gradient" id="Gradient_dusk"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0.28, 0.09, 0.12, 1, 0.42, 0.16, 0.14, 1, 0.16, 0.13, 0.2, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_dusk"]
+gradient = SubResource("Gradient_dusk")
+width = 8
+height = 256
+fill_to = Vector2(0, 1)
+
+[node name="DeathMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_death_menu")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_dusk")
+expand_mode = 1
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Column" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Center/Column"]
+layout_mode = 2
+text = "GAME OVER"
+horizontal_alignment = 1
+theme_type_variation = &"TitleLabel"
+
+[node name="RecordLabel" type="Label" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NEW RECORD!"
+horizontal_alignment = 1
+theme_type_variation = &"AccentLabel"
+
+[node name="StatsCard" type="PanelContainer" parent="Center/Column"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Rows" type="VBoxContainer" parent="Center/Column/StatsCard"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ScoreRow" type="HBoxContainer" parent="Center/Column/StatsCard/Rows"]
+layout_mode = 2
+
+[node name="Caption" type="Label" parent="Center/Column/StatsCard/Rows/ScoreRow"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "SCORE"
+theme_type_variation = &"CaptionLabel"
+
+[node name="Spacer" type="Control" parent="Center/Column/StatsCard/Rows/ScoreRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="ScoreValue" type="Label" parent="Center/Column/StatsCard/Rows/ScoreRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+theme_type_variation = &"ValueLabel"
+
+[node name="BestRow" type="HBoxContainer" parent="Center/Column/StatsCard/Rows"]
+layout_mode = 2
+
+[node name="Caption" type="Label" parent="Center/Column/StatsCard/Rows/BestRow"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "BEST"
+theme_type_variation = &"CaptionLabel"
+
+[node name="Spacer" type="Control" parent="Center/Column/StatsCard/Rows/BestRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="BestValue" type="Label" parent="Center/Column/StatsCard/Rows/BestRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="DistanceRow" type="HBoxContainer" parent="Center/Column/StatsCard/Rows"]
+layout_mode = 2
+
+[node name="Caption" type="Label" parent="Center/Column/StatsCard/Rows/DistanceRow"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "DISTANCE"
+theme_type_variation = &"CaptionLabel"
+
+[node name="Spacer" type="Control" parent="Center/Column/StatsCard/Rows/DistanceRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="DistanceValue" type="Label" parent="Center/Column/StatsCard/Rows/DistanceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 m"
+horizontal_alignment = 2
+
+[node name="Buttons" type="VBoxContainer" parent="Center/Column"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+
+[node name="RetryButton" type="Button" parent="Center/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Retry"
+
+[node name="MenuButton" type="Button" parent="Center/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Main Menu"

@@ -1,0 +1,141 @@
+[gd_resource type="Theme" load_steps=9 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/MinecraftTen.ttf" id="1_font"]
+
+[sub_resource type="StyleBoxFlat" id="SBF_button_normal"]
+content_margin_left = 30.0
+content_margin_top = 14.0
+content_margin_right = 30.0
+content_margin_bottom = 14.0
+bg_color = Color(1, 1, 1, 0.14)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.28)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="SBF_button_hover"]
+content_margin_left = 30.0
+content_margin_top = 14.0
+content_margin_right = 30.0
+content_margin_bottom = 14.0
+bg_color = Color(1, 1, 1, 0.28)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.87, 0.35, 0.75)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="SBF_button_pressed"]
+content_margin_left = 30.0
+content_margin_top = 14.0
+content_margin_right = 30.0
+content_margin_bottom = 14.0
+bg_color = Color(1, 0.82, 0.22, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.95, 0.7, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="SBF_button_focus"]
+content_margin_left = 30.0
+content_margin_top = 14.0
+content_margin_right = 30.0
+content_margin_bottom = 14.0
+draw_center = false
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.9, 0.4, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="SBF_card"]
+content_margin_left = 22.0
+content_margin_top = 12.0
+content_margin_right = 22.0
+content_margin_bottom = 12.0
+bg_color = Color(0.05, 0.09, 0.14, 0.5)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.18)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="SBF_bar_bg"]
+bg_color = Color(0, 0, 0, 0.4)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="SBF_bar_fill"]
+bg_color = Color(1, 0.78, 0.12, 0.95)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[resource]
+default_font = ExtResource("1_font")
+default_font_size = 26
+Button/colors/font_color = Color(1, 1, 1, 1)
+Button/colors/font_disabled_color = Color(1, 1, 1, 0.4)
+Button/colors/font_focus_color = Color(1, 1, 1, 1)
+Button/colors/font_hover_color = Color(1, 0.95, 0.72, 1)
+Button/colors/font_outline_color = Color(0.04, 0.08, 0.12, 0.7)
+Button/colors/font_pressed_color = Color(0.12, 0.16, 0.2, 1)
+Button/constants/outline_size = 4
+Button/font_sizes/font_size = 30
+Button/styles/disabled = SubResource("SBF_button_normal")
+Button/styles/focus = SubResource("SBF_button_focus")
+Button/styles/hover = SubResource("SBF_button_hover")
+Button/styles/normal = SubResource("SBF_button_normal")
+Button/styles/pressed = SubResource("SBF_button_pressed")
+Label/colors/font_color = Color(1, 1, 1, 1)
+Label/colors/font_outline_color = Color(0.04, 0.08, 0.12, 0.75)
+Label/constants/outline_size = 6
+PanelContainer/styles/panel = SubResource("SBF_card")
+ProgressBar/styles/background = SubResource("SBF_bar_bg")
+ProgressBar/styles/fill = SubResource("SBF_bar_fill")
+AccentLabel/base_type = &"Label"
+AccentLabel/colors/font_color = Color(1, 0.84, 0.22, 1)
+AccentLabel/constants/outline_size = 6
+AccentLabel/font_sizes/font_size = 28
+CaptionLabel/base_type = &"Label"
+CaptionLabel/colors/font_color = Color(1, 1, 1, 0.72)
+CaptionLabel/constants/outline_size = 4
+CaptionLabel/font_sizes/font_size = 18
+HeadingLabel/base_type = &"Label"
+HeadingLabel/constants/outline_size = 10
+HeadingLabel/font_sizes/font_size = 54
+HintLabel/base_type = &"Label"
+HintLabel/colors/font_color = Color(1, 1, 1, 0.78)
+HintLabel/constants/outline_size = 4
+HintLabel/font_sizes/font_size = 20
+TitleLabel/base_type = &"Label"
+TitleLabel/constants/outline_size = 12
+TitleLabel/font_sizes/font_size = 76
+ValueLabel/base_type = &"Label"
+ValueLabel/constants/outline_size = 8
+ValueLabel/font_sizes/font_size = 44

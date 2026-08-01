@@ -31,6 +31,13 @@ var best_score: int = 0:
 		best_score = value
 		best_score_changed.emit(best_score)
 
+## Distance covered in the most recent run, for the game over screen.
+var run_distance: float = 0.0
+
+## Best score as it stood when this run began, so [method is_new_record] can
+## still tell a record apart after [member best_score] has been promoted.
+var _best_at_run_start: int = 0
+
 
 func _ready() -> void:
 	load_progress()
@@ -39,6 +46,13 @@ func _ready() -> void:
 ## Clears the run score. Call this when a new run begins.
 func reset_run() -> void:
 	score = 0
+	run_distance = 0.0
+	_best_at_run_start = best_score
+
+
+## True when the run that just ended beat the previous personal best.
+func is_new_record() -> bool:
+	return score > _best_at_run_start
 
 
 ## Adds points and promotes them to the personal best as soon as they are earned,

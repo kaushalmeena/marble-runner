@@ -1,0 +1,158 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
+
+[node name="Hud" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_hud")
+
+[node name="TopRow" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 28.0
+offset_top = 22.0
+offset_right = -28.0
+offset_bottom = 130.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="ScoreCard" type="PanelContainer" parent="TopRow"]
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="Column" type="VBoxContainer" parent="TopRow/ScoreCard"]
+layout_mode = 2
+theme_override_constants/separation = -2
+
+[node name="Caption" type="Label" parent="TopRow/ScoreCard/Column"]
+layout_mode = 2
+text = "SCORE"
+theme_type_variation = &"CaptionLabel"
+
+[node name="ScoreValue" type="Label" parent="TopRow/ScoreCard/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+theme_type_variation = &"ValueLabel"
+
+[node name="Spacer" type="Control" parent="TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="BestCard" type="PanelContainer" parent="TopRow"]
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="Column" type="VBoxContainer" parent="TopRow/BestCard"]
+layout_mode = 2
+theme_override_constants/separation = -2
+
+[node name="Caption" type="Label" parent="TopRow/BestCard/Column"]
+layout_mode = 2
+text = "BEST"
+horizontal_alignment = 2
+theme_type_variation = &"CaptionLabel"
+
+[node name="BestValue" type="Label" parent="TopRow/BestCard/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+theme_type_variation = &"ValueLabel"
+
+[node name="RecordBadge" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 0.0
+anchor_right = 0.5
+anchor_bottom = 0.0
+offset_left = -160.0
+offset_top = 142.0
+offset_right = 160.0
+offset_bottom = 200.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="RecordBadge"]
+layout_mode = 2
+text = "NEW RECORD!"
+horizontal_alignment = 1
+theme_type_variation = &"AccentLabel"
+
+[node name="BottomPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -122.0
+offset_right = 190.0
+offset_bottom = -26.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Column" type="VBoxContainer" parent="BottomPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DistanceRow" type="HBoxContainer" parent="BottomPanel/Column"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="Caption" type="Label" parent="BottomPanel/Column/DistanceRow"]
+layout_mode = 2
+text = "DISTANCE"
+theme_type_variation = &"CaptionLabel"
+
+[node name="DistanceValue" type="Label" parent="BottomPanel/Column/DistanceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 m"
+
+[node name="SpeedRow" type="HBoxContainer" parent="BottomPanel/Column"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Caption" type="Label" parent="BottomPanel/Column/SpeedRow"]
+layout_mode = 2
+text = "SPEED"
+theme_type_variation = &"CaptionLabel"
+
+[node name="SpeedBar" type="ProgressBar" parent="BottomPanel/Column/SpeedRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 0.001
+max_value = 1.0
+value = 0.0
+show_percentage = false
+
+[node name="CrashFlash" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.78, 0.09, 0.09, 0)
