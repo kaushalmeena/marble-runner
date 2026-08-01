@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "LaneStripe"
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.18)
+roughness = 1.0

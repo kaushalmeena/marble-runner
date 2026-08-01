@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "Fruit"
+albedo_color = Color(1, 0.78, 0.12, 1)
+metallic = 0.2
+roughness = 0.35
+emission_enabled = true
+emission = Color(1, 0.62, 0.1, 1)
+emission_energy_multiplier = 0.55

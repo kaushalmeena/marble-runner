@@ -6,33 +6,59 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=4
+config_version=5
 
 [application]
 
-config/name="Marble-Runner"
-run/main_scene="res://menus/MainMenu.tscn"
+config/name="Marble Runner"
+config/version="2.0.0"
+config/description="An endless runner with dynamic, weighted obstacle generation."
+run/main_scene="res://ui/main_menu.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.png"
 
 [autoload]
 
-Global="*res://autoloads/Global.gd"
-
-[debug]
-
-settings/stdout/verbose_stdout=true
+GameState="*res://autoload/game_state.gd"
+SceneManager="*res://autoload/scene_manager.gd"
 
 [display]
 
-window/stretch/mode="2d"
+window/size/viewport_width=1152
+window/size/viewport_height=648
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
-[physics]
+[gui]
 
-common/enable_pause_aware_picking=true
+theme/custom="res://resources/theme/marble_runner_theme.tres"
+
+[input]
+
+move_left={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194319), Object(InputEventKey,"physical_keycode":65)]
+}
+move_right={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194321), Object(InputEventKey,"physical_keycode":68)]
+}
+pause={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194305), Object(InputEventKey,"physical_keycode":80)]
+}
+
+[layer_names]
+
+3d_physics/layer_1="world"
+3d_physics/layer_2="player"
+3d_physics/layer_3="obstacle"
+3d_physics/layer_4="collectible"
 
 [rendering]
 
-quality/driver/driver_name="GLES2"
-vram_compression/import_etc=true
-vram_compression/import_etc2=false
-environment/default_environment="res://default_env.tres"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+anti_aliasing/quality/msaa_3d=1
+environment/defaults/default_environment="res://resources/environments/day_sky.tres"
