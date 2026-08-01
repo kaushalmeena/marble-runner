@@ -1,24 +1,27 @@
-### Godot ###
-# Godot-specific ignores
-.import/
+### Godot 4 ###
+# Engine-generated cache and imported asset binaries.
+.godot/
+
+# Export configuration can hold absolute paths and signing details.
 export.cfg
 export_presets.cfg
 
-# Imported translations (automatically generated from CSV files)
+# Imported translations (generated from CSV files)
 *.translation
 
-# Mono-specific ignores
+# Mono / C# specific
 .mono/
 data_*/
 
-# Misc
+### Editors ###
+.vscode/
+.idea/
+
+### OS ###
 .DS_Store
 
-# Dependency directories
+### Node (used only by the gh-pages deploy script) ###
 node_modules/
 
-# Build directories
+### Build output ###
 dist/
-
-#Misc
-.vscode/
