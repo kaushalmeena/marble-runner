@@ -29,9 +29,9 @@ variation_opentype = {
 [sub_resource type="FontVariation" id="FontVariation_caption"]
 base_font = ExtResource("1_outfit")
 variation_opentype = {
-2003265652: 700
+2003265652: 800
 }
-spacing_glyph = 3
+spacing_glyph = 2
 
 [sub_resource type="FontVariation" id="FontVariation_display"]
 base_font = ExtResource("1_outfit")
@@ -150,7 +150,7 @@ Button/styles/hover = SubResource("SBF_button_hover")
 Button/styles/normal = SubResource("SBF_button_normal")
 Button/styles/pressed = SubResource("SBF_button_pressed")
 Label/colors/font_color = Color(1, 1, 1, 1)
-Label/colors/font_outline_color = Color(0.03, 0.06, 0.11, 0.85)
+Label/colors/font_outline_color = Color(0.02, 0.05, 0.09, 0.95)
 Label/constants/outline_size = 6
 PanelContainer/styles/panel = SubResource("SBF_panel")
 ProgressBar/styles/background = SubResource("SBF_bar_bg")
@@ -161,9 +161,9 @@ AccentLabel/constants/outline_size = 7
 AccentLabel/font_sizes/font_size = 26
 AccentLabel/fonts/font = SubResource("FontVariation_bold")
 CaptionLabel/base_type = &"Label"
-CaptionLabel/colors/font_color = Color(1, 1, 1, 0.66)
-CaptionLabel/constants/outline_size = 5
-CaptionLabel/font_sizes/font_size = 15
+CaptionLabel/colors/font_color = Color(0.85, 0.93, 1, 1)
+CaptionLabel/constants/outline_size = 4
+CaptionLabel/font_sizes/font_size = 16
 CaptionLabel/fonts/font = SubResource("FontVariation_caption")
 ChipLabel/base_type = &"Label"
 ChipLabel/constants/outline_size = 0
@@ -174,10 +174,10 @@ HeadingLabel/constants/outline_size = 8
 HeadingLabel/font_sizes/font_size = 46
 HeadingLabel/fonts/font = SubResource("FontVariation_bold")
 HintLabel/base_type = &"Label"
-HintLabel/colors/font_color = Color(1, 1, 1, 0.72)
+HintLabel/colors/font_color = Color(1, 1, 1, 0.96)
 HintLabel/constants/outline_size = 4
 HintLabel/font_sizes/font_size = 18
-HintLabel/fonts/font = SubResource("FontVariation_medium")
+HintLabel/fonts/font = SubResource("FontVariation_semibold")
 ScoreLabel/base_type = &"Label"
 ScoreLabel/constants/outline_size = 9
 ScoreLabel/font_sizes/font_size = 64
