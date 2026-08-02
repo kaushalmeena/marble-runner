@@ -144,15 +144,19 @@ layout_mode = 2
 
 [node name="Row" type="VBoxContainer" parent="Center/Column/Stats/SideColumn/DistanceStat"]
 layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Head" type="VBoxContainer" parent="Center/Column/Stats/SideColumn/DistanceStat/Row"]
+layout_mode = 2
 theme_override_constants/separation = -6
 
-[node name="Caption" type="Label" parent="Center/Column/Stats/SideColumn/DistanceStat/Row"]
+[node name="Caption" type="Label" parent="Center/Column/Stats/SideColumn/DistanceStat/Row/Head"]
 layout_mode = 2
 text = "DISTANCE"
 horizontal_alignment = 1
 theme_type_variation = &"CaptionLabel"
 
-[node name="DistanceValue" type="Label" parent="Center/Column/Stats/SideColumn/DistanceStat/Row"]
+[node name="DistanceValue" type="Label" parent="Center/Column/Stats/SideColumn/DistanceStat/Row/Head"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "0 m"
