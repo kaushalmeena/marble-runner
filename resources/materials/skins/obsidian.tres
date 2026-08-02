@@ -21,7 +21,7 @@ noise = SubResource("FastNoiseLite_veins")
 [resource]
 resource_name = "Obsidian"
 albedo_texture = SubResource("NoiseTexture2D_veins")
-metallic = 0.75
+metallic = 0.55
 metallic_specular = 0.85
 roughness = 0.08
 rim_enabled = true
