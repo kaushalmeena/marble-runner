@@ -22,8 +22,8 @@ them are traps.
 
 <table>
   <tr>
-    <td width="50%"><img src="screenshots/GamePlay.png" alt="Mid-run on a curved desert stretch"></td>
     <td width="50%"><img src="screenshots/MainMenu.png" alt="Title screen"></td>
+    <td width="50%"><img src="screenshots/GamePlay.png" alt="Mid-run on a curved desert stretch"></td>
   </tr>
 </table>
 
