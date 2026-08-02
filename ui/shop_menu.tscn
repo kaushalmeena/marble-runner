@@ -110,7 +110,7 @@ custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 30
-text = "◀"
+text = "←"
 
 [node name="Stage" type="VBoxContainer" parent="Margin/Column/Carousel"]
 custom_minimum_size = Vector2(520, 0)
@@ -153,7 +153,7 @@ custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 30
-text = "▶"
+text = "→"
 
 [node name="Footer" type="VBoxContainer" parent="Margin/Column"]
 layout_mode = 2
