@@ -1,16 +1,25 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://ui/main_menu.gd" id="1_main_menu"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
-offsets = PackedFloat32Array(0, 0.52, 1)
-colors = PackedColorArray(0.13, 0.36, 0.72, 1, 0.45, 0.73, 0.89, 1, 0.47, 0.75, 0.41, 1)
+offsets = PackedFloat32Array(0, 0.46, 1)
+colors = PackedColorArray(0.05, 0.11, 0.24, 1, 0.11, 0.28, 0.5, 1, 0.24, 0.5, 0.44, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_sky"]
 gradient = SubResource("Gradient_sky")
 width = 8
 height = 256
 fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="Gradient_rule"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.42, 0.74, 1, 0, 0.42, 0.74, 1, 0.85, 0.42, 0.74, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_rule"]
+gradient = SubResource("Gradient_rule")
+width = 256
+height = 4
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -43,7 +52,13 @@ mouse_filter = 2
 
 [node name="Column" type="VBoxContainer" parent="Center"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 4
+
+[node name="Kicker" type="Label" parent="Center/Column"]
+layout_mode = 2
+text = "ENDLESS RUN"
+horizontal_alignment = 1
+theme_type_variation = &"CaptionLabel"
 
 [node name="Title" type="Label" parent="Center/Column"]
 layout_mode = 2
@@ -51,14 +66,26 @@ text = "MARBLE RUNNER"
 horizontal_alignment = 1
 theme_type_variation = &"TitleLabel"
 
+[node name="Rule" type="TextureRect" parent="Center/Column"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_rule")
+expand_mode = 1
+
 [node name="Tagline" type="Label" parent="Center/Column"]
 layout_mode = 2
 text = "Dodge the greenery. Grab the fruit. Don't stop."
 horizontal_alignment = 1
 theme_type_variation = &"HintLabel"
 
+[node name="GapTop" type="Control" parent="Center/Column"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="Buttons" type="VBoxContainer" parent="Center/Column"]
-custom_minimum_size = Vector2(320, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 12
@@ -73,17 +100,34 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Quit"
 
-[node name="Controls" type="Label" parent="."]
+[node name="Controls" type="HBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 12
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_top = -62.0
-offset_bottom = -26.0
+offset_left = -340.0
+offset_top = -76.0
+offset_right = 340.0
+offset_bottom = -34.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
-text = "← →  or  A D   switch lanes          Esc   pause"
-horizontal_alignment = 1
-theme_type_variation = &"HintLabel"
+alignment = 1
+theme_override_constants/separation = 34
+
+[node name="Lanes" type="Label" parent="Controls"]
+layout_mode = 2
+text = "◀ ▶ / A D    SWITCH LANE"
+theme_type_variation = &"CaptionLabel"
+
+[node name="Jump" type="Label" parent="Controls"]
+layout_mode = 2
+text = "SPACE    JUMP"
+theme_type_variation = &"CaptionLabel"
+
+[node name="Pause" type="Label" parent="Controls"]
+layout_mode = 2
+text = "ESC    PAUSE"
+theme_type_variation = &"CaptionLabel"

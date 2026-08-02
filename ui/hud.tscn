@@ -1,6 +1,17 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="SBF_chip"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 7.0
+bg_color = Color(0.04, 0.07, 0.12, 0.78)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="Hud" type="Control"]
 layout_mode = 3
@@ -12,134 +23,177 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_hud")
 
-[node name="TopRow" type="HBoxContainer" parent="."]
+[node name="ScoreCluster" type="VBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 28.0
-offset_top = 22.0
-offset_right = -28.0
-offset_bottom = 130.0
-grow_horizontal = 2
+anchors_preset = 0
+offset_left = 34.0
+offset_top = 24.0
+offset_right = 320.0
+offset_bottom = 210.0
 mouse_filter = 2
+theme_override_constants/separation = -6
 
-[node name="ScoreCard" type="PanelContainer" parent="TopRow"]
-layout_mode = 2
-size_flags_vertical = 0
-mouse_filter = 2
-
-[node name="Column" type="VBoxContainer" parent="TopRow/ScoreCard"]
-layout_mode = 2
-theme_override_constants/separation = -2
-
-[node name="Caption" type="Label" parent="TopRow/ScoreCard/Column"]
+[node name="Caption" type="Label" parent="ScoreCluster"]
 layout_mode = 2
 text = "SCORE"
 theme_type_variation = &"CaptionLabel"
 
-[node name="ScoreValue" type="Label" parent="TopRow/ScoreCard/Column"]
+[node name="ScoreValue" type="Label" parent="ScoreCluster"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "0"
-theme_type_variation = &"ValueLabel"
+theme_type_variation = &"ScoreLabel"
 
-[node name="Spacer" type="Control" parent="TopRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="BestCard" type="PanelContainer" parent="TopRow"]
-layout_mode = 2
-size_flags_vertical = 0
-mouse_filter = 2
-
-[node name="Column" type="VBoxContainer" parent="TopRow/BestCard"]
-layout_mode = 2
-theme_override_constants/separation = -2
-
-[node name="Caption" type="Label" parent="TopRow/BestCard/Column"]
-layout_mode = 2
-text = "BEST"
-horizontal_alignment = 2
-theme_type_variation = &"CaptionLabel"
-
-[node name="BestValue" type="Label" parent="TopRow/BestCard/Column"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "0"
-horizontal_alignment = 2
-theme_type_variation = &"ValueLabel"
-
-[node name="RecordBadge" type="PanelContainer" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 0.0
-anchor_right = 0.5
-anchor_bottom = 0.0
-offset_left = -160.0
-offset_top = 142.0
-offset_right = 160.0
-offset_bottom = 200.0
-grow_horizontal = 2
-mouse_filter = 2
-
-[node name="Label" type="Label" parent="RecordBadge"]
-layout_mode = 2
-text = "NEW RECORD!"
-horizontal_alignment = 1
-theme_type_variation = &"AccentLabel"
-
-[node name="BottomPanel" type="PanelContainer" parent="."]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -190.0
-offset_top = -122.0
-offset_right = 190.0
-offset_bottom = -26.0
-grow_horizontal = 2
-grow_vertical = 0
-mouse_filter = 2
-
-[node name="Column" type="VBoxContainer" parent="BottomPanel"]
+[node name="BestRow" type="HBoxContainer" parent="ScoreCluster"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="DistanceRow" type="HBoxContainer" parent="BottomPanel/Column"]
+[node name="Caption" type="Label" parent="ScoreCluster/BestRow"]
 layout_mode = 2
-alignment = 1
-theme_override_constants/separation = 10
-
-[node name="Caption" type="Label" parent="BottomPanel/Column/DistanceRow"]
-layout_mode = 2
-text = "DISTANCE"
+size_flags_vertical = 4
+text = "BEST"
 theme_type_variation = &"CaptionLabel"
 
-[node name="DistanceValue" type="Label" parent="BottomPanel/Column/DistanceRow"]
+[node name="BestValue" type="Label" parent="ScoreCluster/BestRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+theme_type_variation = &"HintLabel"
+
+[node name="RecordBadge" type="Label" parent="ScoreCluster"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "NEW RECORD"
+theme_type_variation = &"AccentLabel"
+
+[node name="ChipGap" type="Control" parent="ScoreCluster"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Chips" type="HBoxContainer" parent="ScoreCluster"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ShieldChip" type="PanelContainer" parent="ScoreCluster/Chips"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBF_chip")
+
+[node name="Column" type="VBoxContainer" parent="ScoreCluster/Chips/ShieldChip"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="ScoreCluster/Chips/ShieldChip/Column"]
+layout_mode = 2
+text = "SHIELD"
+theme_type_variation = &"ChipLabel"
+
+[node name="Bar" type="ProgressBar" parent="ScoreCluster/Chips/ShieldChip/Column"]
+custom_minimum_size = Vector2(64, 4)
+layout_mode = 2
+step = 0.001
+max_value = 1.0
+value = 1.0
+show_percentage = false
+
+[node name="MagnetChip" type="PanelContainer" parent="ScoreCluster/Chips"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBF_chip")
+
+[node name="Column" type="VBoxContainer" parent="ScoreCluster/Chips/MagnetChip"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="ScoreCluster/Chips/MagnetChip/Column"]
+layout_mode = 2
+text = "MAGNET"
+theme_type_variation = &"ChipLabel"
+
+[node name="Bar" type="ProgressBar" parent="ScoreCluster/Chips/MagnetChip/Column"]
+custom_minimum_size = Vector2(64, 4)
+layout_mode = 2
+step = 0.001
+max_value = 1.0
+value = 1.0
+show_percentage = false
+
+[node name="SlowChip" type="PanelContainer" parent="ScoreCluster/Chips"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBF_chip")
+
+[node name="Column" type="VBoxContainer" parent="ScoreCluster/Chips/SlowChip"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="ScoreCluster/Chips/SlowChip/Column"]
+layout_mode = 2
+text = "SLOW"
+theme_type_variation = &"ChipLabel"
+
+[node name="Bar" type="ProgressBar" parent="ScoreCluster/Chips/SlowChip/Column"]
+custom_minimum_size = Vector2(64, 4)
+layout_mode = 2
+step = 0.001
+max_value = 1.0
+value = 1.0
+show_percentage = false
+
+[node name="Telemetry" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -286.0
+offset_top = 24.0
+offset_right = -34.0
+offset_bottom = 130.0
+grow_horizontal = 0
+mouse_filter = 2
+alignment = 0
+theme_override_constants/separation = -2
+
+[node name="Caption" type="Label" parent="Telemetry"]
+layout_mode = 2
+text = "DISTANCE"
+horizontal_alignment = 2
+theme_type_variation = &"CaptionLabel"
+
+[node name="DistanceValue" type="Label" parent="Telemetry"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "0 m"
+horizontal_alignment = 2
+theme_type_variation = &"ValueLabel"
 
-[node name="SpeedRow" type="HBoxContainer" parent="BottomPanel/Column"]
+[node name="SpeedRow" type="HBoxContainer" parent="Telemetry"]
 layout_mode = 2
-theme_override_constants/separation = 12
+alignment = 2
+theme_override_constants/separation = 10
 
-[node name="Caption" type="Label" parent="BottomPanel/Column/SpeedRow"]
+[node name="Caption" type="Label" parent="Telemetry/SpeedRow"]
 layout_mode = 2
+size_flags_vertical = 4
 text = "SPEED"
 theme_type_variation = &"CaptionLabel"
 
-[node name="SpeedBar" type="ProgressBar" parent="BottomPanel/Column/SpeedRow"]
+[node name="SpeedBar" type="ProgressBar" parent="Telemetry/SpeedRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(120, 8)
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 4
 step = 0.001
 max_value = 1.0

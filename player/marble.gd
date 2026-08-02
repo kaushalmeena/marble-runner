@@ -7,10 +7,13 @@ extends CharacterBody3D
 ## moment the scene was renamed or instanced somewhere else). The lanes are
 ## handed to it by whoever owns the run, via [method configure].
 
-## The player touched an obstacle. The run is over.
-signal hit_obstacle
+## The player touched an obstacle. Carries the prop so a shielded hit can
+## recycle it instead of ending the run.
+signal hit_obstacle(obstacle: Area3D)
 ## The player touched a fruit. Carries the prop so its owner can recycle it.
 signal collected_pickup(pickup: Area3D)
+## The player touched a power-up pickup.
+signal collected_power_up(pickup: Area3D)
 ## The marble left the ground.
 signal jumped
 ## The marble touched down again.
@@ -18,6 +21,7 @@ signal landed
 
 const GROUP_OBSTACLE := &"obstacle"
 const GROUP_COLLECTIBLE := &"collectible"
+const GROUP_POWERUP := &"powerup"
 ## Below this distance from the target lane, snap instead of easing forever.
 const LANE_SNAP_EPSILON := 0.05
 
@@ -42,6 +46,7 @@ var forward_speed: float = 0.0
 
 @onready var _hitbox: Area3D = $Hitbox
 @onready var _mesh: MeshInstance3D = $Mesh
+@onready var _shield_bubble: MeshInstance3D = $ShieldBubble
 
 var _lanes: PackedFloat32Array = PackedFloat32Array()
 var _lane_index: int = 0
@@ -51,6 +56,12 @@ var _airborne: bool = false
 
 func _ready() -> void:
 	_hitbox.area_entered.connect(_on_hitbox_area_entered)
+	_shield_bubble.hide()
+
+
+## Shows or hides the bubble that marks an active shield.
+func set_shielded(active: bool) -> void:
+	_shield_bubble.visible = active
 
 
 ## Hands the marble its lane layout and drops it into a starting lane. Pass a
@@ -151,5 +162,7 @@ func _on_hitbox_area_entered(area: Area3D) -> void:
 		return
 	if area.is_in_group(GROUP_COLLECTIBLE):
 		collected_pickup.emit(area)
+	elif area.is_in_group(GROUP_POWERUP):
+		collected_power_up.emit(area)
 	elif area.is_in_group(GROUP_OBSTACLE):
-		hit_obstacle.emit()
+		hit_obstacle.emit(area)

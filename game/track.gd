@@ -17,6 +17,8 @@ const DESPAWN_Z := 25.0
 ## Parking spot for pooled props, safely off-screen and out of the play volume.
 const POOL_PARK_POSITION := Vector3(0.0, -100.0, 0.0)
 
+const GROUP_COLLECTIBLE := &"collectible"
+
 ## Lane centres along X. The player is handed this same array, so the two can
 ## never disagree about where a lane is.
 @export var lanes: PackedFloat32Array = PackedFloat32Array([-10.0, -5.0, 0.0, 5.0, 10.0])
@@ -24,6 +26,10 @@ const POOL_PARK_POSITION := Vector3(0.0, -100.0, 0.0)
 @export var obstacles: Array[SpawnEntry] = []
 ## Spawned between obstacles.
 @export var collectible: PackedScene
+## Weighted table of power-ups, spawned in place of the occasional collectible.
+@export var power_ups: Array[SpawnEntry] = []
+## Chance that a collectible slot yields a power-up instead.
+@export_range(0.0, 1.0, 0.01) var power_up_chance: float = 0.14
 ## Props instantiated up front per entry, so the first spawns cause no hitch.
 @export_range(0, 8, 1) var prewarm_per_entry: int = 2
 
@@ -43,7 +49,9 @@ const POOL_PARK_POSITION := Vector3(0.0, -100.0, 0.0)
 ## Distance travelled before the spawn gap reaches [member min_spawn_gap].
 @export var gap_tighten_distance: float = 1200.0
 
-## Current scroll speed, in units/second.
+## Multiplier applied to the scroll speed, driven by the slow-mo power-up.
+var speed_scale: float = 1.0
+## Current scroll speed, in units/second, after [member speed_scale].
 var speed: float = 0.0
 ## Total distance travelled this run, in units.
 var distance: float = 0.0
@@ -51,18 +59,16 @@ var distance: float = 0.0
 var _running: bool = false
 var _active: Array[Area3D] = []
 var _pool: Dictionary[String, Array] = {}
-var _total_weight: float = 0.0
 var _distance_since_spawn: float = 0.0
+var _magnet_target: Node3D = null
+var _magnet_radius: float = 0.0
+var _magnet_pull: float = 0.0
 var _collectible_is_next: bool = false
 var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
 	speed = base_speed
-	_total_weight = 0.0
-	for entry in obstacles:
-		if entry != null and entry.scene != null:
-			_total_weight += maxf(0.0, entry.weight)
 	_prewarm()
 	_running = true
 
@@ -73,8 +79,19 @@ func _physics_process(delta: float) -> void:
 	_update_speed()
 	var step := speed * delta
 	distance += step
-	_advance_props(step)
+	_advance_props(step, delta)
 	_update_spawning(step)
+
+
+## Starts pulling collectibles toward [param target] while the magnet runs.
+func set_magnet(target: Node3D, radius: float, pull: float) -> void:
+	_magnet_target = target
+	_magnet_radius = radius
+	_magnet_pull = pull
+
+
+func clear_magnet() -> void:
+	_magnet_target = null
 
 
 ## Freezes the track. Called when the run ends so the world stops under the
@@ -103,14 +120,16 @@ func recycle(prop: Area3D) -> void:
 
 
 func _update_speed() -> void:
-	speed = minf(max_speed, base_speed + distance * speed_ramp)
+	speed = minf(max_speed, base_speed + distance * speed_ramp) * speed_scale
 
 
-func _advance_props(step: float) -> void:
+func _advance_props(step: float, delta: float) -> void:
 	# Iterate backwards so removing a prop cannot skip its neighbour.
 	for i in range(_active.size() - 1, -1, -1):
 		var prop := _active[i]
 		prop.position.z += step
+		if _magnet_target != null and prop.is_in_group(GROUP_COLLECTIBLE):
+			_apply_magnet(prop, delta)
 		if prop.position.z > DESPAWN_Z:
 			_active.remove_at(i)
 			_release(prop)
@@ -141,13 +160,20 @@ func _current_spawn_gap() -> float:
 
 
 func _spawn_obstacle() -> void:
-	var entry := _pick_entry()
+	var entry := _pick_weighted(obstacles)
 	if entry == null:
 		return
 	_place(entry.scene, entry.lane_width)
 
 
 func _spawn_collectible() -> void:
+	# Power-ups ride in the collectible slot rather than the obstacle slot, so
+	# picking one up never costs the player a safe lane.
+	if not power_ups.is_empty() and _rng.randf() < power_up_chance:
+		var entry := _pick_weighted(power_ups)
+		if entry != null:
+			_place(entry.scene, entry.lane_width)
+			return
 	if collectible == null:
 		return
 	_place(collectible, 1)
@@ -162,17 +188,30 @@ func _place(scene: PackedScene, lane_width: int) -> void:
 
 
 ## Picks an entry proportionally to its weight.
-func _pick_entry() -> SpawnEntry:
-	if _total_weight <= 0.0:
+func _pick_weighted(entries: Array[SpawnEntry]) -> SpawnEntry:
+	var total := 0.0
+	for entry in entries:
+		if entry != null and entry.scene != null:
+			total += maxf(0.0, entry.weight)
+	if total <= 0.0:
 		return null
-	var roll := _rng.randf() * _total_weight
-	for entry in obstacles:
+	var roll := _rng.randf() * total
+	for entry in entries:
 		if entry == null or entry.scene == null:
 			continue
 		roll -= maxf(0.0, entry.weight)
 		if roll <= 0.0:
 			return entry
 	return null
+
+
+## Drags nearby collectibles toward the magnet target.
+func _apply_magnet(prop: Area3D, delta: float) -> void:
+	var target := _magnet_target.global_position
+	var here := prop.global_position
+	if here.distance_squared_to(target) > _magnet_radius * _magnet_radius:
+		return
+	prop.global_position = here.move_toward(target, _magnet_pull * delta)
 
 
 ## A prop [param lane_width] lanes wide extends along +X from the lane it is
@@ -186,7 +225,7 @@ func _prewarm() -> void:
 	if prewarm_per_entry <= 0:
 		return
 	var scenes: Array[PackedScene] = []
-	for entry in obstacles:
+	for entry in obstacles + power_ups:
 		if entry != null and entry.scene != null:
 			scenes.append(entry.scene)
 	if collectible != null:

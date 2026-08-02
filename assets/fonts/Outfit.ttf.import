@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://d0hrjfo1dq7so"
-path="res://.godot/imported/MinecraftTen.ttf-581aee5e0ebcbf1de9e2b754d1c96fb8.fontdata"
+uid="uid://c0cnpee3ddfbq"
+path="res://.godot/imported/Outfit.ttf-2d559f8d25f836ad9468f75faa3363db.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/MinecraftTen.ttf"
-dest_files=["res://.godot/imported/MinecraftTen.ttf-581aee5e0ebcbf1de9e2b754d1c96fb8.fontdata"]
+source_file="res://assets/fonts/Outfit.ttf"
+dest_files=["res://.godot/imported/Outfit.ttf-2d559f8d25f836ad9468f75faa3363db.fontdata"]
 
 [params]
 

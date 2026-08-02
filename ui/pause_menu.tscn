@@ -1,6 +1,15 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://ui/pause_menu.gd" id="1_pause"]
+
+[sub_resource type="Gradient" id="Gradient_rule"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.42, 0.74, 1, 0, 0.42, 0.74, 1, 0.8, 0.42, 0.74, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_rule"]
+gradient = SubResource("Gradient_rule")
+width = 256
+height = 4
 
 [node name="PauseMenu" type="Control"]
 process_mode = 3
@@ -20,7 +29,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.02, 0.04, 0.07, 0.64)
+color = Color(0.02, 0.04, 0.08, 0.7)
 
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -36,7 +45,13 @@ layout_mode = 2
 
 [node name="Column" type="VBoxContainer" parent="Center/Card"]
 layout_mode = 2
-theme_override_constants/separation = 22
+theme_override_constants/separation = 6
+
+[node name="Kicker" type="Label" parent="Center/Card/Column"]
+layout_mode = 2
+text = "TAKE A BREATH"
+horizontal_alignment = 1
+theme_type_variation = &"CaptionLabel"
 
 [node name="Title" type="Label" parent="Center/Card/Column"]
 layout_mode = 2
@@ -44,8 +59,20 @@ text = "PAUSED"
 horizontal_alignment = 1
 theme_type_variation = &"HeadingLabel"
 
+[node name="Rule" type="TextureRect" parent="Center/Card/Column"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_rule")
+expand_mode = 1
+
+[node name="Gap" type="Control" parent="Center/Card/Column"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="Buttons" type="VBoxContainer" parent="Center/Card/Column"]
-custom_minimum_size = Vector2(300, 0)
+custom_minimum_size = Vector2(288, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 12
@@ -68,12 +95,12 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -200.0
-offset_top = -60.0
+offset_top = -62.0
 offset_right = 200.0
-offset_bottom = -28.0
+offset_bottom = -30.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
-text = "Esc to resume"
+text = "ESC    RESUME"
 horizontal_alignment = 1
-theme_type_variation = &"HintLabel"
+theme_type_variation = &"CaptionLabel"

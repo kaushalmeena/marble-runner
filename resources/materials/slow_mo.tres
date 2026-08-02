@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "SlowMo"
+albedo_color = Color(0.68, 0.45, 1.0, 1)
+metallic = 0.4
+roughness = 0.2
+emission_enabled = true
+emission = Color(0.5, 0.3, 1.0, 1)
+emission_energy_multiplier = 0.7

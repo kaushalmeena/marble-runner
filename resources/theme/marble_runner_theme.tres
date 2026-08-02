@@ -1,141 +1,192 @@
-[gd_resource type="Theme" load_steps=9 format=3]
+[gd_resource type="Theme" load_steps=14 format=3]
 
-[ext_resource type="FontFile" path="res://assets/fonts/MinecraftTen.ttf" id="1_font"]
+[ext_resource type="FontFile" path="res://assets/fonts/Outfit.ttf" id="1_outfit"]
+
+[sub_resource type="FontVariation" id="FontVariation_medium"]
+base_font = ExtResource("1_outfit")
+variation_opentype = {
+2003265652: 600
+}
+
+[sub_resource type="FontVariation" id="FontVariation_semibold"]
+base_font = ExtResource("1_outfit")
+variation_opentype = {
+2003265652: 700
+}
+
+[sub_resource type="FontVariation" id="FontVariation_bold"]
+base_font = ExtResource("1_outfit")
+variation_opentype = {
+2003265652: 800
+}
+
+[sub_resource type="FontVariation" id="FontVariation_black"]
+base_font = ExtResource("1_outfit")
+variation_opentype = {
+2003265652: 900
+}
+
+[sub_resource type="FontVariation" id="FontVariation_caption"]
+base_font = ExtResource("1_outfit")
+variation_opentype = {
+2003265652: 700
+}
+spacing_glyph = 3
+
+[sub_resource type="FontVariation" id="FontVariation_display"]
+base_font = ExtResource("1_outfit")
+variation_opentype = {
+2003265652: 900
+}
+spacing_glyph = 2
 
 [sub_resource type="StyleBoxFlat" id="SBF_button_normal"]
-content_margin_left = 30.0
-content_margin_top = 14.0
-content_margin_right = 30.0
-content_margin_bottom = 14.0
-bg_color = Color(1, 1, 1, 0.14)
+content_margin_left = 34.0
+content_margin_top = 15.0
+content_margin_right = 34.0
+content_margin_bottom = 15.0
+bg_color = Color(1, 1, 1, 0.1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.28)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(1, 1, 1, 0.22)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="SBF_button_hover"]
-content_margin_left = 30.0
-content_margin_top = 14.0
-content_margin_right = 30.0
-content_margin_bottom = 14.0
-bg_color = Color(1, 1, 1, 0.28)
+content_margin_left = 34.0
+content_margin_top = 15.0
+content_margin_right = 34.0
+content_margin_bottom = 15.0
+bg_color = Color(1, 1, 1, 0.2)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 0.87, 0.35, 0.75)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.42, 0.74, 1, 0.85)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="SBF_button_pressed"]
-content_margin_left = 30.0
-content_margin_top = 14.0
-content_margin_right = 30.0
-content_margin_bottom = 14.0
-bg_color = Color(1, 0.82, 0.22, 0.95)
+content_margin_left = 34.0
+content_margin_top = 15.0
+content_margin_right = 34.0
+content_margin_bottom = 15.0
+bg_color = Color(0.24, 0.62, 0.98, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 0.95, 0.7, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.6, 0.84, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="SBF_button_focus"]
-content_margin_left = 30.0
-content_margin_top = 14.0
-content_margin_right = 30.0
-content_margin_bottom = 14.0
+content_margin_left = 34.0
+content_margin_top = 15.0
+content_margin_right = 34.0
+content_margin_bottom = 15.0
 draw_center = false
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.9, 0.4, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="SBF_card"]
-content_margin_left = 22.0
-content_margin_top = 12.0
-content_margin_right = 22.0
-content_margin_bottom = 12.0
-bg_color = Color(0.05, 0.09, 0.14, 0.5)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.18)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+border_color = Color(0.55, 0.82, 1, 0.9)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="SBF_panel"]
+content_margin_left = 28.0
+content_margin_top = 22.0
+content_margin_right = 28.0
+content_margin_bottom = 22.0
+bg_color = Color(0.06, 0.09, 0.15, 0.72)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.12)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="SBF_bar_bg"]
-bg_color = Color(0, 0, 0, 0.4)
-corner_radius_top_left = 7
-corner_radius_top_right = 7
-corner_radius_bottom_right = 7
-corner_radius_bottom_left = 7
+bg_color = Color(0.03, 0.06, 0.1, 0.55)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="SBF_bar_fill"]
-bg_color = Color(1, 0.78, 0.12, 0.95)
-corner_radius_top_left = 7
-corner_radius_top_right = 7
-corner_radius_bottom_right = 7
-corner_radius_bottom_left = 7
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [resource]
-default_font = ExtResource("1_font")
-default_font_size = 26
-Button/colors/font_color = Color(1, 1, 1, 1)
-Button/colors/font_disabled_color = Color(1, 1, 1, 0.4)
+default_font = SubResource("FontVariation_medium")
+default_font_size = 21
+Button/colors/font_color = Color(1, 1, 1, 0.92)
+Button/colors/font_disabled_color = Color(1, 1, 1, 0.35)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
-Button/colors/font_hover_color = Color(1, 0.95, 0.72, 1)
-Button/colors/font_outline_color = Color(0.04, 0.08, 0.12, 0.7)
-Button/colors/font_pressed_color = Color(0.12, 0.16, 0.2, 1)
-Button/constants/outline_size = 4
-Button/font_sizes/font_size = 30
+Button/colors/font_hover_color = Color(1, 1, 1, 1)
+Button/colors/font_pressed_color = Color(1, 1, 1, 1)
+Button/font_sizes/font_size = 24
+Button/fonts/font = SubResource("FontVariation_semibold")
 Button/styles/disabled = SubResource("SBF_button_normal")
 Button/styles/focus = SubResource("SBF_button_focus")
 Button/styles/hover = SubResource("SBF_button_hover")
 Button/styles/normal = SubResource("SBF_button_normal")
 Button/styles/pressed = SubResource("SBF_button_pressed")
 Label/colors/font_color = Color(1, 1, 1, 1)
-Label/colors/font_outline_color = Color(0.04, 0.08, 0.12, 0.75)
+Label/colors/font_outline_color = Color(0.03, 0.06, 0.11, 0.85)
 Label/constants/outline_size = 6
-PanelContainer/styles/panel = SubResource("SBF_card")
+PanelContainer/styles/panel = SubResource("SBF_panel")
 ProgressBar/styles/background = SubResource("SBF_bar_bg")
 ProgressBar/styles/fill = SubResource("SBF_bar_fill")
 AccentLabel/base_type = &"Label"
-AccentLabel/colors/font_color = Color(1, 0.84, 0.22, 1)
-AccentLabel/constants/outline_size = 6
-AccentLabel/font_sizes/font_size = 28
+AccentLabel/colors/font_color = Color(1, 0.79, 0.24, 1)
+AccentLabel/constants/outline_size = 7
+AccentLabel/font_sizes/font_size = 26
+AccentLabel/fonts/font = SubResource("FontVariation_bold")
 CaptionLabel/base_type = &"Label"
-CaptionLabel/colors/font_color = Color(1, 1, 1, 0.72)
-CaptionLabel/constants/outline_size = 4
-CaptionLabel/font_sizes/font_size = 18
+CaptionLabel/colors/font_color = Color(1, 1, 1, 0.66)
+CaptionLabel/constants/outline_size = 5
+CaptionLabel/font_sizes/font_size = 15
+CaptionLabel/fonts/font = SubResource("FontVariation_caption")
+ChipLabel/base_type = &"Label"
+ChipLabel/constants/outline_size = 0
+ChipLabel/font_sizes/font_size = 13
+ChipLabel/fonts/font = SubResource("FontVariation_caption")
 HeadingLabel/base_type = &"Label"
-HeadingLabel/constants/outline_size = 10
-HeadingLabel/font_sizes/font_size = 54
+HeadingLabel/constants/outline_size = 8
+HeadingLabel/font_sizes/font_size = 46
+HeadingLabel/fonts/font = SubResource("FontVariation_bold")
 HintLabel/base_type = &"Label"
-HintLabel/colors/font_color = Color(1, 1, 1, 0.78)
+HintLabel/colors/font_color = Color(1, 1, 1, 0.72)
 HintLabel/constants/outline_size = 4
-HintLabel/font_sizes/font_size = 20
+HintLabel/font_sizes/font_size = 18
+HintLabel/fonts/font = SubResource("FontVariation_medium")
+ScoreLabel/base_type = &"Label"
+ScoreLabel/constants/outline_size = 9
+ScoreLabel/font_sizes/font_size = 64
+ScoreLabel/fonts/font = SubResource("FontVariation_black")
 TitleLabel/base_type = &"Label"
-TitleLabel/constants/outline_size = 12
-TitleLabel/font_sizes/font_size = 76
+TitleLabel/constants/outline_size = 10
+TitleLabel/font_sizes/font_size = 72
+TitleLabel/fonts/font = SubResource("FontVariation_display")
 ValueLabel/base_type = &"Label"
-ValueLabel/constants/outline_size = 8
-ValueLabel/font_sizes/font_size = 44
+ValueLabel/constants/outline_size = 7
+ValueLabel/font_sizes/font_size = 34
+ValueLabel/fonts/font = SubResource("FontVariation_bold")

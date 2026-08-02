@@ -21,6 +21,7 @@ config/icon="res://icon.png"
 
 GameState="*res://autoload/game_state.gd"
 SceneManager="*res://autoload/scene_manager.gd"
+Audio="*res://autoload/audio.gd"
 
 [display]
 
@@ -65,6 +66,7 @@ jump={
 3d_physics/layer_2="player"
 3d_physics/layer_3="obstacle"
 3d_physics/layer_4="collectible"
+3d_physics/layer_5="powerup"
 
 [rendering]
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://game/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://game/track.gd" id="2_track"]
@@ -16,6 +16,10 @@
 [ext_resource type="Resource" path="res://resources/spawns/rock.tres" id="14_rock"]
 [ext_resource type="Resource" path="res://resources/spawns/log.tres" id="15_log"]
 [ext_resource type="Resource" path="res://resources/spawns/crystal.tres" id="16_crystal"]
+[ext_resource type="Script" path="res://game/power_up_manager.gd" id="17_powerups"]
+[ext_resource type="Resource" path="res://resources/spawns/shield_pickup.tres" id="18_shield"]
+[ext_resource type="Resource" path="res://resources/spawns/magnet_pickup.tres" id="19_magnet"]
+[ext_resource type="Resource" path="res://resources/spawns/slow_mo_pickup.tres" id="20_slow"]
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_game")
@@ -41,9 +45,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20)
 script = ExtResource("2_track")
 obstacles = Array[SpawnEntry]([ExtResource("9_tree_single"), ExtResource("10_bush_single"), ExtResource("11_tree_double"), ExtResource("12_bush_double"), ExtResource("13_bush_triple"), ExtResource("14_rock"), ExtResource("15_log"), ExtResource("16_crystal")])
 collectible = ExtResource("6_fruit")
+power_ups = Array[SpawnEntry]([ExtResource("18_shield"), ExtResource("19_magnet"), ExtResource("20_slow")])
 
 [node name="Marble" parent="." instance=ExtResource("5_marble")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 10)
+
+[node name="PowerUpManager" type="Node" parent="."]
+script = ExtResource("17_powerups")
 
 [node name="HUDLayer" type="CanvasLayer" parent="."]
 layer = 1
