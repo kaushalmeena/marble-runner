@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://game/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://game/track.gd" id="2_track"]
@@ -19,6 +19,17 @@
 [ext_resource type="Script" path="res://game/power_up_manager.gd" id="17_powerups"]
 [ext_resource type="Script" path="res://game/game_camera.gd" id="21_camera"]
 [ext_resource type="Script" path="res://effects/burst_emitter.gd" id="22_bursts"]
+[ext_resource type="Script" path="res://input/swipe_detector.gd" id="23_swipes"]
+[ext_resource type="Script" path="res://world/biome_director.gd" id="24_biomes"]
+[ext_resource type="Resource" path="res://resources/biomes/meadow.tres" id="25_meadow"]
+[ext_resource type="Resource" path="res://resources/biomes/desert.tres" id="26_desert"]
+[ext_resource type="Resource" path="res://resources/biomes/tundra.tres" id="27_tundra"]
+[ext_resource type="Resource" path="res://resources/biomes/dusk.tres" id="28_dusk"]
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/ground.tres" id="29_ground"]
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/lane_stripe.tres" id="30_stripe"]
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/foliage.tres" id="31_foliage"]
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/bark.tres" id="32_bark"]
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/rock.tres" id="33_rock"]
 [ext_resource type="Resource" path="res://resources/spawns/shield_pickup.tres" id="18_shield"]
 [ext_resource type="Resource" path="res://resources/spawns/magnet_pickup.tres" id="19_magnet"]
 [ext_resource type="Resource" path="res://resources/spawns/slow_mo_pickup.tres" id="20_slow"]
@@ -56,6 +67,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 10)
 
 [node name="BurstEmitter" type="Node3D" parent="."]
 script = ExtResource("22_bursts")
+
+[node name="SwipeDetector" type="Node" parent="."]
+script = ExtResource("23_swipes")
+
+[node name="BiomeDirector" type="Node" parent="."]
+script = ExtResource("24_biomes")
+biomes = Array[Biome]([ExtResource("25_meadow"), ExtResource("26_desert"), ExtResource("27_tundra"), ExtResource("28_dusk")])
+ground_material = ExtResource("29_ground")
+stripe_material = ExtResource("30_stripe")
+foliage_material = ExtResource("31_foliage")
+bark_material = ExtResource("32_bark")
+rock_material = ExtResource("33_rock")
+environment = ExtResource("3_environment")
+sun_path = NodePath("../Sun")
 
 [node name="PowerUpManager" type="Node" parent="."]
 script = ExtResource("17_powerups")

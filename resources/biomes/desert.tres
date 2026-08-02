@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Biome" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://world/biome.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+biome_name = "Desert"
+ground_color = Color(0.82, 0.68, 0.4, 1)
+stripe_color = Color(0.42, 0.3, 0.14, 0.28)
+foliage_color = Color(0.4, 0.56, 0.28, 1)
+bark_color = Color(0.55, 0.38, 0.22, 1)
+rock_color = Color(0.68, 0.56, 0.42, 1)
+fog_color = Color(0.85, 0.72, 0.5, 1)
+sky_top_color = Color(0.35, 0.6, 0.9, 1)
+sky_horizon_color = Color(0.94, 0.83, 0.62, 1)
+sky_ground_color = Color(0.76, 0.62, 0.38, 1)
+sun_color = Color(1.0, 0.93, 0.76, 1)

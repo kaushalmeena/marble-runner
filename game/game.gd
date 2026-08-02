@@ -32,6 +32,8 @@ const PICKUP_BURST_COLOR := Color(1, 0.78, 0.2)
 @onready var _power_ups: PowerUpManager = $PowerUpManager
 @onready var _camera: GameCamera = $Camera3D
 @onready var _bursts: BurstEmitter = $BurstEmitter
+@onready var _swipes: SwipeDetector = $SwipeDetector
+@onready var _biomes: BiomeDirector = $BiomeDirector
 
 var _is_over: bool = false
 
@@ -47,7 +49,12 @@ func _ready() -> void:
 	_power_ups.activated.connect(_on_power_up_activated)
 	_power_ups.expired.connect(_on_power_up_expired)
 	_track.collectible_missed.connect(_on_collectible_missed)
+	_swipes.swiped_left.connect(_marble.shift_lane.bind(-1))
+	_swipes.swiped_right.connect(_marble.shift_lane.bind(1))
+	_swipes.swiped_up.connect(_marble.try_jump)
+	_swipes.tapped.connect(_marble.try_jump)
 	_hud.bind_run(_track, _power_ups)
+	_biomes.bind_track(_track)
 	_run_countdown()
 
 

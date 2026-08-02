@@ -159,6 +159,13 @@ text = "0 m"
 horizontal_alignment = 1
 theme_type_variation = &"ValueLabel"
 
+[node name="BestDistanceValue" type="Label" parent="Center/Column/Stats/SideColumn/DistanceStat/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "FURTHEST 0 m"
+horizontal_alignment = 1
+theme_type_variation = &"CaptionLabel"
+
 [node name="GapBottom" type="Control" parent="Center/Column"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2

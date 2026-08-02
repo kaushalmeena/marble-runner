@@ -127,6 +127,14 @@ func _physics_process(delta: float) -> void:
 	_apply_roll(position.x - previous_x, delta)
 
 
+## Moves one lane along, if there is one. Public so gesture input can drive the
+## marble through the same path as the keyboard.
+func shift_lane(step: int) -> void:
+	if not _active:
+		return
+	_change_lane(step)
+
+
 func _change_lane(step: int) -> void:
 	_lane_index = clampi(_lane_index + step, 0, _lanes.size() - 1)
 

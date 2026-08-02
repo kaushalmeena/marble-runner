@@ -119,12 +119,12 @@ theme_override_constants/separation = 34
 
 [node name="Lanes" type="Label" parent="Controls"]
 layout_mode = 2
-text = "◀ ▶ / A D    SWITCH LANE"
+text = "◀ ▶ / A D / SWIPE    LANE"
 theme_type_variation = &"CaptionLabel"
 
 [node name="Jump" type="Label" parent="Controls"]
 layout_mode = 2
-text = "SPACE    JUMP"
+text = "SPACE / TAP    JUMP"
 theme_type_variation = &"CaptionLabel"
 
 [node name="Pause" type="Label" parent="Controls"]
