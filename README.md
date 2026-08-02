@@ -57,14 +57,14 @@ them are traps.
 
 ## Tech Stack
 
-| Area         | Tools                                                                                                         |
-| ------------ | --------------------------------------------------------------------------------------------------------------- |
-| **Engine**   | [Godot 4.7](https://godotengine.org/), Compatibility renderer for the web build                                |
-| **Language** | [GDScript 2](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html), statically typed  |
-| **Art**      | Primitive meshes, shared materials, one shader for the curved ground                                           |
-| **Type**     | [Outfit](https://fonts.google.com/specimen/Outfit)                                                             |
-| **Audio**    | Generated with Python's [`wave`](https://docs.python.org/3/library/wave.html) module                           |
-| **Hosting**  | [GitHub Pages](https://pages.github.com/)                                                                      |
+| Area           | Tools                                                                                                         |
+| -------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Engine**     | [Godot 4.7](https://godotengine.org/), Compatibility renderer for the web build                                |
+| **Language**   | [GDScript 2](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html), statically typed  |
+| **Art**        | Primitive meshes, shared materials, one shader for the curved ground                                           |
+| **Typography** | [Outfit](https://fonts.google.com/specimen/Outfit)                                                             |
+| **Audio**      | Generated with Python's [`wave`](https://docs.python.org/3/library/wave.html) module                           |
+| **Hosting**    | [GitHub Pages](https://pages.github.com/)                                                                      |
 
 ## Getting Started
 
@@ -118,7 +118,7 @@ fresh clone once the matching export templates are installed.
 ## Usage
 
 | Action       | Keyboard             | Touch or mouse   |
-| ------------ | -------------------- | ---------------- |
+| -------------- | -------------------- | ---------------- |
 | Switch lanes | `←` `→` or `A` `D`   | Swipe left/right |
 | Jump         | `Space`, `↑` or `W`  | Swipe up, or tap |
 | Pause        | `Esc` or `P`         | —                |
