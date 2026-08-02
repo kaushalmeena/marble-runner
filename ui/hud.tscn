@@ -207,6 +207,11 @@ text = "FOG"
 horizontal_alignment = 1
 theme_type_variation = &"AccentLabel"
 
+[node name="CoinsGap" type="Control" parent="Telemetry"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="CoinsRow" type="HBoxContainer" parent="Telemetry"]
 layout_mode = 2
 alignment = 2
