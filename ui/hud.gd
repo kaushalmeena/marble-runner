@@ -22,6 +22,7 @@ const POP_SCALE := 1.22
 @onready var _best_value: Label = %BestValue
 @onready var _distance_value: Label = %DistanceValue
 @onready var _speed_bar: ProgressBar = %SpeedBar
+@onready var _coins_value: Label = %CoinsValue
 @onready var _record_badge: Label = %RecordBadge
 @onready var _multiplier_value: Label = %MultiplierValue
 @onready var _countdown: Label = %Countdown
@@ -45,8 +46,10 @@ func _ready() -> void:
 	GameState.score_changed.connect(_on_score_changed)
 	GameState.best_score_changed.connect(_on_best_score_changed)
 	GameState.multiplier_changed.connect(_on_multiplier_changed)
+	GameState.coins_changed.connect(_on_coins_changed)
 	_score_value.text = str(GameState.score)
 	_best_value.text = str(GameState.best_score)
+	_coins_value.text = str(GameState.coins)
 	_record_badge.hide()
 	_debuff_banner.hide()
 	_countdown.hide()
@@ -149,6 +152,12 @@ func show_near_miss() -> void:
 
 func _on_score_changed(score: int) -> void:
 	_score_value.text = str(score)
+
+
+## The running purse, not the run total: this is the number the revive offer
+## will be spending, so it is the one worth watching mid-run.
+func _on_coins_changed(coins: int) -> void:
+	_coins_value.text = str(coins)
 
 
 func _on_multiplier_changed(multiplier: int) -> void:

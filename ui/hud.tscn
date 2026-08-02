@@ -207,6 +207,24 @@ text = "FOG"
 horizontal_alignment = 1
 theme_type_variation = &"AccentLabel"
 
+[node name="CoinsRow" type="HBoxContainer" parent="Telemetry"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 10
+
+[node name="Caption" type="Label" parent="Telemetry/CoinsRow"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "COINS"
+theme_type_variation = &"CaptionLabel"
+
+[node name="CoinsValue" type="Label" parent="Telemetry/CoinsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+theme_type_variation = &"AccentLabel"
+
 [node name="CrashFlash" type="ColorRect" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
