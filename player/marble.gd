@@ -59,8 +59,17 @@ var _airborne: bool = false
 
 func _ready() -> void:
 	_hitbox.area_entered.connect(_on_hitbox_area_entered)
+	apply_skin(SkinLibrary.load_default().get_skin(GameState.selected_skin))
 	_near_miss_box.area_exited.connect(_on_near_miss_box_area_exited)
 	_shield_bubble.hide()
+
+
+## Swaps the marble's look. Skins are cosmetic only, so nothing else here cares
+## which one is equipped.
+func apply_skin(skin: MarbleSkin) -> void:
+	if skin == null or skin.material == null:
+		return
+	_mesh.material_override = skin.material
 
 
 ## Shows or hides the bubble that marks an active shield.

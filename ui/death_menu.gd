@@ -6,6 +6,7 @@ extends Control
 @onready var _distance_value: Label = %DistanceValue
 @onready var _best_distance_value: Label = %BestDistanceValue
 @onready var _record_label: Label = %RecordLabel
+@onready var _coins_earned: Label = %CoinsEarned
 @onready var _retry_button: Button = %RetryButton
 @onready var _menu_button: Button = %MenuButton
 
@@ -16,6 +17,7 @@ func _ready() -> void:
 	_distance_value.text = "%d m" % int(GameState.run_distance)
 	_best_distance_value.text = "FURTHEST %d m" % int(GameState.best_distance)
 	_record_label.visible = GameState.is_new_record()
+	_coins_earned.text = "+%d COINS" % GameState.run_coins
 	_retry_button.pressed.connect(SceneManager.start_game)
 	_menu_button.pressed.connect(SceneManager.goto_main_menu)
 	_retry_button.grab_focus()

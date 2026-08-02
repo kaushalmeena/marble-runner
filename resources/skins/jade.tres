@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MarbleSkin" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://skins/marble_skin.gd" id="1_script"]
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/skins/jade.tres" id="2_material"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"jade"
+display_name = "Jade"
+price = 300
+material = ExtResource("2_material")
+accent_color = Color(0.25, 0.8, 0.55, 1)
+description = "Cool, heavy, and slightly smug."

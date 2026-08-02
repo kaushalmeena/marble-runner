@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MarbleSkin" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://skins/marble_skin.gd" id="1_script"]
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/skins/plasma.tres" id="2_material"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"plasma"
+display_name = "Plasma"
+price = 1500
+material = ExtResource("2_material")
+accent_color = Color(0.88, 0.24, 0.95, 1)
+description = "Probably not stable. Definitely fast."

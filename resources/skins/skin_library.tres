@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SkinLibrary" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://skins/skin_library.gd" id="1_script"]
+[ext_resource type="Resource" path="res://resources/skins/classic.tres" id="2_classic"]
+[ext_resource type="Resource" path="res://resources/skins/ember.tres" id="3_ember"]
+[ext_resource type="Resource" path="res://resources/skins/jade.tres" id="4_jade"]
+[ext_resource type="Resource" path="res://resources/skins/obsidian.tres" id="5_obsidian"]
+[ext_resource type="Resource" path="res://resources/skins/gold.tres" id="6_gold"]
+[ext_resource type="Resource" path="res://resources/skins/plasma.tres" id="7_plasma"]
+
+[resource]
+script = ExtResource("1_script")
+skins = Array[MarbleSkin]([ExtResource("2_classic"), ExtResource("3_ember"), ExtResource("4_jade"), ExtResource("5_obsidian"), ExtResource("6_gold"), ExtResource("7_plasma")])

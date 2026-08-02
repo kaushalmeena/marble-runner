@@ -8,6 +8,7 @@ extends Node
 const MAIN_MENU := "res://ui/main_menu.tscn"
 const GAME := "res://game/game.tscn"
 const DEATH_MENU := "res://ui/death_menu.tscn"
+const SHOP := "res://ui/shop_menu.tscn"
 
 
 func goto_main_menu() -> void:
@@ -22,6 +23,10 @@ func start_game() -> void:
 func show_death_menu() -> void:
 	GameState.commit_run()
 	_change_scene(DEATH_MENU)
+
+
+func goto_shop() -> void:
+	_change_scene(SHOP)
 
 
 func quit_game() -> void:

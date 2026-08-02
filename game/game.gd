@@ -10,7 +10,7 @@ extends Node3D
 ## How long the crash is held on screen before the death menu, so the player can
 ## see what hit them. The Godot 3 version cut away on the same frame.
 const DEATH_HOLD_SECONDS := 0.55
-## Colour of the particle burst when a fruit is collected.
+## Fallback burst colour, used if the equipped skin has no accent.
 const PICKUP_BURST_COLOR := Color(1, 0.78, 0.2)
 
 @export_group("Power-up tuning")
@@ -36,9 +36,13 @@ const PICKUP_BURST_COLOR := Color(1, 0.78, 0.2)
 @onready var _biomes: BiomeDirector = $BiomeDirector
 
 var _is_over: bool = false
+var _pickup_burst_color: Color = PICKUP_BURST_COLOR
 
 
 func _ready() -> void:
+	var skin := SkinLibrary.load_default().get_skin(GameState.selected_skin)
+	if skin != null:
+		_pickup_burst_color = skin.accent_color
 	_marble.configure(_track.lanes)
 	_marble.hit_obstacle.connect(_on_marble_hit_obstacle)
 	_marble.collected_pickup.connect(_on_marble_collected_pickup)
@@ -80,7 +84,7 @@ func _physics_process(_delta: float) -> void:
 
 func _on_marble_collected_pickup(pickup: Area3D) -> void:
 	GameState.collect_pickup()
-	_bursts.burst(pickup.global_position + Vector3.UP, PICKUP_BURST_COLOR)
+	_bursts.burst(pickup.global_position + Vector3.UP, _pickup_burst_color)
 	_track.recycle(pickup)
 	_hud.pop_score()
 	Audio.play(&"pickup", 0.0, 0.06)

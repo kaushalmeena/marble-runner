@@ -13,11 +13,20 @@ signal best_score_changed(best_score: int)
 signal multiplier_changed(multiplier: int)
 ## Emitted when the furthest run gets further.
 signal best_distance_changed(best_distance: float)
+## Emitted when the coin purse changes.
+signal coins_changed(coins: int)
+## Emitted when a skin is bought.
+signal skin_unlocked(id: StringName)
+## Emitted when the equipped skin changes.
+signal skin_selected(id: StringName)
 
 const SAVE_PATH := "user://marble_runner.cfg"
 const SAVE_SECTION := "progress"
 const SAVE_KEY_BEST := "best_score"
 const SAVE_KEY_BEST_DISTANCE := "best_distance"
+const SAVE_KEY_COINS := "coins"
+const SAVE_KEY_UNLOCKED := "unlocked_skins"
+const SAVE_KEY_SKIN := "selected_skin"
 
 ## Points awarded per collected fruit, before the multiplier.
 const POINTS_PER_PICKUP := 1
@@ -26,6 +35,13 @@ const POINTS_PER_NEAR_MISS := 1
 ## Consecutive pickups needed for each extra multiplier step.
 const STREAK_PER_MULTIPLIER := 5
 const MAX_MULTIPLIER := 5
+
+## Coins for each fruit. Deliberately not multiplied: the streak should pay out
+## in score, so the shop stays on a predictable schedule rather than swinging
+## wildly with how a single run went.
+const COINS_PER_PICKUP := 1
+## Distance, in units, worth one extra coin at the end of a run.
+const UNITS_PER_BONUS_COIN := 100.0
 
 var score: int = 0:
 	set(value):
@@ -51,6 +67,30 @@ var best_distance: float = 0.0:
 			return
 		best_distance = value
 		best_distance_changed.emit(best_distance)
+
+## Coins banked across all runs.
+var coins: int = 0:
+	set(value):
+		var clamped := maxi(0, value)
+		if coins == clamped:
+			return
+		coins = clamped
+		coins_changed.emit(coins)
+
+## Coins earned in the current run, for the death screen.
+var run_coins: int = 0
+
+## Skin ids the player owns. Free skins are always considered owned, so this
+## only ever holds purchases.
+var unlocked_skins: PackedStringArray = PackedStringArray()
+
+## Equipped skin id.
+var selected_skin: StringName = &"classic":
+	set(value):
+		if selected_skin == value:
+			return
+		selected_skin = value
+		skin_selected.emit(selected_skin)
 
 ## Consecutive fruit collected without letting one slip past.
 var streak: int = 0
@@ -81,6 +121,7 @@ func reset_run() -> void:
 	run_distance = 0.0
 	streak = 0
 	multiplier = 1
+	run_coins = 0
 	_best_at_run_start = best_score
 	_best_distance_at_run_start = best_distance
 
@@ -101,6 +142,8 @@ func collect_pickup() -> void:
 	streak += 1
 	multiplier = clampi(1 + streak / STREAK_PER_MULTIPLIER, 1, MAX_MULTIPLIER)
 	add_score(POINTS_PER_PICKUP * multiplier)
+	run_coins += COINS_PER_PICKUP
+	coins += COINS_PER_PICKUP
 
 
 ## Scores a near miss. It pays the multiplier but does not extend the streak:
@@ -130,7 +173,40 @@ func commit_run() -> void:
 		best_score = score
 	if run_distance > best_distance:
 		best_distance = run_distance
+	# Distance pays out at the end rather than in dribs during the run, so a
+	# long careful run is worth something even without a big score.
+	var distance_bonus := int(run_distance / UNITS_PER_BONUS_COIN)
+	run_coins += distance_bonus
+	coins += distance_bonus
 	save_progress()
+
+
+## True when the player owns [param skin], or it costs nothing.
+func is_skin_unlocked(skin: MarbleSkin) -> bool:
+	if skin == null:
+		return false
+	return skin.is_free() or unlocked_skins.has(String(skin.id))
+
+
+## Spends coins on a skin. Returns false, changing nothing, when it is already
+## owned or unaffordable.
+func purchase_skin(skin: MarbleSkin) -> bool:
+	if skin == null or is_skin_unlocked(skin) or coins < skin.price:
+		return false
+	coins -= skin.price
+	unlocked_skins.append(String(skin.id))
+	skin_unlocked.emit(skin.id)
+	save_progress()
+	return true
+
+
+## Equips a skin the player owns. Returns whether it took.
+func select_skin(skin: MarbleSkin) -> bool:
+	if not is_skin_unlocked(skin):
+		return false
+	selected_skin = skin.id
+	save_progress()
+	return true
 
 
 func load_progress() -> void:
@@ -139,12 +215,19 @@ func load_progress() -> void:
 		return
 	best_score = int(config.get_value(SAVE_SECTION, SAVE_KEY_BEST, 0))
 	best_distance = float(config.get_value(SAVE_SECTION, SAVE_KEY_BEST_DISTANCE, 0.0))
+	coins = int(config.get_value(SAVE_SECTION, SAVE_KEY_COINS, 0))
+	unlocked_skins = PackedStringArray(
+		config.get_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, PackedStringArray()))
+	selected_skin = StringName(config.get_value(SAVE_SECTION, SAVE_KEY_SKIN, "classic"))
 
 
 func save_progress() -> void:
 	var config := ConfigFile.new()
 	config.set_value(SAVE_SECTION, SAVE_KEY_BEST, best_score)
 	config.set_value(SAVE_SECTION, SAVE_KEY_BEST_DISTANCE, best_distance)
+	config.set_value(SAVE_SECTION, SAVE_KEY_COINS, coins)
+	config.set_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, unlocked_skins)
+	config.set_value(SAVE_SECTION, SAVE_KEY_SKIN, String(selected_skin))
 	var error := config.save(SAVE_PATH)
 	if error != OK:
 		push_warning("Could not save progress to %s (error %d)." % [SAVE_PATH, error])
