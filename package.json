@@ -1,7 +1,7 @@
 {
   "name": "marble-runner",
-  "version": "1.0.0",
-  "description": "A godot game about endless runner with dynamic obstacle generation.",
+  "version": "2.0.0",
+  "description": "An endless runner that gets faster every metre you survive.",
   "repository": "git@github.com:kaushalmeena/marble-runner.git",
   "author": "Kaushal Meena <kaushal.meena1996@gmail.com>",
   "license": "MIT",

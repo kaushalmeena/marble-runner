@@ -1,75 +1,212 @@
-# MarbleRunner
+<div align="center">
 
-A godot game about endless runner with dynamic obstacle generation.
+<img src="icon.png" alt="Marble Runner logo" width="96" height="96" />
 
-Live version is deployed at [https://kaushalmeena.github.io/marble-runner/](https://kaushalmeena.github.io/marble-runner/)
+# Marble Runner
 
-## Gameplay
+[![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
 
-Roll down a five-lane track that scrolls at you faster the longer you survive.
-Dodge trees and bushes, collect fruit to score, and try to beat your personal
-best. The obstacles ahead are picked from a weighted table, so no two runs lay
-out the same way.
+**An endless runner that gets faster every metre you survive.**
 
-| Action       | Keys                     |
-| ------------ | ------------------------ |
-| Switch lanes | `←` `→` or `A` `D`       |
-| Pause        | `Esc` or `P`             |
-| Menus        | Arrow keys, `Enter`      |
+Roll a marble down a five-lane track that scrolls at you harder the longer you
+last. Dodge trees, bushes and crystals, hurdle the low stuff, grab fruit to
+build a **score multiplier**, and chase power-ups that buy you a few seconds of
+mercy. Obstacles are drawn from a weighted table, so no two runs lay out the
+same way.
+
+[**Try it live**](https://kaushalmeena.github.io/marble-runner/)
+
+</div>
+
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="screenshots/GamePlay.png" alt="Mid-run with a score multiplier and an active shield"></td>
+    <td width="50%"><img src="screenshots/MainMenu.png" alt="Title screen"></td>
+  </tr>
+</table>
+
+<details>
+<summary>More screenshots</summary>
+
+<table>
+  <tr>
+    <td width="50%"><img src="screenshots/GameOver.png" alt="End-of-run summary with score, best and distance"></td>
+    <td width="50%"><img src="screenshots/PauseMenu.png" alt="Pause overlay"></td>
+  </tr>
+</table>
+
+</details>
+
+## Features
+
+- **Difficulty that ramps, not spikes** — speed climbs smoothly with distance
+  and is capped, while obstacles stay a constant distance apart, so the track
+  gets faster without ever getting unfair.
+- **Eight obstacle types, weighted** — trees, bushes, rocks, logs and crystals
+  across one, two and three lanes, drawn from a table you can re-balance
+  without touching code.
+- **Jump the low ones** — rocks and fallen logs can be cleared, bushes and trees
+  cannot. Which is which falls out of the obstacle's height, not a flag.
+- **Three power-ups** — a shield that eats one hit, a magnet that drags fruit
+  to you, and slow-mo that takes the edge off the speed.
+- **Streaks and near misses** — five fruit in a row steps the multiplier up to
+  ×5, and slipping past an obstacle by a hair pays a bonus.
+- **Four biomes** — meadow, desert, tundra and dusk cross-fade as you go, and
+  loop, so a long run keeps changing.
+- **Plays with anything** — keyboard, or swipe and tap on touch and in the web
+  build.
+
+## How It Works
+
+The marble never actually moves forward. It sits still and the world is pulled
+past it, which is what keeps a genuinely endless track cheap to run:
+
+1. **One loop moves everything** — `Track` owns the position and lifetime of
+   every prop on screen. The props themselves carry no scripts at all.
+2. **Props are pooled** — anything that scrolls past the camera is hidden, taken
+   out of collision, and handed back for the next spawn, so a long run stops
+   allocating.
+3. **Spawning is measured in metres, not seconds** — obstacle spacing stays
+   constant as the speed climbs, so rising speed is the only thing making the
+   game harder.
+4. **The world is recoloured, not rebuilt** — biomes tint the shared materials
+   and the environment, which re-skins every prop at once.
+
+> Every sound effect is generated from scratch by a Python script, so the game
+> ships with no third-party audio and nothing to license.
+
+## Tech Stack
+
+| Area         | Tools                                                                                                           |
+| ------------ | --------------------------------------------------------------------------------------------------------------- |
+| **Engine**   | [Godot 4.7](https://godotengine.org/) (Compatibility renderer, for the web export)                               |
+| **Language** | [GDScript 2](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html) (statically typed)   |
+| **Art**      | Primitive meshes sharing [StandardMaterial3D](https://docs.godotengine.org/en/stable/classes/class_standardmaterial3d.html) resources |
+| **Type**     | [Outfit](https://fonts.google.com/specimen/Outfit) variable font                                                 |
+| **Audio**    | Generated offline with Python's [`wave`](https://docs.python.org/3/library/wave.html) module                     |
+| **Hosting**  | [GitHub Pages](https://pages.github.com/) via [gh-pages](https://github.com/tschaub/gh-pages)                    |
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development purposes.
+These instructions will get you a copy of the project up and running on your
+local machine for development purposes.
 
 ### Requirements
 
 To install and run this project you need:
 
-- [Godot 4.7](https://godotengine.org/download/ "Godot 4.7") (uses the Compatibility renderer)
-- [NodeJS](https://nodejs.org/ "NodeJS")
-- [git](https://git-scm.com/downloads "git") (only to clone this repository)
+- [Godot 4.7](https://godotengine.org/download/) or newer
+- [Node.js](https://nodejs.org/) 18+ (only to deploy the web build)
+- [git](https://git-scm.com/downloads) (only to clone this repository)
 
 ### Installation
 
-To set up everything in your local machine, you need to follow these steps:
+To set up everything on your local machine, follow these steps:
 
-1. Clone this repo onto your computer:
+1. Clone this repo and then change directory to the `marble-runner` folder:
 
 ```bash
 git clone https://github.com/kaushalmeena/marble-runner.git
+cd marble-runner
 ```
 
-2. Open Godot and click on Import->Browse
+2. Import the project, either by opening `project.godot` in the Godot editor or
+   by letting the engine do it from the command line:
 
-3. Navigate to `marble-runner` folder and click Open
-
-## Project Structure
-
-```
-autoload/      GameState (score + save file) and SceneManager (transitions)
-game/          Gameplay root, the Track that scrolls the world, spawn table type
-player/        The marble
-obstacles/     Tree and bush props (plain Area3D scenes, no scripts)
-collectibles/  Fruit
-world/         The ground and its lane markers
-ui/            HUD, main menu, pause menu, death menu
-resources/     Shared materials, spawn table entries, environment, UI theme
-assets/        Raw imported assets
+```bash
+godot --headless --import
 ```
 
-A few conventions worth knowing before editing:
+3. Install the deploy tooling, only if you intend to publish the web build:
 
-- **Props carry no scripts.** `Track` owns the movement, recycling and lifetime
-  of everything that scrolls past. Adding an obstacle means adding a scene with
-  an `Area3D` root in the `obstacle` group, plus a `SpawnEntry` resource.
-- **Difficulty and spawn balance are data, not code.** Tune the `Track` node's
-  exported properties in `game/game.tscn`, and re-weight obstacles by editing
-  the `.tres` files in `resources/spawns/`.
-- **The UI never owns game state.** Score lives in `GameState`; the HUD only
-  subscribes to its signals.
-- **Styling goes in the theme.** `resources/theme/marble_runner_theme.tres` is
-  applied project-wide, so prefer a theme type variation over a per-node font
-  or colour override.
+```bash
+npm install
+```
+
+### Running
+
+To play the game:
+
+```bash
+godot
+```
+
+To skip the menu and drop straight into a run:
+
+```bash
+godot res://game/game.tscn
+```
+
+### Building
+
+To export the web build:
+
+```bash
+godot --headless --export-release "Web" dist/web/index.html
+```
+
+The build output is written to the `dist/web` folder. Export presets are not
+committed, so create one named `Web` under **Project → Export** the first time.
+
+## Usage
+
+Once a run starts, the whole game is three inputs:
+
+| Action       | Keyboard             | Touch or mouse   |
+| ------------ | -------------------- | ---------------- |
+| Switch lanes | `←` `→` or `A` `D`   | Swipe left/right |
+| Jump         | `Space`, `↑` or `W`  | Swipe up, or tap |
+| Pause        | `Esc` or `P`         | —                |
+| Menus        | Arrow keys, `Enter`  | Click            |
+
+Only the low obstacles can be jumped. Rocks and fallen logs clear at the top of
+the arc; bushes, trees and crystals have to be gone around.
+
+## Deployment
+
+The web build is served from the `gh-pages` branch. After exporting, publish it
+with:
+
+```bash
+npm run deploy
+```
+
+## Roadmap
+
+- [x] Port to Godot 4 with pooled, data-driven spawning
+- [x] Jump, power-ups, streak multiplier and near-miss scoring
+- [x] Biomes, generated audio and gesture controls
+- [ ] Daily seeded run with a shareable result
+- [ ] Coin economy and unlockable marble skins
+- [ ] Automated export and deploy on push to `main`
+
+See the [open issues](https://github.com/kaushalmeena/marble-runner/issues) for a
+full list of proposed features and known issues.
+
+## Credits
+
+- [Outfit](https://fonts.google.com/specimen/Outfit) by **Smartsheet Inc.**,
+  licensed under the [SIL Open Font License 1.1](assets/fonts/OFL.txt).
+
+## Documentation
+
+Full documentation is available in the [`/docs`](./docs) directory.
+
+**Understanding the project:**
+
+- [Architecture](./docs/architecture.md) — how the world scrolls past a
+  stationary marble, and which parts are allowed to know about each other.
+
+**Extending it:**
+
+- [Adding an Obstacle](./docs/adding-obstacles.md) — the scene, the spawn entry,
+  and why height alone decides whether something can be jumped.
+- [Biomes](./docs/biomes.md) — how the palette cross-fades with distance, and
+  what to fill in to add one.
 
 ## Contributing
 
@@ -80,4 +217,5 @@ and open a pull request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE)
+file for details.
