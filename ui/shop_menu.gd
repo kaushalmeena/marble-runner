@@ -15,8 +15,6 @@ extends Control
 @onready var _prev_button: Button = %PrevButton
 @onready var _next_button: Button = %NextButton
 @onready var _back_button: Button = %BackButton
-@onready var _doubler_button: Button = %DoublerButton
-@onready var _head_start_button: Button = %HeadStartButton
 
 var _skins: Array[MarbleSkin] = []
 var _index: int = 0
@@ -30,8 +28,6 @@ func _ready() -> void:
 	_next_button.pressed.connect(_step.bind(1))
 	_action_button.pressed.connect(_on_action_pressed)
 	_back_button.pressed.connect(SceneManager.goto_main_menu)
-	_doubler_button.pressed.connect(_buy_boost.bind(GameState.BOOST_DOUBLER))
-	_head_start_button.pressed.connect(_buy_boost.bind(GameState.BOOST_HEAD_START))
 	GameState.coins_changed.connect(_on_coins_changed)
 
 	# Open on whatever the player is currently wearing.
@@ -113,27 +109,6 @@ func _on_action_pressed() -> void:
 func _on_coins_changed(coins: int) -> void:
 	_coins_value.text = str(coins)
 	_refresh_action()
-	_refresh_boosts()
-
-
-func _buy_boost(id: StringName) -> void:
-	if GameState.purchase_boost(id):
-		Audio.play(&"power_up")
-	_refresh_boosts()
-
-
-## Boosts stack, so the label carries the count rather than an owned/not state.
-func _refresh_boosts() -> void:
-	_show_boost(_doubler_button, GameState.BOOST_DOUBLER, "Coin Doubler")
-	_show_boost(_head_start_button, GameState.BOOST_HEAD_START, "Head Start")
-
-
-func _show_boost(button: Button, id: StringName, label: String) -> void:
-	var owned := GameState.boost_count(id)
-	var price := GameState.boost_price(id)
-	var suffix := "  x%d" % owned if owned > 0 else ""
-	button.text = "%s  ·  %d%s" % [label, price, suffix]
-	button.disabled = GameState.coins < price
 
 
 func _current_equipped() -> MarbleSkin:
