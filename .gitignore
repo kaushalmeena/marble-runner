@@ -4,7 +4,8 @@
 
 # Export configuration can hold absolute paths and signing details.
 export.cfg
-export_presets.cfg
+
+# export_presets.cfg IS committed: the deploy workflow needs the Web preset.
 
 # Imported translations (generated from CSV files)
 *.translation

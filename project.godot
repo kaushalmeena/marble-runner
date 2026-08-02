@@ -15,7 +15,7 @@ config/description="An endless runner with dynamic, weighted obstacle generation
 config/version="2.0.0"
 run/main_scene="res://ui/main_menu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://icon.png"
+config/icon="res://icon.svg"
 
 [autoload]
 

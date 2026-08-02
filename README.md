@@ -4,7 +4,7 @@
 
 # Marble Runner
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
+[![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Deploy](https://img.shields.io/github/actions/workflow/status/kaushalmeena/marble-runner/deploy.yml?logo=githubactions&logoColor=white&label=deploy)](https://github.com/kaushalmeena/marble-runner/actions) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
 
 **An endless runner that gets faster every metre you survive.**
 
@@ -121,7 +121,8 @@ cd marble-runner
 godot --headless --import
 ```
 
-3. Install the deploy tooling, only if you intend to publish the web build:
+3. Install the deploy tooling, only if you intend to publish by hand rather
+   than letting CI do it:
 
 ```bash
 npm install
@@ -149,8 +150,9 @@ To export the web build:
 godot --headless --export-release "Web" dist/web/index.html
 ```
 
-The build output is written to the `dist/web` folder. Export presets are not
-committed, so create one named `Web` under **Project → Export** the first time.
+The build output is written to the `dist/web` folder. The `Web` preset is
+committed in `export_presets.cfg`, so this works on a fresh clone as long as
+the matching export templates are installed.
 
 ## Usage
 
@@ -168,12 +170,14 @@ the arc; bushes, trees and crystals have to be gone around.
 
 ## Deployment
 
-The web build is served from the `gh-pages` branch. After exporting, publish it
-with:
+Every push to `main` is exported and published to GitHub Pages by the
+[deploy workflow](.github/workflows/deploy.yml). It downloads the pinned Godot
+version and its export templates, caches them, exports the `Web` preset and
+uploads the result — no manual step.
 
-```bash
-npm run deploy
-```
+This needs **Settings → Pages → Source** set to **GitHub Actions** once. The
+`npm run deploy` script remains as a manual fallback, but it publishes to the
+`gh-pages` branch, so only one of the two can be the live source at a time.
 
 ## Roadmap
 
@@ -182,7 +186,7 @@ npm run deploy
 - [x] Biomes, generated audio and gesture controls
 - [ ] Daily seeded run with a shareable result
 - [ ] Coin economy and unlockable marble skins
-- [ ] Automated export and deploy on push to `main`
+- [x] Automated export and deploy on push to `main`
 
 See the [open issues](https://github.com/kaushalmeena/marble-runner/issues) for a
 full list of proposed features and known issues.

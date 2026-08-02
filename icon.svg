@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!--
+    Godot rasterises SVG with ThorVG, which does not match a browser on
+    clip-path, group opacity or transforms. This icon therefore uses only
+    plain shapes, solid fills and simple gradients, so the engine, the
+    browser and the exported PNG all agree. The track is shaped to stay
+    inside the rounded corners rather than being clipped to them.
+  -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12294F"/>
+      <stop offset="0.52" stop-color="#1F4E8C"/>
+      <stop offset="1" stop-color="#2C6B4C"/>
+    </linearGradient>
+    <linearGradient id="track" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4A8B4E"/>
+      <stop offset="1" stop-color="#83CE6C"/>
+    </linearGradient>
+    <radialGradient id="ball" cx="0.34" cy="0.28" r="0.78">
+      <stop offset="0" stop-color="#EDF7FF"/>
+      <stop offset="0.34" stop-color="#7FC4FF"/>
+      <stop offset="1" stop-color="#1A66C6"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="256" height="256" rx="56" fill="url(#sky)"/>
+
+  <path d="M112 92 L144 92 L196 256 L60 256 Z" fill="url(#track)"/>
+  <path d="M118 96 L122 96 L104 256 L92 256 Z" fill="#3D7A45"/>
+  <path d="M134 96 L138 96 L164 256 L152 256 Z" fill="#3D7A45"/>
+
+  <ellipse cx="128" cy="207" rx="40" ry="11" fill="#2C6038"/>
+  <circle cx="128" cy="170" r="48" fill="url(#ball)"/>
+  <ellipse cx="111" cy="152" rx="14" ry="9" fill="#FFFFFF"/>
+</svg>
