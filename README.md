@@ -179,18 +179,6 @@ This needs **Settings → Pages → Source** set to **GitHub Actions** once. The
 `npm run deploy` script remains as a manual fallback, but it publishes to the
 `gh-pages` branch, so only one of the two can be the live source at a time.
 
-## Roadmap
-
-- [x] Port to Godot 4 with pooled, data-driven spawning
-- [x] Jump, power-ups, streak multiplier and near-miss scoring
-- [x] Biomes, generated audio and gesture controls
-- [ ] Daily seeded run with a shareable result
-- [ ] Coin economy and unlockable marble skins
-- [x] Automated export and deploy on push to `main`
-
-See the [open issues](https://github.com/kaushalmeena/marble-runner/issues) for a
-full list of proposed features and known issues.
-
 ## Credits
 
 - [Outfit](https://fonts.google.com/specimen/Outfit) by **Smartsheet Inc.**,
