@@ -19,6 +19,7 @@ const POOL_PARK_POSITION := Vector3(0.0, -100.0, 0.0)
 
 const GROUP_COLLECTIBLE := &"collectible"
 const GROUP_OBSTACLE := &"obstacle"
+const GROUP_POWERUP := &"powerup"
 
 ## A collectible reached the despawn line without being picked up.
 signal collectible_missed
@@ -215,6 +216,8 @@ func _advance_props(step: float, delta: float) -> void:
 			_apply_magnet(prop, delta)
 		else:
 			prop.position.x = _prop_x(prop)
+		if prop.is_in_group(GROUP_POWERUP):
+			_animate_pickup(prop, delta)
 		if prop.position.z > DESPAWN_Z:
 			_active.remove_at(i)
 			# Reaching the despawn line means the player never picked it up.
@@ -278,6 +281,8 @@ func _place(scene: PackedScene, lane_width: int, entry: SpawnEntry = null) -> vo
 	prop.set_meta(META_DRIFT_PHASE, _rng.randf() * TAU)
 	prop.position = Vector3(0.0, 0.0, SPAWN_Z)
 	prop.position.x = _prop_x(prop)
+	# Pooled props keep whatever spin they retired with.
+	prop.rotation = Vector3.ZERO
 	_active.append(prop)
 
 
@@ -311,6 +316,21 @@ func _pick_weighted(entries: Array[SpawnEntry]) -> SpawnEntry:
 		if roll <= 0.0:
 			return entry
 	return null
+
+
+## Movement is the third signal, after shape and colour, telling the player
+## whether a pickup is worth touching: helpful ones turn slowly and bob,
+## hostile ones spin fast and jitter.
+func _animate_pickup(prop: Area3D, delta: float) -> void:
+	var pickup := prop as PowerUpPickup
+	var hostile := pickup != null and PowerUps.is_debuff(pickup.kind)
+	var phase: float = prop.get_meta(META_DRIFT_PHASE, 0.0)
+	if hostile:
+		prop.rotate_y(delta * 7.5)
+		prop.position.y = 0.10 * sin(_elapsed * 19.0 + phase)
+	else:
+		prop.rotate_y(delta * 1.7)
+		prop.position.y = 0.18 * sin(_elapsed * 2.6 + phase)
 
 
 ## Drags nearby collectibles toward the magnet target.

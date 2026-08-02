@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=40 format=3]
 
 [ext_resource type="Script" path="res://game/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://game/track.gd" id="2_track"]
@@ -17,6 +17,11 @@
 [ext_resource type="Resource" path="res://resources/spawns/log.tres" id="15_log"]
 [ext_resource type="Resource" path="res://resources/spawns/crystal.tres" id="16_crystal"]
 [ext_resource type="Resource" path="res://resources/spawns/drifter.tres" id="34_drifter"]
+[ext_resource type="Resource" path="res://resources/spawns/boost_pickup.tres" id="35_boost"]
+[ext_resource type="Resource" path="res://resources/spawns/super_jump_pickup.tres" id="36_super_jump"]
+[ext_resource type="Resource" path="res://resources/spawns/fog_pickup.tres" id="37_fog"]
+[ext_resource type="Resource" path="res://resources/spawns/sluggish_pickup.tres" id="38_sluggish"]
+[ext_resource type="Resource" path="res://resources/spawns/reversed_pickup.tres" id="39_reversed"]
 [ext_resource type="Script" path="res://game/power_up_manager.gd" id="17_powerups"]
 [ext_resource type="Script" path="res://game/game_camera.gd" id="21_camera"]
 [ext_resource type="Script" path="res://effects/burst_emitter.gd" id="22_bursts"]
@@ -61,7 +66,7 @@ autostart = false
 ground_material = ExtResource("29_ground")
 obstacles = Array[SpawnEntry]([ExtResource("9_tree_single"), ExtResource("10_bush_single"), ExtResource("11_tree_double"), ExtResource("12_bush_double"), ExtResource("13_bush_triple"), ExtResource("14_rock"), ExtResource("15_log"), ExtResource("16_crystal"), ExtResource("34_drifter")])
 collectible = ExtResource("6_fruit")
-power_ups = Array[SpawnEntry]([ExtResource("18_shield"), ExtResource("19_magnet"), ExtResource("20_slow")])
+power_ups = Array[SpawnEntry]([ExtResource("18_shield"), ExtResource("19_magnet"), ExtResource("20_slow"), ExtResource("35_boost"), ExtResource("36_super_jump"), ExtResource("37_fog"), ExtResource("38_sluggish"), ExtResource("39_reversed")])
 
 [node name="Marble" parent="." instance=ExtResource("5_marble")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 10)

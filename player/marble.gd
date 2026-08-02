@@ -51,6 +51,12 @@ var forward_speed: float = 0.0
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _shield_bubble: MeshInstance3D = $ShieldBubble
 
+## Multipliers applied on top of the exported values, so a debuff can be undone
+## by resetting to 1.0 rather than by remembering the original number.
+var _lane_speed_scale: float = 1.0
+var _jump_scale: float = 1.0
+var _inverted: bool = false
+
 var _lanes: PackedFloat32Array = PackedFloat32Array()
 var _lane_index: int = 0
 var _active: bool = false
@@ -70,6 +76,23 @@ func apply_skin(skin: MarbleSkin) -> void:
 	if skin == null or skin.material == null:
 		return
 	_mesh.material_override = skin.material
+
+
+## Scales how fast the marble slides between lanes. Below 1.0 is the sluggish
+## debuff.
+func set_lane_speed_scale(scale: float) -> void:
+	_lane_speed_scale = maxf(0.05, scale)
+
+
+## Scales take-off speed. Above 1.0 is the high-jump power-up, which raises the
+## apex far enough to clear obstacles that are normally solid.
+func set_jump_scale(scale: float) -> void:
+	_jump_scale = maxf(0.1, scale)
+
+
+## Swaps left and right. The reversed debuff.
+func set_inverted(inverted: bool) -> void:
+	_inverted = inverted
 
 
 ## Shows or hides the bubble that marks an active shield.
@@ -99,6 +122,9 @@ func stop() -> void:
 	_active = false
 	velocity = Vector3.ZERO
 	forward_speed = 0.0
+	_lane_speed_scale = 1.0
+	_jump_scale = 1.0
+	_inverted = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -120,7 +146,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func try_jump() -> bool:
 	if not _active or not is_on_floor():
 		return false
-	velocity.y = jump_velocity
+	velocity.y = jump_velocity * _jump_scale
 	_airborne = true
 	jumped.emit()
 	return true
@@ -145,6 +171,8 @@ func shift_lane(step: int) -> void:
 
 
 func _change_lane(step: int) -> void:
+	if _inverted:
+		step = -step
 	_lane_index = clampi(_lane_index + step, 0, _lanes.size() - 1)
 
 
@@ -154,7 +182,8 @@ func _apply_lane_motion() -> void:
 		position.x = _lanes[_lane_index]
 		velocity.x = 0.0
 		return
-	velocity.x = clampf(offset * lane_change_speed, -max_lateral_speed, max_lateral_speed)
+	velocity.x = clampf(offset * lane_change_speed * _lane_speed_scale,
+		-max_lateral_speed, max_lateral_speed)
 
 
 func _apply_gravity(delta: float) -> void:

@@ -11,6 +11,9 @@ extends Control
 const RECORD_BADGE_SECONDS := 1.8
 ## Tint for the speed meter, matching the marble.
 const SPEED_COLOR := Color(0.42, 0.74, 1.0)
+const CHIP_SCENE := preload("res://ui/power_up_chip.tscn")
+## How long the debuff banner sits on screen.
+const DEBUFF_BANNER_SECONDS := 1.1
 
 @onready var _score_value: Label = %ScoreValue
 @onready var _best_value: Label = %BestValue
@@ -20,6 +23,8 @@ const SPEED_COLOR := Color(0.42, 0.74, 1.0)
 @onready var _multiplier_value: Label = %MultiplierValue
 @onready var _countdown: Label = %Countdown
 @onready var _near_miss_toast: Label = %NearMissToast
+@onready var _debuff_banner: Label = %DebuffBanner
+@onready var _chips_row: HBoxContainer = %Chips
 @onready var _crash_flash: ColorRect = %CrashFlash
 
 var _track: Track = null
@@ -30,15 +35,6 @@ var _record_announced: bool = false
 
 
 func _ready() -> void:
-	_chips = {
-		PowerUps.Kind.SHIELD: %ShieldChip,
-		PowerUps.Kind.MAGNET: %MagnetChip,
-		PowerUps.Kind.SLOW_MO: %SlowChip,
-	}
-	for kind: int in _chips:
-		_tint_chip(_chips[kind], PowerUps.color(kind))
-		_chips[kind].hide()
-
 	_tint_bar(_speed_bar, SPEED_COLOR)
 	GameState.score_changed.connect(_on_score_changed)
 	GameState.best_score_changed.connect(_on_best_score_changed)
@@ -46,6 +42,7 @@ func _ready() -> void:
 	_score_value.text = str(GameState.score)
 	_best_value.text = str(GameState.best_score)
 	_record_badge.hide()
+	_debuff_banner.hide()
 	_countdown.hide()
 	_near_miss_toast.hide()
 	_multiplier_value.visible = GameState.multiplier > 1
@@ -77,7 +74,7 @@ func _process(_delta: float) -> void:
 	for kind: int in _chips:
 		var chip: PanelContainer = _chips[kind]
 		if chip.visible:
-			(chip.get_node("Column/Bar") as ProgressBar).value = _power_ups.fraction_left(kind)
+			(chip.get_node("%Bar") as ProgressBar).value = _power_ups.fraction_left(kind)
 
 
 ## Scale punch on the score, so a pickup registers even without audio.
@@ -162,11 +159,16 @@ func _announce_record() -> void:
 	tween.tween_callback(_record_badge.hide)
 
 
+## Chips are made on first use and then reused, so eight possible effects cost
+## only as many nodes as the player has actually seen.
 func _on_power_up_activated(kind: PowerUps.Kind, _duration: float) -> void:
 	var chip: PanelContainer = _chips.get(kind)
 	if chip == null:
-		return
-	(chip.get_node("Column/Bar") as ProgressBar).value = 1.0
+		chip = CHIP_SCENE.instantiate()
+		_chips_row.add_child(chip)
+		_chips[kind] = chip
+		_style_chip(chip, kind)
+	(chip.get_node("%Bar") as ProgressBar).value = 1.0
 	chip.show()
 
 
@@ -176,9 +178,36 @@ func _on_power_up_expired(kind: PowerUps.Kind) -> void:
 		chip.hide()
 
 
-func _tint_chip(chip: PanelContainer, color: Color) -> void:
-	(chip.get_node("Column/Label") as Label).add_theme_color_override(&"font_color", color)
-	_tint_bar(chip.get_node("Column/Bar") as ProgressBar, color)
+## A hostile chip gets a red border on top of the shared colour, so an active
+## debuff is distinguishable from an active buff at a glance.
+func _style_chip(chip: PanelContainer, kind: PowerUps.Kind) -> void:
+	var color := PowerUps.color(kind)
+	(chip.get_node("%Label") as Label).text = PowerUps.label(kind)
+	(chip.get_node("%Label") as Label).add_theme_color_override(&"font_color", color)
+	_tint_bar(chip.get_node("%Bar") as ProgressBar, color)
+	if not PowerUps.is_debuff(kind):
+		return
+	var panel := chip.get_theme_stylebox(&"panel").duplicate() as StyleBoxFlat
+	panel.border_width_left = 2
+	panel.border_width_top = 2
+	panel.border_width_right = 2
+	panel.border_width_bottom = 2
+	panel.border_color = color
+	panel.bg_color = Color(0.18, 0.03, 0.06, 0.85)
+	chip.add_theme_stylebox_override(&"panel", panel)
+
+
+## Names the debuff that just landed, so the player knows why the controls
+## suddenly feel wrong.
+func show_debuff(label: String) -> void:
+	_debuff_banner.text = label
+	_debuff_banner.add_theme_color_override(&"font_color", Color(1, 0.35, 0.4))
+	_debuff_banner.modulate.a = 1.0
+	_debuff_banner.show()
+	var tween := create_tween()
+	tween.tween_interval(DEBUFF_BANNER_SECONDS)
+	tween.tween_property(_debuff_banner, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(_debuff_banner.hide)
 
 
 ## The theme's fill box is white so it can be tinted per use. Duplicating it

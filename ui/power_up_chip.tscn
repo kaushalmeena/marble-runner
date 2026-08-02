@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="StyleBoxFlat" id="SBF_chip"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 7.0
+bg_color = Color(0.04, 0.07, 0.12, 0.78)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="SBF_bar"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="PowerUpChip" type="PanelContainer"]
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SBF_chip")
+
+[node name="Column" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SHIELD"
+theme_type_variation = &"ChipLabel"
+
+[node name="Bar" type="ProgressBar" parent="Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 4)
+layout_mode = 2
+theme_override_styles/fill = SubResource("SBF_bar")
+step = 0.001
+max_value = 1.0
+value = 1.0
+show_percentage = false
