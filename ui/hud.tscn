@@ -88,7 +88,7 @@ text = "NEW RECORD"
 theme_type_variation = &"AccentLabel"
 
 [node name="ChipGap" type="Control" parent="ScoreCluster"]
-custom_minimum_size = Vector2(0, 10)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 mouse_filter = 2
 
