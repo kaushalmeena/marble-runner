@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 
 GameState="*res://autoload/game_state.gd"
 SceneManager="*res://autoload/scene_manager.gd"
+Settings="*res://autoload/settings.gd"
 Audio="*res://autoload/audio.gd"
 
 [display]

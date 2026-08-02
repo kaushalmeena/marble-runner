@@ -94,10 +94,15 @@ func _run_countdown() -> void:
 	_marble.begin()
 
 
+## Look-ahead depth used for the camera lean, in track-local Z.
+const CAMERA_LOOK_AHEAD_Z := -34.0
+
+
 func _physics_process(_delta: float) -> void:
 	# The world scrolls past a stationary marble, so the marble cannot work out
 	# its own spin rate: it has to be told.
 	_marble.forward_speed = _track.speed
+	_camera.set_road_offset(_track.bend_at(CAMERA_LOOK_AHEAD_Z))
 
 
 func _on_marble_collected_pickup(pickup: Area3D) -> void:

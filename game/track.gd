@@ -57,6 +57,10 @@ const META_DRIFT_PHASE := &"drift_phase"
 @export var curve_ramp_distance: float = 600.0
 ## Length of one full bend, in units. Longer is a lazier road.
 @export var curve_wavelength: float = 240.0
+## Depth at which the bend is zero. This must be the player's Z: it is what
+## keeps the marble on the road and makes every prop arrive on its true lane.
+## Pivoting anywhere else slides the track out from under the player.
+@export var curve_pivot_z: float = 10.0
 
 @export_group("Difficulty")
 ## Scroll speed at the start of a run, in units/second.
@@ -135,7 +139,7 @@ func bend_at(z: float) -> float:
 	if _curve_amplitude <= 0.0:
 		return 0.0
 	var k := TAU / maxf(1.0, curve_wavelength)
-	return _curve_amplitude * (sin(_curve_phase + (z - DESPAWN_Z) * k) - sin(_curve_phase))
+	return _curve_amplitude * (sin(_curve_phase + (z - curve_pivot_z) * k) - sin(_curve_phase))
 
 
 ## Recycles everything currently on the track. Used by the revive, so the player
@@ -199,7 +203,7 @@ func _push_curve_to_shader() -> void:
 	ground_material.set_shader_parameter(&"curve_amplitude", _curve_amplitude)
 	ground_material.set_shader_parameter(&"curve_wavelength", curve_wavelength)
 	ground_material.set_shader_parameter(&"curve_phase", _curve_phase)
-	ground_material.set_shader_parameter(&"curve_pivot_z", DESPAWN_Z)
+	ground_material.set_shader_parameter(&"curve_pivot_z", curve_pivot_z)
 	ground_material.set_shader_parameter(&"lane_spacing", _lane_spacing)
 
 
