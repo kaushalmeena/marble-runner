@@ -27,7 +27,6 @@ const SAVE_KEY_BEST_DISTANCE := "best_distance"
 const SAVE_KEY_COINS := "coins"
 const SAVE_KEY_UNLOCKED := "unlocked_skins"
 const SAVE_KEY_SKIN := "selected_skin"
-const SAVE_KEY_BOOSTS := "boosts"
 
 ## Points awarded per collected fruit, before the multiplier.
 const POINTS_PER_PICKUP := 1
@@ -43,14 +42,6 @@ const MAX_MULTIPLIER := 5
 const COINS_PER_PICKUP := 1
 ## Distance, in units, worth one extra coin at the end of a run.
 const UNITS_PER_BONUS_COIN := 100.0
-
-## Buyable boosts, consumed automatically at the start of the next run.
-const BOOST_DOUBLER := &"doubler"
-const BOOST_HEAD_START := &"head_start"
-const BOOST_PRICES: Dictionary = {
-	BOOST_DOUBLER: 200,
-	BOOST_HEAD_START: 150,
-}
 
 ## Cost of the first revive in a run. Each further one doubles, so reviving is
 ## a real decision rather than a way to buy an unlimited run.
@@ -106,13 +97,6 @@ var selected_skin: StringName = &"classic":
 		selected_skin = value
 		skin_selected.emit(selected_skin)
 
-## Owned boosts, by id.
-var boosts: Dictionary[StringName, int] = {}
-
-## Whether the doubler is running this run.
-var doubler_active: bool = false
-## Whether this run started with a head start.
-var head_start_active: bool = false
 ## Revives spent this run.
 var revives_used: int = 0
 
@@ -147,9 +131,6 @@ func reset_run() -> void:
 	multiplier = 1
 	run_coins = 0
 	revives_used = 0
-	# Boosts are spent on the run they apply to, not when they are bought.
-	doubler_active = consume_boost(BOOST_DOUBLER)
-	head_start_active = consume_boost(BOOST_HEAD_START)
 	_best_at_run_start = best_score
 	_best_distance_at_run_start = best_distance
 
@@ -170,9 +151,8 @@ func collect_pickup() -> void:
 	streak += 1
 	multiplier = clampi(1 + streak / STREAK_PER_MULTIPLIER, 1, MAX_MULTIPLIER)
 	add_score(POINTS_PER_PICKUP * multiplier)
-	var earned := COINS_PER_PICKUP * (2 if doubler_active else 1)
-	run_coins += earned
-	coins += earned
+	run_coins += COINS_PER_PICKUP
+	coins += COINS_PER_PICKUP
 
 
 ## Scores a near miss. It pays the multiplier but does not extend the streak:
@@ -205,8 +185,6 @@ func commit_run() -> void:
 	# Distance pays out at the end rather than in dribs during the run, so a
 	# long careful run is worth something even without a big score.
 	var distance_bonus := int(run_distance / UNITS_PER_BONUS_COIN)
-	if doubler_active:
-		distance_bonus *= 2
 	run_coins += distance_bonus
 	coins += distance_bonus
 	save_progress()
@@ -228,34 +206,6 @@ func buy_revive() -> bool:
 		return false
 	coins -= revive_price()
 	revives_used += 1
-	save_progress()
-	return true
-
-
-func boost_price(id: StringName) -> int:
-	return BOOST_PRICES.get(id, 0)
-
-
-func boost_count(id: StringName) -> int:
-	return boosts.get(id, 0)
-
-
-## Buys one boost. Returns false, changing nothing, if it is unaffordable.
-func purchase_boost(id: StringName) -> bool:
-	var price := boost_price(id)
-	if price <= 0 or coins < price:
-		return false
-	coins -= price
-	boosts[id] = boost_count(id) + 1
-	save_progress()
-	return true
-
-
-## Spends one boost if there is one. Returns whether there was.
-func consume_boost(id: StringName) -> bool:
-	if boost_count(id) <= 0:
-		return false
-	boosts[id] = boost_count(id) - 1
 	save_progress()
 	return true
 
@@ -298,9 +248,6 @@ func load_progress() -> void:
 	unlocked_skins = PackedStringArray(
 		config.get_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, PackedStringArray()))
 	selected_skin = StringName(config.get_value(SAVE_SECTION, SAVE_KEY_SKIN, "classic"))
-	boosts.clear()
-	for id: String in Dictionary(config.get_value(SAVE_SECTION, SAVE_KEY_BOOSTS, {})):
-		boosts[StringName(id)] = int(config.get_value(SAVE_SECTION, SAVE_KEY_BOOSTS, {})[id])
 
 
 func save_progress() -> void:
@@ -310,10 +257,6 @@ func save_progress() -> void:
 	config.set_value(SAVE_SECTION, SAVE_KEY_COINS, coins)
 	config.set_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, unlocked_skins)
 	config.set_value(SAVE_SECTION, SAVE_KEY_SKIN, String(selected_skin))
-	var plain: Dictionary = {}
-	for id: StringName in boosts:
-		plain[String(id)] = boosts[id]
-	config.set_value(SAVE_SECTION, SAVE_KEY_BOOSTS, plain)
 	var error := config.save(SAVE_PATH)
 	if error != OK:
 		push_warning("Could not save progress to %s (error %d)." % [SAVE_PATH, error])

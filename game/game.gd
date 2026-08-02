@@ -37,8 +37,6 @@ const PICKUP_BURST_COLOR := Color(1, 0.78, 0.2)
 ## Steps shown before control is handed over. The last one is the "go".
 @export var countdown_steps: PackedStringArray = PackedStringArray(["3", "2", "1", "GO"])
 @export var countdown_step_seconds: float = 0.6
-## Distance a head start skips.
-@export var head_start_distance: float = 350.0
 
 @onready var _track: Track = $Track
 @onready var _marble: Marble = $Marble
@@ -82,10 +80,6 @@ func _ready() -> void:
 	_revive_prompt.declined.connect(_on_revive_declined)
 	_hud.bind_run(_track, _power_ups)
 	_biomes.bind_track(_track)
-	if GameState.head_start_active:
-		# Skip the opening stretch and cover the arrival with a shield.
-		_track.distance = head_start_distance
-		_power_ups.activate(PowerUps.Kind.SHIELD)
 	_run_countdown()
 
 
