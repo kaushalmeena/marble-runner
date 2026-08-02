@@ -4,7 +4,7 @@
 
 # Marble Runner
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Deploy](https://img.shields.io/github/actions/workflow/status/kaushalmeena/marble-runner/deploy.yml?logo=githubactions&logoColor=white&label=deploy)](https://github.com/kaushalmeena/marble-runner/actions) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
+[![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
 
 **An endless runner that gets faster every metre you survive.**
 
