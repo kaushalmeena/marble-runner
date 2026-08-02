@@ -14,6 +14,9 @@ const SPEED_COLOR := Color(0.42, 0.74, 1.0)
 const CHIP_SCENE := preload("res://ui/power_up_chip.tscn")
 ## How long the debuff banner sits on screen.
 const DEBUFF_BANNER_SECONDS := 1.1
+## Score pop shape.
+const POP_DURATION := 0.22
+const POP_SCALE := 1.22
 
 @onready var _score_value: Label = %ScoreValue
 @onready var _best_value: Label = %BestValue
@@ -31,6 +34,9 @@ var _track: Track = null
 var _power_ups: PowerUpManager = null
 var _chips: Dictionary[int, PanelContainer] = {}
 var _shown_distance: int = -1
+## Score pops happen several times a second at a high multiplier. A Tween per
+## pop allocates an object each time, so this one is driven by hand.
+var _pop_time: float = 0.0
 var _record_announced: bool = false
 
 
@@ -63,12 +69,13 @@ func bind_run(track: Track, power_ups: PowerUpManager) -> void:
 	set_process(track != null)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var metres := int(_track.distance)
 	if metres != _shown_distance:
 		_shown_distance = metres
 		_distance_value.text = "%d m" % metres
 	_speed_bar.value = _track.speed_ratio()
+	_advance_score_pop(delta)
 	if _power_ups == null:
 		return
 	for kind: int in _chips:
@@ -80,10 +87,20 @@ func _process(_delta: float) -> void:
 ## Scale punch on the score, so a pickup registers even without audio.
 func pop_score() -> void:
 	_score_value.pivot_offset = _score_value.size * 0.5
-	var tween := create_tween()
-	tween.tween_property(_score_value, "scale", Vector2(1.22, 1.22), 0.07)
-	tween.tween_property(_score_value, "scale", Vector2.ONE, 0.16) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_pop_time = POP_DURATION
+
+
+## Hand-rolled easing: a quick punch out, then a softer settle back.
+func _advance_score_pop(delta: float) -> void:
+	if _pop_time <= 0.0:
+		return
+	_pop_time = maxf(0.0, _pop_time - delta)
+	var progress := 1.0 - _pop_time / POP_DURATION
+	var punch := sin(progress * PI)
+	var scale := 1.0 + (POP_SCALE - 1.0) * punch
+	_score_value.scale = Vector2(scale, scale)
+	if _pop_time <= 0.0:
+		_score_value.scale = Vector2.ONE
 
 
 ## Red screen flash on death.

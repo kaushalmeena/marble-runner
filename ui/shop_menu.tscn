@@ -120,7 +120,7 @@ theme_override_constants/separation = 2
 
 [node name="Preview" parent="Margin/Column/Carousel/Stage" instance=ExtResource("2_preview")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 290)
+custom_minimum_size = Vector2(260, 240)
 layout_mode = 2
 size_flags_horizontal = 4
 
@@ -154,6 +154,35 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 30
 text = "▶"
+
+[node name="Boosts" type="VBoxContainer" parent="Margin/Column"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Caption" type="Label" parent="Margin/Column/Boosts"]
+layout_mode = 2
+text = "BOOSTS  ·  USED AUTOMATICALLY ON YOUR NEXT RUN"
+horizontal_alignment = 1
+theme_type_variation = &"CaptionLabel"
+
+[node name="Row" type="HBoxContainer" parent="Margin/Column/Boosts"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="DoublerButton" type="Button" parent="Margin/Column/Boosts/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Coin Doubler"
+
+[node name="HeadStartButton" type="Button" parent="Margin/Column/Boosts/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Head Start"
 
 [node name="Footer" type="VBoxContainer" parent="Margin/Column"]
 layout_mode = 2

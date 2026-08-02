@@ -37,6 +37,8 @@ const PICKUP_BURST_COLOR := Color(1, 0.78, 0.2)
 ## Steps shown before control is handed over. The last one is the "go".
 @export var countdown_steps: PackedStringArray = PackedStringArray(["3", "2", "1", "GO"])
 @export var countdown_step_seconds: float = 0.6
+## Distance a head start skips.
+@export var head_start_distance: float = 350.0
 
 @onready var _track: Track = $Track
 @onready var _marble: Marble = $Marble
@@ -47,6 +49,7 @@ const PICKUP_BURST_COLOR := Color(1, 0.78, 0.2)
 @onready var _swipes: SwipeDetector = $SwipeDetector
 @onready var _biomes: BiomeDirector = $BiomeDirector
 @onready var _world_environment: WorldEnvironment = $WorldEnvironment
+@onready var _revive_prompt: RevivePrompt = $PauseLayer/RevivePrompt
 
 var _is_over: bool = false
 var _pickup_burst_color: Color = PICKUP_BURST_COLOR
@@ -75,8 +78,14 @@ func _ready() -> void:
 	_swipes.swiped_right.connect(_marble.shift_lane.bind(1))
 	_swipes.swiped_up.connect(_marble.try_jump)
 	_swipes.tapped.connect(_marble.try_jump)
+	_revive_prompt.revived.connect(_on_revived)
+	_revive_prompt.declined.connect(_on_revive_declined)
 	_hud.bind_run(_track, _power_ups)
 	_biomes.bind_track(_track)
+	if GameState.head_start_active:
+		# Skip the opening stretch and cover the arrival with a shield.
+		_track.distance = head_start_distance
+		_power_ups.activate(PowerUps.Kind.SHIELD)
 	_run_countdown()
 
 
@@ -235,4 +244,23 @@ func _end_run() -> void:
 	Audio.play(&"crash")
 	GameState.run_distance = _track.distance
 	await get_tree().create_timer(DEATH_HOLD_SECONDS).timeout
+	if not is_inside_tree():
+		return
+	if _revive_prompt.offer():
+		return
+	SceneManager.show_death_menu()
+
+
+func _on_revived() -> void:
+	# Clear what killed the player before handing control back, and cover the
+	# restart with a shield so they are not hit again immediately.
+	_track.clear_props(true)
+	_is_over = false
+	_track.start()
+	_marble.begin()
+	_power_ups.activate(PowerUps.Kind.SHIELD)
+	Audio.play(&"power_up")
+
+
+func _on_revive_declined() -> void:
 	SceneManager.show_death_menu()

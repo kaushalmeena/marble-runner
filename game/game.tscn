@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3]
+[gd_scene load_steps=41 format=3]
 
 [ext_resource type="Script" path="res://game/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://game/track.gd" id="2_track"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://collectibles/fruit.tscn" id="6_fruit"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="7_hud"]
 [ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="8_pause"]
+[ext_resource type="PackedScene" path="res://ui/revive_prompt.tscn" id="41_revive"]
 [ext_resource type="Resource" path="res://resources/spawns/tree_single.tres" id="9_tree_single"]
 [ext_resource type="Resource" path="res://resources/spawns/bush_single.tres" id="10_bush_single"]
 [ext_resource type="Resource" path="res://resources/spawns/tree_double.tres" id="11_tree_double"]
@@ -99,4 +100,7 @@ layer = 1
 layer = 2
 
 [node name="PauseMenu" parent="PauseLayer" instance=ExtResource("8_pause")]
+visible = false
+
+[node name="RevivePrompt" parent="PauseLayer" instance=ExtResource("41_revive")]
 visible = false

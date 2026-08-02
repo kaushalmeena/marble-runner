@@ -14,6 +14,16 @@ func _ready() -> void:
 	_menu_button.pressed.connect(SceneManager.goto_main_menu)
 
 
+## Alt-tabbing mid-run used to be a death sentence: the world kept scrolling
+## while the window was in the background.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_APPLICATION_FOCUS_OUT \
+			and what != NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		return
+	if is_node_ready() and not visible and is_inside_tree():
+		pause()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed(&"pause"):
 		return
