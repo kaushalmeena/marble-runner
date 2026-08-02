@@ -17,6 +17,9 @@ const SPEED_COLOR := Color(0.42, 0.74, 1.0)
 @onready var _distance_value: Label = %DistanceValue
 @onready var _speed_bar: ProgressBar = %SpeedBar
 @onready var _record_badge: Label = %RecordBadge
+@onready var _multiplier_value: Label = %MultiplierValue
+@onready var _countdown: Label = %Countdown
+@onready var _near_miss_toast: Label = %NearMissToast
 @onready var _crash_flash: ColorRect = %CrashFlash
 
 var _track: Track = null
@@ -39,9 +42,13 @@ func _ready() -> void:
 	_tint_bar(_speed_bar, SPEED_COLOR)
 	GameState.score_changed.connect(_on_score_changed)
 	GameState.best_score_changed.connect(_on_best_score_changed)
+	GameState.multiplier_changed.connect(_on_multiplier_changed)
 	_score_value.text = str(GameState.score)
 	_best_value.text = str(GameState.best_score)
 	_record_badge.hide()
+	_countdown.hide()
+	_near_miss_toast.hide()
+	_multiplier_value.visible = GameState.multiplier > 1
 	_crash_flash.color.a = 0.0
 	# Nothing to poll until a track is bound.
 	set_process(false)
@@ -98,8 +105,41 @@ func show_shield_save() -> void:
 	tween.tween_callback(func() -> void: _crash_flash.color = Color(0.78, 0.09, 0.09, 0.0))
 
 
+## Shows one step of the start countdown, punched in and faded out.
+func show_countdown(text: String) -> void:
+	_countdown.text = text
+	_countdown.pivot_offset = _countdown.size * 0.5
+	_countdown.modulate.a = 1.0
+	_countdown.scale = Vector2(1.6, 1.6)
+	_countdown.show()
+	var tween := create_tween()
+	tween.tween_property(_countdown, "scale", Vector2.ONE, 0.22) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func hide_countdown() -> void:
+	var tween := create_tween()
+	tween.tween_property(_countdown, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(_countdown.hide)
+
+
+## Brief toast when an obstacle is dodged by a hair.
+func show_near_miss() -> void:
+	_near_miss_toast.modulate.a = 1.0
+	_near_miss_toast.show()
+	var tween := create_tween()
+	tween.tween_interval(0.35)
+	tween.tween_property(_near_miss_toast, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(_near_miss_toast.hide)
+
+
 func _on_score_changed(score: int) -> void:
 	_score_value.text = str(score)
+
+
+func _on_multiplier_changed(multiplier: int) -> void:
+	_multiplier_value.text = "x%d" % multiplier
+	_multiplier_value.visible = multiplier > 1
 
 
 func _on_best_score_changed(best_score: int) -> void:

@@ -58,11 +58,23 @@ layout_mode = 2
 text = "SCORE"
 theme_type_variation = &"CaptionLabel"
 
-[node name="ScoreValue" type="Label" parent="ScoreCluster"]
+[node name="ScoreRow" type="HBoxContainer" parent="ScoreCluster"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScoreValue" type="Label" parent="ScoreCluster/ScoreRow"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "0"
 theme_type_variation = &"ScoreLabel"
+
+[node name="MultiplierValue" type="Label" parent="ScoreCluster/ScoreRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+text = "x2"
+theme_type_variation = &"AccentLabel"
 
 [node name="BestRow" type="HBoxContainer" parent="ScoreCluster"]
 layout_mode = 2
@@ -219,6 +231,47 @@ step = 0.001
 max_value = 1.0
 value = 0.0
 show_percentage = false
+
+[node name="Countdown" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -120.0
+offset_right = 260.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+text = "3"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_type_variation = &"TitleLabel"
+
+[node name="NearMissToast" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -196.0
+offset_right = 240.0
+offset_bottom = -148.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+text = "NEAR MISS"
+horizontal_alignment = 1
+theme_type_variation = &"AccentLabel"
 
 [node name="CrashFlash" type="ColorRect" parent="."]
 unique_name_in_owner = true

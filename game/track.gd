@@ -19,6 +19,9 @@ const POOL_PARK_POSITION := Vector3(0.0, -100.0, 0.0)
 
 const GROUP_COLLECTIBLE := &"collectible"
 
+## A collectible reached the despawn line without being picked up.
+signal collectible_missed
+
 ## Lane centres along X. The player is handed this same array, so the two can
 ## never disagree about where a lane is.
 @export var lanes: PackedFloat32Array = PackedFloat32Array([-10.0, -5.0, 0.0, 5.0, 10.0])
@@ -32,6 +35,9 @@ const GROUP_COLLECTIBLE := &"collectible"
 @export_range(0.0, 1.0, 0.01) var power_up_chance: float = 0.14
 ## Props instantiated up front per entry, so the first spawns cause no hitch.
 @export_range(0, 8, 1) var prewarm_per_entry: int = 2
+## Whether the track scrolls as soon as it is ready. The game clears this so
+## nothing moves until the countdown finishes.
+@export var autostart: bool = true
 
 @export_group("Difficulty")
 ## Scroll speed at the start of a run, in units/second.
@@ -70,7 +76,7 @@ var _rng := RandomNumberGenerator.new()
 func _ready() -> void:
 	speed = base_speed
 	_prewarm()
-	_running = true
+	_running = autostart
 
 
 func _physics_process(delta: float) -> void:
@@ -92,6 +98,11 @@ func set_magnet(target: Node3D, radius: float, pull: float) -> void:
 
 func clear_magnet() -> void:
 	_magnet_target = null
+
+
+## Starts scrolling. Called once the countdown is over.
+func start() -> void:
+	_running = true
 
 
 ## Freezes the track. Called when the run ends so the world stops under the
@@ -132,6 +143,9 @@ func _advance_props(step: float, delta: float) -> void:
 			_apply_magnet(prop, delta)
 		if prop.position.z > DESPAWN_Z:
 			_active.remove_at(i)
+			# Reaching the despawn line means the player never picked it up.
+			if prop.is_in_group(GROUP_COLLECTIBLE):
+				collectible_missed.emit()
 			_release(prop)
 
 

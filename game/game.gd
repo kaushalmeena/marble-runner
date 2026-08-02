@@ -10,6 +10,8 @@ extends Node3D
 ## How long the crash is held on screen before the death menu, so the player can
 ## see what hit them. The Godot 3 version cut away on the same frame.
 const DEATH_HOLD_SECONDS := 0.55
+## Colour of the particle burst when a fruit is collected.
+const PICKUP_BURST_COLOR := Color(1, 0.78, 0.2)
 
 @export_group("Power-up tuning")
 ## How far the magnet reaches for fruit, in world units.
@@ -19,10 +21,17 @@ const DEATH_HOLD_SECONDS := 0.55
 ## Scroll speed multiplier while slow-mo runs.
 @export var slow_mo_scale: float = 0.55
 
+@export_group("Start")
+## Steps shown before control is handed over. The last one is the "go".
+@export var countdown_steps: PackedStringArray = PackedStringArray(["3", "2", "1", "GO"])
+@export var countdown_step_seconds: float = 0.6
+
 @onready var _track: Track = $Track
 @onready var _marble: Marble = $Marble
 @onready var _hud: Hud = $HUDLayer/Hud
 @onready var _power_ups: PowerUpManager = $PowerUpManager
+@onready var _camera: GameCamera = $Camera3D
+@onready var _bursts: BurstEmitter = $BurstEmitter
 
 var _is_over: bool = false
 
@@ -34,9 +43,26 @@ func _ready() -> void:
 	_marble.collected_power_up.connect(_on_marble_collected_power_up)
 	_marble.jumped.connect(_on_marble_jumped)
 	_marble.landed.connect(_on_marble_landed)
+	_marble.near_missed.connect(_on_marble_near_missed)
 	_power_ups.activated.connect(_on_power_up_activated)
 	_power_ups.expired.connect(_on_power_up_expired)
+	_track.collectible_missed.connect(_on_collectible_missed)
 	_hud.bind_run(_track, _power_ups)
+	_run_countdown()
+
+
+## Holds the world still until the player has had a moment to read the track.
+func _run_countdown() -> void:
+	for index in countdown_steps.size():
+		var step := countdown_steps[index]
+		_hud.show_countdown(step)
+		Audio.play(&"go" if index == countdown_steps.size() - 1 else &"count", -3.0)
+		await get_tree().create_timer(countdown_step_seconds).timeout
+		if not is_inside_tree():
+			return
+	_hud.hide_countdown()
+	_track.start()
+	_marble.begin()
 
 
 func _physics_process(_delta: float) -> void:
@@ -46,16 +72,30 @@ func _physics_process(_delta: float) -> void:
 
 
 func _on_marble_collected_pickup(pickup: Area3D) -> void:
-	GameState.add_score()
+	GameState.collect_pickup()
+	_bursts.burst(pickup.global_position + Vector3.UP, PICKUP_BURST_COLOR)
 	_track.recycle(pickup)
 	_hud.pop_score()
 	Audio.play(&"pickup", 0.0, 0.06)
+
+
+func _on_collectible_missed() -> void:
+	GameState.break_streak()
+
+
+func _on_marble_near_missed() -> void:
+	if _is_over:
+		return
+	GameState.score_near_miss()
+	_hud.show_near_miss()
+	Audio.play(&"near_miss", -8.0)
 
 
 func _on_marble_collected_power_up(pickup: Area3D) -> void:
 	var power_up := pickup as PowerUpPickup
 	if power_up != null:
 		_power_ups.activate(power_up.kind)
+		_bursts.burst(pickup.global_position + Vector3.UP, PowerUps.color(power_up.kind))
 	_track.recycle(pickup)
 	Audio.play(&"power_up")
 
@@ -65,6 +105,7 @@ func _on_marble_jumped() -> void:
 
 
 func _on_marble_landed() -> void:
+	_camera.add_trauma(0.16)
 	Audio.play(&"land", -8.0, 0.05)
 
 
@@ -96,7 +137,9 @@ func _on_marble_hit_obstacle(obstacle: Area3D) -> void:
 	# A live shield turns the hit into a save: it is spent, the obstacle is
 	# cleared out of the way, and the run carries on.
 	if _power_ups.consume_shield():
+		_bursts.burst(_marble.global_position, PowerUps.color(PowerUps.Kind.SHIELD))
 		_track.recycle(obstacle)
+		_camera.add_trauma(0.45)
 		_hud.show_shield_save()
 		Audio.play(&"shield_break")
 		return
@@ -109,6 +152,7 @@ func _end_run() -> void:
 	_marble.stop()
 	_power_ups.clear_all()
 	_hud.show_crash()
+	_camera.add_trauma(1.0)
 	Audio.play(&"crash")
 	GameState.run_distance = _track.distance
 	await get_tree().create_timer(DEATH_HOLD_SECONDS).timeout

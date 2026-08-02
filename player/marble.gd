@@ -18,6 +18,8 @@ signal collected_power_up(pickup: Area3D)
 signal jumped
 ## The marble touched down again.
 signal landed
+## An obstacle slipped past without touching the marble.
+signal near_missed
 
 const GROUP_OBSTACLE := &"obstacle"
 const GROUP_COLLECTIBLE := &"collectible"
@@ -45,6 +47,7 @@ const LANE_SNAP_EPSILON := 0.05
 var forward_speed: float = 0.0
 
 @onready var _hitbox: Area3D = $Hitbox
+@onready var _near_miss_box: Area3D = $NearMissBox
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _shield_bubble: MeshInstance3D = $ShieldBubble
 
@@ -56,6 +59,7 @@ var _airborne: bool = false
 
 func _ready() -> void:
 	_hitbox.area_entered.connect(_on_hitbox_area_entered)
+	_near_miss_box.area_exited.connect(_on_near_miss_box_area_exited)
 	_shield_bubble.hide()
 
 
@@ -74,6 +78,10 @@ func configure(lanes: PackedFloat32Array, start_index: int = -1) -> void:
 	_lane_index = start_index if start_index >= 0 else lanes.size() / 2
 	_lane_index = clampi(_lane_index, 0, lanes.size() - 1)
 	position.x = _lanes[_lane_index]
+
+
+## Hands control to the player. Held back until the countdown finishes.
+func begin() -> void:
 	_active = true
 
 
@@ -166,3 +174,14 @@ func _on_hitbox_area_entered(area: Area3D) -> void:
 		collected_power_up.emit(area)
 	elif area.is_in_group(GROUP_OBSTACLE):
 		hit_obstacle.emit(area)
+
+
+## An obstacle leaving the wider box counts as a near miss only if it left
+## *behind* the marble. Anything recycled mid-run (a shielded hit, or a fruit
+## the magnet grabbed) is parked far below and fails this test, so a hit can
+## never be scored as a dodge.
+func _on_near_miss_box_area_exited(area: Area3D) -> void:
+	if not _active or not area.is_in_group(GROUP_OBSTACLE):
+		return
+	if area.global_position.z > global_position.z:
+		near_missed.emit()
