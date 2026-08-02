@@ -18,9 +18,16 @@ const DESPAWN_Z := 25.0
 const POOL_PARK_POSITION := Vector3(0.0, -100.0, 0.0)
 
 const GROUP_COLLECTIBLE := &"collectible"
+const GROUP_OBSTACLE := &"obstacle"
 
 ## A collectible reached the despawn line without being picked up.
 signal collectible_missed
+
+## Per-prop state, kept as metadata so the pool can stay a plain array.
+const META_LANE_X := &"lane_x"
+const META_DRIFT := &"drift"
+const META_DRIFT_PERIOD := &"drift_period"
+const META_DRIFT_PHASE := &"drift_phase"
 
 ## Lane centres along X. The player is handed this same array, so the two can
 ## never disagree about where a lane is.
@@ -38,6 +45,17 @@ signal collectible_missed
 ## Whether the track scrolls as soon as it is ready. The game clears this so
 ## nothing moves until the countdown finishes.
 @export var autostart: bool = true
+
+@export_group("Curve")
+## Ground material whose shader draws the bend. The track and the props must
+## use the same curve or props would float off the road.
+@export var ground_material: ShaderMaterial
+## Sideways reach of the curve once it has fully ramped in, in units.
+@export var max_curve_amplitude: float = 7.5
+## Units travelled before the curve reaches full strength.
+@export var curve_ramp_distance: float = 600.0
+## Length of one full bend, in units. Longer is a lazier road.
+@export var curve_wavelength: float = 240.0
 
 @export_group("Difficulty")
 ## Scroll speed at the start of a run, in units/second.
@@ -66,6 +84,10 @@ var _running: bool = false
 var _active: Array[Area3D] = []
 var _pool: Dictionary[String, Array] = {}
 var _distance_since_spawn: float = 0.0
+var _elapsed: float = 0.0
+var _curve_phase: float = 0.0
+var _curve_amplitude: float = 0.0
+var _lane_spacing: float = 5.0
 var _magnet_target: Node3D = null
 var _magnet_radius: float = 0.0
 var _magnet_pull: float = 0.0
@@ -75,6 +97,9 @@ var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	speed = base_speed
+	if lanes.size() > 1:
+		_lane_spacing = absf(lanes[1] - lanes[0])
+	_push_curve_to_shader()
 	_prewarm()
 	_running = autostart
 
@@ -82,9 +107,11 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if not _running:
 		return
+	_elapsed += delta
 	_update_speed()
 	var step := speed * delta
 	distance += step
+	_update_curve(step)
 	_advance_props(step, delta)
 	_update_spawning(step)
 
@@ -98,6 +125,27 @@ func set_magnet(target: Node3D, radius: float, pull: float) -> void:
 
 func clear_magnet() -> void:
 	_magnet_target = null
+
+
+## Sideways offset of the road at a given depth. Zero at the player's depth, so
+## a prop always arrives on its true lane centre no matter how hard the road is
+## winding further out.
+func bend_at(z: float) -> float:
+	if _curve_amplitude <= 0.0:
+		return 0.0
+	var k := TAU / maxf(1.0, curve_wavelength)
+	return _curve_amplitude * (sin(_curve_phase + (z - DESPAWN_Z) * k) - sin(_curve_phase))
+
+
+## Recycles everything currently on the track. Used by the revive, so the player
+## does not come back inside whatever just killed them.
+func clear_props(obstacles_only: bool = false) -> void:
+	for i in range(_active.size() - 1, -1, -1):
+		var prop := _active[i]
+		if obstacles_only and not prop.is_in_group(GROUP_OBSTACLE):
+			continue
+		_active.remove_at(i)
+		_release(prop)
 
 
 ## Starts scrolling. Called once the countdown is over.
@@ -130,6 +178,30 @@ func recycle(prop: Area3D) -> void:
 	_release(prop)
 
 
+## The bend pattern is anchored to the world, so as the world scrolls past by
+## `step` the phase has to walk back by the same amount for the curve to travel
+## with the props rather than sliding through them.
+func _update_curve(step: float) -> void:
+	if curve_ramp_distance > 0.0:
+		_curve_amplitude = max_curve_amplitude * clampf(
+			distance / curve_ramp_distance, 0.0, 1.0)
+	else:
+		_curve_amplitude = max_curve_amplitude
+	_curve_phase -= step * TAU / maxf(1.0, curve_wavelength)
+	_curve_phase = fposmod(_curve_phase, TAU)
+	_push_curve_to_shader()
+
+
+func _push_curve_to_shader() -> void:
+	if ground_material == null:
+		return
+	ground_material.set_shader_parameter(&"curve_amplitude", _curve_amplitude)
+	ground_material.set_shader_parameter(&"curve_wavelength", curve_wavelength)
+	ground_material.set_shader_parameter(&"curve_phase", _curve_phase)
+	ground_material.set_shader_parameter(&"curve_pivot_z", DESPAWN_Z)
+	ground_material.set_shader_parameter(&"lane_spacing", _lane_spacing)
+
+
 func _update_speed() -> void:
 	speed = minf(max_speed, base_speed + distance * speed_ramp) * speed_scale
 
@@ -141,6 +213,8 @@ func _advance_props(step: float, delta: float) -> void:
 		prop.position.z += step
 		if _magnet_target != null and prop.is_in_group(GROUP_COLLECTIBLE):
 			_apply_magnet(prop, delta)
+		else:
+			prop.position.x = _prop_x(prop)
 		if prop.position.z > DESPAWN_Z:
 			_active.remove_at(i)
 			# Reaching the despawn line means the player never picked it up.
@@ -177,7 +251,7 @@ func _spawn_obstacle() -> void:
 	var entry := _pick_weighted(obstacles)
 	if entry == null:
 		return
-	_place(entry.scene, entry.lane_width)
+	_place(entry.scene, entry.lane_width, entry)
 
 
 func _spawn_collectible() -> void:
@@ -186,19 +260,39 @@ func _spawn_collectible() -> void:
 	if not power_ups.is_empty() and _rng.randf() < power_up_chance:
 		var entry := _pick_weighted(power_ups)
 		if entry != null:
-			_place(entry.scene, entry.lane_width)
+			_place(entry.scene, entry.lane_width, entry)
 			return
 	if collectible == null:
 		return
 	_place(collectible, 1)
 
 
-func _place(scene: PackedScene, lane_width: int) -> void:
+func _place(scene: PackedScene, lane_width: int, entry: SpawnEntry = null) -> void:
 	var prop := _acquire(scene)
 	if prop == null:
 		return
-	prop.position = Vector3(_random_lane_x(lane_width), 0.0, SPAWN_Z)
+	prop.set_meta(META_LANE_X, _random_lane_x(lane_width))
+	prop.set_meta(META_DRIFT, 0.0 if entry == null else entry.drift_lanes)
+	prop.set_meta(META_DRIFT_PERIOD, 3.0 if entry == null else entry.drift_period)
+	# A per-prop phase stops a row of drifters swinging in lockstep.
+	prop.set_meta(META_DRIFT_PHASE, _rng.randf() * TAU)
+	prop.position = Vector3(0.0, 0.0, SPAWN_Z)
+	prop.position.x = _prop_x(prop)
 	_active.append(prop)
+
+
+## Where a prop sits this frame: its lane, plus any drift, plus the road bend.
+## Drift is real gameplay and is clamped to the track; the bend is not, and
+## cancels out by the time the prop reaches the player.
+func _prop_x(prop: Area3D) -> float:
+	var lane_x: float = prop.get_meta(META_LANE_X, 0.0)
+	var drift: float = prop.get_meta(META_DRIFT, 0.0)
+	if drift > 0.0:
+		var period: float = maxf(0.1, prop.get_meta(META_DRIFT_PERIOD, 3.0))
+		var phase: float = prop.get_meta(META_DRIFT_PHASE, 0.0)
+		lane_x += drift * _lane_spacing * sin(TAU * _elapsed / period + phase)
+		lane_x = clampf(lane_x, lanes[0], lanes[lanes.size() - 1])
+	return lane_x + bend_at(prop.position.z)
 
 
 ## Picks an entry proportionally to its weight.

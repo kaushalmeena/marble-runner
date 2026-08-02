@@ -1,6 +1,16 @@
-[gd_resource type="StandardMaterial3D" format=3]
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://world/curved_ground.gdshader" id="1_shader"]
 
 [resource]
 resource_name = "Ground"
-albedo_color = Color(0.42, 0.62, 0.35, 1)
-roughness = 0.95
+shader = ExtResource("1_shader")
+shader_parameter/albedo = Color(0.42, 0.62, 0.35, 1)
+shader_parameter/stripe_color = Color(0.12, 0.26, 0.13, 0.3)
+shader_parameter/roughness = 0.95
+shader_parameter/lane_spacing = 5.0
+shader_parameter/stripe_width = 0.18
+shader_parameter/curve_amplitude = 0.0
+shader_parameter/curve_wavelength = 240.0
+shader_parameter/curve_phase = 0.0
+shader_parameter/curve_pivot_z = 10.0

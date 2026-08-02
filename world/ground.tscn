@@ -1,13 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="StandardMaterial3D" path="res://resources/materials/ground.tres" id="1_ground"]
-[ext_resource type="StandardMaterial3D" path="res://resources/materials/lane_stripe.tres" id="2_stripe"]
+[ext_resource type="ShaderMaterial" path="res://resources/materials/ground.tres" id="1_ground"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_surface"]
-size = Vector3(30, 1, 400)
-
-[sub_resource type="BoxMesh" id="BoxMesh_stripe"]
-size = Vector3(0.16, 0.04, 400)
+[sub_resource type="PlaneMesh" id="PlaneMesh_surface"]
+size = Vector2(30, 400)
+subdivide_width = 6
+subdivide_depth = 220
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_surface"]
 size = Vector3(30, 1, 400)
@@ -17,40 +15,9 @@ collision_layer = 1
 collision_mask = 0
 
 [node name="Surface" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_surface")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("PlaneMesh_surface")
 surface_material_override/0 = ExtResource("1_ground")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_surface")
-
-[node name="LaneStripes" type="Node3D" parent="."]
-
-[node name="Stripe1" type="MeshInstance3D" parent="LaneStripes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 0.52, 0)
-mesh = SubResource("BoxMesh_stripe")
-surface_material_override/0 = ExtResource("2_stripe")
-
-[node name="Stripe2" type="MeshInstance3D" parent="LaneStripes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0.52, 0)
-mesh = SubResource("BoxMesh_stripe")
-surface_material_override/0 = ExtResource("2_stripe")
-
-[node name="Stripe3" type="MeshInstance3D" parent="LaneStripes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.52, 0)
-mesh = SubResource("BoxMesh_stripe")
-surface_material_override/0 = ExtResource("2_stripe")
-
-[node name="Stripe4" type="MeshInstance3D" parent="LaneStripes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.52, 0)
-mesh = SubResource("BoxMesh_stripe")
-surface_material_override/0 = ExtResource("2_stripe")
-
-[node name="Stripe5" type="MeshInstance3D" parent="LaneStripes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 0.52, 0)
-mesh = SubResource("BoxMesh_stripe")
-surface_material_override/0 = ExtResource("2_stripe")
-
-[node name="Stripe6" type="MeshInstance3D" parent="LaneStripes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 0.52, 0)
-mesh = SubResource("BoxMesh_stripe")
-surface_material_override/0 = ExtResource("2_stripe")

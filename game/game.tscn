@@ -16,6 +16,7 @@
 [ext_resource type="Resource" path="res://resources/spawns/rock.tres" id="14_rock"]
 [ext_resource type="Resource" path="res://resources/spawns/log.tres" id="15_log"]
 [ext_resource type="Resource" path="res://resources/spawns/crystal.tres" id="16_crystal"]
+[ext_resource type="Resource" path="res://resources/spawns/drifter.tres" id="34_drifter"]
 [ext_resource type="Script" path="res://game/power_up_manager.gd" id="17_powerups"]
 [ext_resource type="Script" path="res://game/game_camera.gd" id="21_camera"]
 [ext_resource type="Script" path="res://effects/burst_emitter.gd" id="22_bursts"]
@@ -25,8 +26,7 @@
 [ext_resource type="Resource" path="res://resources/biomes/desert.tres" id="26_desert"]
 [ext_resource type="Resource" path="res://resources/biomes/tundra.tres" id="27_tundra"]
 [ext_resource type="Resource" path="res://resources/biomes/dusk.tres" id="28_dusk"]
-[ext_resource type="StandardMaterial3D" path="res://resources/materials/ground.tres" id="29_ground"]
-[ext_resource type="StandardMaterial3D" path="res://resources/materials/lane_stripe.tres" id="30_stripe"]
+[ext_resource type="ShaderMaterial" path="res://resources/materials/ground.tres" id="29_ground"]
 [ext_resource type="StandardMaterial3D" path="res://resources/materials/foliage.tres" id="31_foliage"]
 [ext_resource type="StandardMaterial3D" path="res://resources/materials/bark.tres" id="32_bark"]
 [ext_resource type="StandardMaterial3D" path="res://resources/materials/rock.tres" id="33_rock"]
@@ -58,7 +58,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20)
 [node name="Track" type="Node3D" parent="."]
 script = ExtResource("2_track")
 autostart = false
-obstacles = Array[SpawnEntry]([ExtResource("9_tree_single"), ExtResource("10_bush_single"), ExtResource("11_tree_double"), ExtResource("12_bush_double"), ExtResource("13_bush_triple"), ExtResource("14_rock"), ExtResource("15_log"), ExtResource("16_crystal")])
+ground_material = ExtResource("29_ground")
+obstacles = Array[SpawnEntry]([ExtResource("9_tree_single"), ExtResource("10_bush_single"), ExtResource("11_tree_double"), ExtResource("12_bush_double"), ExtResource("13_bush_triple"), ExtResource("14_rock"), ExtResource("15_log"), ExtResource("16_crystal"), ExtResource("34_drifter")])
 collectible = ExtResource("6_fruit")
 power_ups = Array[SpawnEntry]([ExtResource("18_shield"), ExtResource("19_magnet"), ExtResource("20_slow")])
 
@@ -75,7 +76,6 @@ script = ExtResource("23_swipes")
 script = ExtResource("24_biomes")
 biomes = Array[Biome]([ExtResource("25_meadow"), ExtResource("26_desert"), ExtResource("27_tundra"), ExtResource("28_dusk")])
 ground_material = ExtResource("29_ground")
-stripe_material = ExtResource("30_stripe")
 foliage_material = ExtResource("31_foliage")
 bark_material = ExtResource("32_bark")
 rock_material = ExtResource("33_rock")

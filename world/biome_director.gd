@@ -18,8 +18,10 @@ extends Node
 @export_range(0.05, 1.0, 0.05) var blend_fraction: float = 0.35
 
 @export_group("Targets")
-@export var ground_material: StandardMaterial3D
-@export var stripe_material: StandardMaterial3D
+## The ground is a ShaderMaterial now that it bends, so its colours are shader
+## parameters rather than albedo properties. Lane stripes are drawn by the same
+## shader and tinted through it.
+@export var ground_material: ShaderMaterial
 @export var foliage_material: StandardMaterial3D
 @export var bark_material: StandardMaterial3D
 @export var rock_material: StandardMaterial3D
@@ -74,9 +76,10 @@ func _apply(distance: float) -> void:
 	var weight := _blend_weight(distance)
 
 	if ground_material != null:
-		ground_material.albedo_color = from.ground_color.lerp(to.ground_color, weight)
-	if stripe_material != null:
-		stripe_material.albedo_color = from.stripe_color.lerp(to.stripe_color, weight)
+		ground_material.set_shader_parameter(&"albedo",
+			from.ground_color.lerp(to.ground_color, weight))
+		ground_material.set_shader_parameter(&"stripe_color",
+			from.stripe_color.lerp(to.stripe_color, weight))
 	if foliage_material != null:
 		foliage_material.albedo_color = from.foliage_color.lerp(to.foliage_color, weight)
 	if bark_material != null:

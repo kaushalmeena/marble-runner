@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/hazard.tres" id="1_hazard"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_body"]
+radius = 0.85
+height = 1.7
+radial_segments = 20
+rings = 10
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_body"]
+radius = 0.85
+
+[node name="Drifter" type="Area3D" groups=["obstacle"]]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+mesh = SubResource("SphereMesh_body")
+surface_material_override/0 = ExtResource("1_hazard")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+shape = SubResource("SphereShape3D_body")

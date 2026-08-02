@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "Hazard"
+albedo_color = Color(0.92, 0.22, 0.25, 1)
+metallic = 0.3
+roughness = 0.25
+emission_enabled = true
+emission = Color(1, 0.25, 0.15, 1)
+emission_energy_multiplier = 0.8
