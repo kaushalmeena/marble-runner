@@ -57,26 +57,6 @@ text = "Dodge the greenery. Grab the fruit. Don't stop."
 horizontal_alignment = 1
 theme_type_variation = &"HintLabel"
 
-[node name="BestCard" type="PanelContainer" parent="Center/Column"]
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="Row" type="HBoxContainer" parent="Center/Column/BestCard"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="Caption" type="Label" parent="Center/Column/BestCard/Row"]
-layout_mode = 2
-size_flags_vertical = 4
-text = "BEST"
-theme_type_variation = &"CaptionLabel"
-
-[node name="BestValue" type="Label" parent="Center/Column/BestCard/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "0"
-theme_type_variation = &"ValueLabel"
-
 [node name="Buttons" type="VBoxContainer" parent="Center/Column"]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2

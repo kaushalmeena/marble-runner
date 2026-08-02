@@ -1,6 +1,6 @@
 [gd_resource type="StandardMaterial3D" format=3]
 
 [resource]
-resource_name = "Ground"
-albedo_color = Color(0.42, 0.62, 0.35, 1)
+resource_name = "Rock"
+albedo_color = Color(0.52, 0.54, 0.57, 1)
 roughness = 0.95

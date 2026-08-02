@@ -1,18 +1,18 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="StandardMaterial3D" path="res://resources/materials/foliage.tres" id="1_foliage"]
 [ext_resource type="StandardMaterial3D" path="res://resources/materials/bark.tres" id="2_bark"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_leaves"]
-size = Vector3(7, 3, 2)
+size = Vector3(7.0, 3, 2)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_trunk"]
 top_radius = 0.5
 bottom_radius = 0.5
 height = 2.0
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_tree"]
-size = Vector3(7, 5, 2)
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(7.0, 5, 2)
 
 [node name="TreeDouble" type="Area3D" groups=["obstacle"]]
 collision_layer = 4
@@ -24,16 +24,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 3.5, 0)
 mesh = SubResource("BoxMesh_leaves")
 surface_material_override/0 = ExtResource("1_foliage")
 
-[node name="TrunkLeft" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+[node name="Trunk1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 1, 0)
 mesh = SubResource("CylinderMesh_trunk")
 surface_material_override/0 = ExtResource("2_bark")
 
-[node name="TrunkRight" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 0)
+[node name="Trunk2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.0, 1, 0)
 mesh = SubResource("CylinderMesh_trunk")
 surface_material_override/0 = ExtResource("2_bark")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 2.5, 0)
-shape = SubResource("BoxShape3D_tree")
+shape = SubResource("BoxShape3D_body")

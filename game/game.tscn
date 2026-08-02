@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://game/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://game/track.gd" id="2_track"]
@@ -13,6 +13,9 @@
 [ext_resource type="Resource" path="res://resources/spawns/tree_double.tres" id="11_tree_double"]
 [ext_resource type="Resource" path="res://resources/spawns/bush_double.tres" id="12_bush_double"]
 [ext_resource type="Resource" path="res://resources/spawns/bush_triple.tres" id="13_bush_triple"]
+[ext_resource type="Resource" path="res://resources/spawns/rock.tres" id="14_rock"]
+[ext_resource type="Resource" path="res://resources/spawns/log.tres" id="15_log"]
+[ext_resource type="Resource" path="res://resources/spawns/crystal.tres" id="16_crystal"]
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_game")
@@ -23,7 +26,7 @@ environment = ExtResource("3_environment")
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8192, 0.4394, -0.3687, 0, 0.6428, 0.766, 0.5736, -0.6275, 0.5266, 0, 20, 0)
 light_color = Color(1, 0.97, 0.9, 1)
-light_energy = 0.85
+light_energy = 0.7
 shadow_enabled = true
 directional_shadow_max_distance = 120.0
 
@@ -36,7 +39,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20)
 
 [node name="Track" type="Node3D" parent="."]
 script = ExtResource("2_track")
-obstacles = Array[SpawnEntry]([ExtResource("9_tree_single"), ExtResource("10_bush_single"), ExtResource("11_tree_double"), ExtResource("12_bush_double"), ExtResource("13_bush_triple")])
+obstacles = Array[SpawnEntry]([ExtResource("9_tree_single"), ExtResource("10_bush_single"), ExtResource("11_tree_double"), ExtResource("12_bush_double"), ExtResource("13_bush_triple"), ExtResource("14_rock"), ExtResource("15_log"), ExtResource("16_crystal")])
 collectible = ExtResource("6_fruit")
 
 [node name="Marble" parent="." instance=ExtResource("5_marble")]

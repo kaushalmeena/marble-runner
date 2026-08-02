@@ -8,8 +8,10 @@ extends Node3D
 ## what the Godot 3 version did, with a full [code]move_and_slide[/code] per
 ## prop), and it makes pooling possible so a long run stops churning nodes.
 
-## Local Z where props appear. Far enough back to be hidden by the fog.
-const SPAWN_Z := -70.0
+## Local Z where props appear. This sits beyond the environment's
+## fog_depth_end, so props fade in out of the haze instead of popping into
+## existence on the horizon.
+const SPAWN_Z := -95.0
 ## Local Z past the camera where props are recycled.
 const DESPAWN_Z := 25.0
 ## Parking spot for pooled props, safely off-screen and out of the play volume.

@@ -25,3 +25,8 @@ node_modules/
 
 ### Build output ###
 dist/
+
+# Throwaway test/screenshot harnesses (must live under res:// to run)
+/_*.gd
+/_*.tscn
+/_*.uid

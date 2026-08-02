@@ -7,4 +7,4 @@
 script = ExtResource("1_script")
 scene = ExtResource("2_scene")
 lane_width = 2
-weight = 1.0
+weight = 0.8

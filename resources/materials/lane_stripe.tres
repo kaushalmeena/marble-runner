@@ -3,5 +3,5 @@
 [resource]
 resource_name = "LaneStripe"
 transparency = 1
-albedo_color = Color(0.14, 0.3, 0.15, 0.22)
+albedo_color = Color(0.12, 0.26, 0.13, 0.3)
 roughness = 1.0

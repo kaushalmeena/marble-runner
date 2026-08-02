@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="StandardMaterial3D" path="res://resources/materials/bark.tres" id="1_bark"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_body"]
+top_radius = 0.625
+bottom_radius = 0.625
+height = 7.0
+radial_segments = 12
+rings = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(7, 1.25, 1.25)
+
+[node name="Log" type="Area3D" groups=["obstacle"]]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 2.5, 0.625, 0)
+mesh = SubResource("CylinderMesh_body")
+surface_material_override/0 = ExtResource("1_bark")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.625, 0)
+shape = SubResource("BoxShape3D_body")

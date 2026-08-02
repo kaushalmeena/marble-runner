@@ -11,6 +11,10 @@ extends CharacterBody3D
 signal hit_obstacle
 ## The player touched a fruit. Carries the prop so its owner can recycle it.
 signal collected_pickup(pickup: Area3D)
+## The marble left the ground.
+signal jumped
+## The marble touched down again.
+signal landed
 
 const GROUP_OBSTACLE := &"obstacle"
 const GROUP_COLLECTIBLE := &"collectible"
@@ -21,7 +25,14 @@ const LANE_SNAP_EPSILON := 0.05
 @export var lane_change_speed: float = 14.0
 ## Caps the pull above, so a full-width dash does not look like a teleport.
 @export var max_lateral_speed: float = 40.0
-@export var gravity: float = 30.0
+@export var gravity: float = 45.0
+## Take-off speed. Together with [member gravity] this decides the apex, and the
+## apex is what decides which obstacles are jumpable: at 9.6 against a gravity
+## of 45 the marble rises ~1.02 units, which clears the one-unit rocks and logs
+## but leaves the two-unit bushes and the trees solid.
+@export var jump_velocity: float = 9.6
+## Extra gravity while descending, so the fall does not feel floaty.
+@export var fall_gravity_multiplier: float = 1.35
 ## Radius used to convert travel into spin. Match the mesh.
 @export var roll_radius: float = 0.9
 
@@ -35,6 +46,7 @@ var forward_speed: float = 0.0
 var _lanes: PackedFloat32Array = PackedFloat32Array()
 var _lane_index: int = 0
 var _active: bool = false
+var _airborne: bool = false
 
 
 func _ready() -> void:
@@ -68,9 +80,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		_change_lane(-1)
 	elif event.is_action_pressed(&"move_right"):
 		_change_lane(1)
+	elif event.is_action_pressed(&"jump"):
+		try_jump()
 	else:
 		return
 	get_viewport().set_input_as_handled()
+
+
+## Leaves the ground if the marble is on it. Returns whether it jumped, so a
+## queued input can tell a refused jump from an accepted one.
+func try_jump() -> bool:
+	if not _active or not is_on_floor():
+		return false
+	velocity.y = jump_velocity
+	_airborne = true
+	jumped.emit()
+	return true
 
 
 func _physics_process(delta: float) -> void:
@@ -97,10 +122,16 @@ func _apply_lane_motion() -> void:
 
 
 func _apply_gravity(delta: float) -> void:
-	if is_on_floor():
+	if is_on_floor() and velocity.y <= 0.0:
+		if _airborne:
+			_airborne = false
+			landed.emit()
 		velocity.y = 0.0
-	else:
-		velocity.y -= gravity * delta
+		return
+	# Heavier on the way down than on the way up: the classic platformer trick
+	# for a jump that feels responsive rather than floaty.
+	var scale := fall_gravity_multiplier if velocity.y < 0.0 else 1.0
+	velocity.y -= gravity * scale * delta
 
 
 ## Spins the mesh so the marble looks like it is rolling: forward spin from the
