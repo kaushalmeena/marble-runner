@@ -10,7 +10,9 @@ extends Control
 @onready var _menu_button: Button = %MenuButton
 @onready var _dim: ColorRect = %Dim
 @onready var _center: Control = %Center
-@onready var _hint: Label = %Hint
+@onready var _card: Control = $Center/Card
+
+var _hint: Control
 
 ## How far below its resting place the card starts, and how long it takes.
 const RISE := 28.0
@@ -23,6 +25,18 @@ var _tween: Tween
 
 func _ready() -> void:
 	hide()
+	# The key hints ride under the card in one column with it, so they sit
+	# just below it at any window size and can never land on top of it.
+	var stack := Ui.column(18)
+	_center.remove_child(_card)
+	_center.add_child(stack)
+	stack.add_child(_card)
+	var keys := Ui.row(30)
+	keys.alignment = BoxContainer.ALIGNMENT_CENTER
+	keys.add_child(Ui.key_hint(["ESC"], "RESUME"))
+	keys.add_child(Ui.key_hint(["R"], "RESTART"))
+	stack.add_child(keys)
+	_hint = keys
 	for part: CanvasItem in [_dim, _hint, _center]:
 		part.modulate.a = 0.0
 	_center.position.y = RISE
