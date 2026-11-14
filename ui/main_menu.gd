@@ -47,7 +47,9 @@ func _ready() -> void:
 	var purse := Ui.row(10)
 	purse.add_child(StatPill.new(Icon.Kind.STAR, Icon.GOLD, "%d / %d" % [
 		GameState.total_stars(), LevelCatalog.count() * StarRow.COUNT]))
-	purse.add_child(StatPill.new(Icon.Kind.COIN, Icon.GOLD, str(GameState.coins)))
+	purse.add_child(StatPill.new(Icon.Kind.DIAMOND, Icon.DIAMOND_WHITE, "%d / %d" % [
+		GameState.total_secrets(), LevelCatalog.count()]))
+	purse.add_child(StatPill.new(Icon.Kind.GEM, Icon.GEM_BLUE, str(GameState.gems)))
 	add_child(purse)
 	Ui.pin(purse, Control.PRESET_TOP_RIGHT, Vector2(24, 20))
 

@@ -41,6 +41,8 @@ var portals: Array[Portal] = []
 var keys: Array[GateKey] = []
 var gates: Array[Gate] = []
 var cannons: Array[Cannon] = []
+## The level's one secret diamond, if it has been placed.
+var secret_diamond: SecretDiamond = null
 ## True once any water has been placed, for the HUD's level conditions.
 var has_water: bool = false
 ## The line a test bot follows through the level, as "x,z,flags" waypoints,
@@ -217,6 +219,34 @@ func gem_ring(center: Vector3, radius: float, count: int) -> void:
 	for index in count:
 		var angle := TAU * index / count
 		gem(center + Vector3(sin(angle), 0.0, cos(angle)) * radius)
+
+
+## The level's secret diamond. With [param concealed] it is out of sight until
+## something wired to it brings it out: pass the returned diamond as a target of
+## [method button], or add it to a rival's [member Enemy.reveals].
+func secret(at: Vector3, concealed: bool = false) -> SecretDiamond:
+	secret_diamond = SecretDiamond.new(concealed)
+	_place(secret_diamond, at)
+	return secret_diamond
+
+
+## A small ledge of rock with the secret diamond on it, for somewhere off the
+## route. [param top] is the middle of its walkable surface.
+func secret_ledge(top: Vector3, size := Vector2(3.0, 3.0)) -> SecretDiamond:
+	self.floor(top.x, top.z, size.x, size.y, top.y, Surface.WALL, 0.5)
+	return secret(top)
+
+
+## The secret diamond tucked under the lip of a floor. [param edge] is a point on
+## the floor's edge and [param outward] points away from the floor. A ledge
+## hangs below, mostly under the floor above it, with the diamond at the back:
+## nothing shows from on top but a sliver of rock. Only for floors of ordinary
+## thickness; a cliff has nothing under its lip.
+func secret_nook(edge: Vector3, outward: Vector3) -> SecretDiamond:
+	var out := outward.normalized()
+	var top := edge + out * 0.4 + Vector3.DOWN * 3.5
+	self.floor(top.x, top.z, 3.0, 3.0, top.y, Surface.WALL, 0.5)
+	return secret(edge - out * 0.3 + Vector3.DOWN * 3.5)
 
 
 func checkpoint(at: Vector3) -> Checkpoint:

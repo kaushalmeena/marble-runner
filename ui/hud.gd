@@ -21,6 +21,7 @@ const COMPLETE_COLOR := Color(1.0, 0.79, 0.24)
 const FROZEN_COLOR := Color(0.78, 0.6, 1.0)
 
 var _gems_value: Label
+var _secret: Icon
 var _keys_pill: PanelContainer
 var _keys_value: Label
 var _clock: ClockLabel
@@ -81,6 +82,11 @@ func set_gems(collected: int, total: int) -> void:
 func mark_cheated() -> void:
 	_best.text = "CHEATS ON   NOT RECORDED"
 	_best.modulate = Color(1.0, 0.55, 0.45)
+
+
+## Lights the secret diamond's mark once the diamond is held.
+func set_secret(found: bool) -> void:
+	_secret.modulate.a = 1.0 if found else 0.22
 
 
 ## Shows how many keys are carried. The pill is hidden at zero.
@@ -168,6 +174,12 @@ func _build_gems() -> void:
 	_gems_value.add_theme_color_override(&"font_color", Color.WHITE)
 	_gems_value.custom_minimum_size.x = 78.0
 	box.add_child(_gems_value)
+	# The level's secret diamond: a faint outline until it is in hand. It has its
+	# place in the pill from the start, so finding it moves nothing.
+	_secret = Icon.new(Icon.Kind.DIAMOND, 22.0, Icon.DIAMOND_WHITE)
+	_secret.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_secret.modulate.a = 0.22
+	box.add_child(_secret)
 	pill.add_child(box)
 	add_child(pill)
 	Ui.pin(pill, Control.PRESET_TOP_LEFT, Vector2(20, 14))

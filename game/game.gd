@@ -56,6 +56,8 @@ var _respawn_position := Vector3.ZERO
 var _effects: Dictionary[int, float] = {}
 var _seen_kinds: Dictionary[int, bool] = {}
 var _keys: int = 0
+## True once this run has picked up the level's secret diamond.
+var _secret_found: bool = false
 ## Set by the first cheat that touches the run. A cheated run is not recorded.
 var _cheated: bool = false
 ## Gravity multiplier for this run: the level's own, unless a cheat changed it.
@@ -105,6 +107,7 @@ func _ready() -> void:
 		_build_wind()
 	_hud.setup(GameState.current_level + 1, _level, _builder.gems.size(),
 		GameState.best_time(_level))
+	_hud.set_secret(GameState.has_secret(_level))
 	_apply_effects()
 	_results.next_pressed.connect(_on_next_pressed)
 	_results.retry_pressed.connect(SceneManager.restart_level)
@@ -132,6 +135,10 @@ func _connect_level() -> void:
 		portal.used.connect(_on_portal_used)
 	for key in _builder.keys:
 		key.collected.connect(_on_key_collected)
+	if _builder.secret_diamond != null:
+		_builder.secret_diamond.collected.connect(_on_secret_collected)
+		if GameState.has_secret(_level):
+			_builder.secret_diamond.dim()
 	for cannon in _builder.cannons:
 		cannon.fired.connect(_on_cannon_fired)
 	for gate in _builder.gates:
@@ -240,9 +247,9 @@ func _on_finish_reached(pad: FinishPad) -> void:
 	_hud.flash(Color(1, 1, 1, 0.35))
 	_bursts.burst(pad.global_position + Vector3.UP, FinishPad.OPEN_COLOR)
 	# A cheated run finishes the level but leaves no trace: no time, no stars,
-	# no coins, and it does not unlock the next level.
+	# no gems, no secret, and it does not unlock the next level.
 	var outcome := GameState.unrecorded_outcome(_level) if _cheated \
-		else GameState.complete_level(_level, _time, _builder.gems.size())
+		else GameState.complete_level(_level, _time, _builder.gems.size(), _secret_found)
 	await get_tree().create_timer(FINISH_HOLD_SECONDS).timeout
 	if not is_inside_tree():
 		return
@@ -298,6 +305,17 @@ func _on_portal_used(exit: Portal) -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	_camera.snap()
+
+
+## The secret diamond is in hand. It only counts once the level is finished.
+func _on_secret_collected(diamond: SecretDiamond) -> void:
+	_secret_found = true
+	_hud.set_secret(true)
+	_hud.show_banner("SECRET DIAMOND", 1.0, SecretDiamond.COLOR)
+	_hud.show_tip("Carry it to the finish to keep it.")
+	_bursts.burst(diamond.global_position + Vector3.UP * SecretDiamond.HOVER, SecretDiamond.COLOR)
+	Audio.play(&"unlock", -1.0, 0.0, 1.4)
+	Audio.play(&"power_up", -4.0)
 
 
 func _on_key_collected(key: GateKey) -> void:
@@ -576,7 +594,7 @@ func _on_cheat_entered(code: StringName) -> void:
 				if not PowerUps.is_ailment(kind):
 					_start_effect(kind)
 		&"GOLDMINE":
-			GameState.coins += 500
+			GameState.gems += 500
 			GameState.save_progress()
 		&"ALLACCESS":
 			GameState.unlock_all()

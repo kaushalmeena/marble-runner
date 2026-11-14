@@ -18,8 +18,8 @@ var _preview: MarblePreview
 var _name_label: Label
 var _description: Label
 var _status: Label
-var _status_coin: Icon
-var _coins: StatPill
+var _status_gem: Icon
+var _purse: StatPill
 var _action: Button
 var _swap_tween: Tween
 
@@ -34,9 +34,9 @@ func _ready() -> void:
 	title.add_child(Ui.label("SHOP", &"HeadingLabel"))
 	add_child(title)
 	Ui.pin(title, Control.PRESET_TOP_LEFT, Vector2(32, 16))
-	_coins = StatPill.new(Icon.Kind.COIN, Icon.GOLD)
-	add_child(_coins)
-	Ui.pin(_coins, Control.PRESET_TOP_RIGHT, Vector2(24, 20))
+	_purse = StatPill.new(Icon.Kind.GEM, Icon.GEM_BLUE)
+	add_child(_purse)
+	Ui.pin(_purse, Control.PRESET_TOP_RIGHT, Vector2(24, 20))
 
 	var center := CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -82,8 +82,8 @@ func _ready() -> void:
 	add_child(keys)
 	Ui.pin(keys, Control.PRESET_CENTER_BOTTOM, Vector2(0, 16))
 
-	GameState.coins_changed.connect(_on_coins_changed)
-	_on_coins_changed(GameState.coins)
+	GameState.gems_changed.connect(_on_gems_changed)
+	_on_gems_changed(GameState.gems)
 	# Open on whatever the player is currently wearing.
 	_index = maxi(0, _skins.find(_current_equipped()))
 	_refresh()
@@ -106,14 +106,14 @@ func _build_card() -> PanelContainer:
 	_description.modulate.a = 0.85
 	box.add_child(_description)
 	box.add_child(Ui.gap(8))
-	# The coin is hidden, not removed, once a skin is owned: the line keeps its
+	# The gem is hidden, not removed, once a skin is owned: the line keeps its
 	# height either way.
 	var status := Ui.row(8)
 	status.alignment = BoxContainer.ALIGNMENT_CENTER
 	status.custom_minimum_size.y = 34.0
-	_status_coin = Icon.new(Icon.Kind.COIN, 22.0, Icon.GOLD)
-	_status_coin.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	status.add_child(_status_coin)
+	_status_gem = Icon.new(Icon.Kind.GEM, 22.0, Icon.GEM_BLUE)
+	_status_gem.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	status.add_child(_status_gem)
 	_status = Ui.label("", &"AccentLabel")
 	status.add_child(_status)
 	box.add_child(status)
@@ -163,7 +163,7 @@ func _refresh() -> void:
 	_preview.show_skin(skin)
 	_name_label.text = skin.display_name
 	_description.text = skin.description
-	_status_coin.visible = not owned
+	_status_gem.visible = not owned
 	if equipped:
 		_status.text = "EQUIPPED"
 		_status.add_theme_color_override(&"font_color", skin.accent_color.lightened(0.25))
@@ -173,11 +173,11 @@ func _refresh() -> void:
 		_status.add_theme_color_override(&"font_color", Color(1, 1, 1, 0.8))
 		_action.text = "Equip"
 	else:
-		var affordable := GameState.coins >= skin.price
+		var affordable := GameState.gems >= skin.price
 		_status.text = str(skin.price)
 		_status.add_theme_color_override(&"font_color", AFFORDABLE if affordable else TOO_DEAR)
-		_action.text = "Buy" if affordable else "Not enough coins"
-	_action.disabled = equipped or (not owned and GameState.coins < skin.price)
+		_action.text = "Buy" if affordable else "Not enough gems"
+	_action.disabled = equipped or (not owned and GameState.gems < skin.price)
 	for index in _chips.size():
 		var other := _skins[index]
 		var has := GameState.is_skin_unlocked(other)
@@ -199,8 +199,8 @@ func _on_action_pressed() -> void:
 	_refresh()
 
 
-func _on_coins_changed(coins: int) -> void:
-	_coins.text = str(coins)
+func _on_gems_changed(gems: int) -> void:
+	_purse.text = str(gems)
 	_refresh()
 
 

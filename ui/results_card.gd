@@ -10,7 +10,7 @@ var _title: Label
 var _time: Label
 var _detail: Label
 var _targets: Label
-var _coins: Label
+var _payout: Label
 var _stars: StarRow
 var _next: Button
 var _retry: Button
@@ -48,8 +48,8 @@ func _ready() -> void:
 	box.add_child(_detail)
 	_targets = Ui.label("", &"CaptionLabel", HORIZONTAL_ALIGNMENT_CENTER)
 	box.add_child(_targets)
-	_coins = Ui.label("", &"HintLabel", HORIZONTAL_ALIGNMENT_CENTER)
-	box.add_child(_coins)
+	_payout = Ui.label("", &"HintLabel", HORIZONTAL_ALIGNMENT_CENTER)
+	box.add_child(_payout)
 	box.add_child(Ui.gap(14))
 
 	var buttons := Ui.column(12)
@@ -84,7 +84,9 @@ func present(level: LevelDef, time: float, outcome: Dictionary, has_next: bool) 
 		_detail.text = "BEST  %s" % LevelDef.format_time(previous)
 	_targets.text = "GOLD %s      SILVER %s" % [
 		LevelDef.format_time(level.gold_time), LevelDef.format_time(level.silver_time)]
-	_coins.text = "+%d coins" % outcome.coins
+	_payout.text = "+%d gems" % outcome.gems
+	if outcome.get("new_secret", false):
+		_payout.text = "SECRET DIAMOND FOUND      " + _payout.text
 	# Disabled rather than removed on the last level, so the card keeps its size.
 	_next.disabled = not has_next
 	_next.text = "Next Level" if has_next else "All Levels Clear"

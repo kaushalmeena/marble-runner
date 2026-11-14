@@ -1,12 +1,12 @@
 extends Node
-## Owns the player's progress: which levels are beaten and how fast, the coin
-## purse, and the skins.
+## Owns the player's progress: which levels are beaten and how fast, which
+## secret diamonds are found, the purse of gems, and the skins.
 ##
 ## Nothing else in the project writes to these values directly. Gameplay
 ## reports a finished level through [method complete_level], and the UI reads.
 
-## Emitted when the coin purse changes.
-signal coins_changed(coins: int)
+## Emitted when the purse changes.
+signal gems_changed(gems: int)
 ## Emitted when a skin is bought.
 signal skin_unlocked(id: StringName)
 ## Emitted when the equipped skin changes.
@@ -14,19 +14,22 @@ signal skin_selected(id: StringName)
 
 const SAVE_PATH := "user://marble_runner.cfg"
 const SAVE_SECTION := "progress"
-const SAVE_KEY_COINS := "coins"
+# The purse was once counted in coins; the key is kept so old saves carry over.
+const SAVE_KEY_GEMS := "coins"
+const SAVE_KEY_SECRETS := "secret_diamonds"
 const SAVE_KEY_UNLOCKED := "unlocked_skins"
 const SAVE_KEY_SKIN := "selected_skin"
 const SAVE_KEY_TIMES := "best_times"
 const SAVE_KEY_UNLOCK_ALL := "all_unlocked"
 const SAVE_KEY_PAGE := "level_page"
 
-## Coins for each gem, paid every time a level is finished. Replaying is the
-## steady income.
-const COINS_PER_GEM := 1
-## Coins for each star earned for the first time. This is the big payout, and
-## it can only be collected once per star.
-const COINS_PER_NEW_STAR := 25
+## Every gem collected is banked when the level is finished, every time.
+## Replaying is the steady income.
+## On top of that, gems for each star earned for the first time, and for a
+## level's secret diamond the first time it is brought home. These are the big
+## payouts, and each can only be collected once.
+const GEMS_PER_NEW_STAR := 25
+const GEMS_PER_SECRET := 50
 
 ## When false nothing is written to disk. Test harnesses turn this off so an
 ## automated run cannot overwrite a real player's times.
@@ -39,14 +42,14 @@ var current_level: int = 0
 ## Negative until the player has opened it once.
 var level_page: int = -1
 
-## Coins banked across all runs.
-var coins: int = 0:
+## Gems banked across all runs. This is what the shop is priced in.
+var gems: int = 0:
 	set(value):
 		var clamped := maxi(0, value)
-		if coins == clamped:
+		if gems == clamped:
 			return
-		coins = clamped
-		coins_changed.emit(coins)
+		gems = clamped
+		gems_changed.emit(gems)
 
 ## Skin ids the player owns. Free skins are always considered owned, so this
 ## only ever holds purchases.
@@ -65,6 +68,8 @@ var selected_skin: StringName = &"classic":
 var _best_times: Dictionary = {}
 ## Set by the cheat that opens every level. Saved, so it sticks.
 var _all_unlocked: bool = false
+## Ids of the levels whose secret diamond has been found and carried to the finish.
+var _secrets := PackedStringArray()
 
 
 func _ready() -> void:
@@ -108,10 +113,26 @@ func next_unbeaten() -> int:
 	return LevelCatalog.count() - 1
 
 
-## Records a finished level and pays out. Returns what happened, for the
+## True once [param level]'s secret diamond has been brought to the finish.
+func has_secret(level: LevelDef) -> bool:
+	return _secrets.has(String(level.id))
+
+
+func total_secrets() -> int:
+	var total := 0
+	for level in LevelCatalog.all():
+		if has_secret(level):
+			total += 1
+	return total
+
+
+## Records a finished level and pays out. [param secret_found] is whether the
+## secret diamond was picked up on this run. Returns what happened, for the
 ## results screen: [code]stars[/code], [code]new_stars[/code],
-## [code]new_best[/code], [code]previous_best[/code] and [code]coins[/code].
-func complete_level(level: LevelDef, time: float, gem_count: int) -> Dictionary:
+## [code]new_best[/code], [code]previous_best[/code], [code]gems[/code] and
+## [code]new_secret[/code].
+func complete_level(level: LevelDef, time: float, gem_count: int,
+		secret_found: bool = false) -> Dictionary:
 	var previous := best_time(level)
 	var stars_before := stars(level)
 	var is_best := previous < 0.0 or time < previous
@@ -119,27 +140,33 @@ func complete_level(level: LevelDef, time: float, gem_count: int) -> Dictionary:
 		_best_times[String(level.id)] = time
 	var stars_now := level.stars_for(time)
 	var new_stars := maxi(0, stars_now - stars_before)
-	var earned := gem_count * COINS_PER_GEM + new_stars * COINS_PER_NEW_STAR
-	coins += earned
+	var new_secret := secret_found and not has_secret(level)
+	if new_secret:
+		_secrets.append(String(level.id))
+	var earned := gem_count + new_stars * GEMS_PER_NEW_STAR + (
+		GEMS_PER_SECRET if new_secret else 0)
+	gems += earned
 	save_progress()
 	return {
 		"stars": stars_now,
 		"new_stars": new_stars,
 		"new_best": is_best,
 		"previous_best": previous,
-		"coins": earned,
+		"gems": earned,
+		"new_secret": new_secret,
 	}
 
 
 ## What a finished run that must not count reports to the results screen:
-## no stars, no coins, nothing saved.
+## no stars, no gems, no secret, nothing saved.
 func unrecorded_outcome(level: LevelDef) -> Dictionary:
 	return {
 		"stars": 0,
 		"new_stars": 0,
 		"new_best": false,
 		"previous_best": best_time(level),
-		"coins": 0,
+		"gems": 0,
+		"new_secret": false,
 		"cheated": true,
 	}
 
@@ -158,12 +185,12 @@ func is_skin_unlocked(skin: MarbleSkin) -> bool:
 	return skin.is_free() or unlocked_skins.has(String(skin.id))
 
 
-## Spends coins on a skin. Returns false, changing nothing, when it is already
+## Spends gems on a skin. Returns false, changing nothing, when it is already
 ## owned or unaffordable.
 func purchase_skin(skin: MarbleSkin) -> bool:
-	if skin == null or is_skin_unlocked(skin) or coins < skin.price:
+	if skin == null or is_skin_unlocked(skin) or gems < skin.price:
 		return false
-	coins -= skin.price
+	gems -= skin.price
 	unlocked_skins.append(String(skin.id))
 	skin_unlocked.emit(skin.id)
 	save_progress()
@@ -183,7 +210,9 @@ func load_progress() -> void:
 	var config := ConfigFile.new()
 	if config.load(SAVE_PATH) != OK:
 		return
-	coins = int(config.get_value(SAVE_SECTION, SAVE_KEY_COINS, 0))
+	gems = int(config.get_value(SAVE_SECTION, SAVE_KEY_GEMS, 0))
+	_secrets = PackedStringArray(
+		config.get_value(SAVE_SECTION, SAVE_KEY_SECRETS, PackedStringArray()))
 	unlocked_skins = PackedStringArray(
 		config.get_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, PackedStringArray()))
 	selected_skin = StringName(config.get_value(SAVE_SECTION, SAVE_KEY_SKIN, "classic"))
@@ -200,7 +229,8 @@ func save_progress() -> void:
 	var config := ConfigFile.new()
 	# Load first so keys this version does not know about survive the write.
 	config.load(SAVE_PATH)
-	config.set_value(SAVE_SECTION, SAVE_KEY_COINS, coins)
+	config.set_value(SAVE_SECTION, SAVE_KEY_GEMS, gems)
+	config.set_value(SAVE_SECTION, SAVE_KEY_SECRETS, _secrets)
 	config.set_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, unlocked_skins)
 	config.set_value(SAVE_SECTION, SAVE_KEY_SKIN, String(selected_skin))
 	config.set_value(SAVE_SECTION, SAVE_KEY_TIMES, _best_times)

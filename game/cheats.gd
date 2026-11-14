@@ -23,7 +23,7 @@ const CODES: Dictionary[StringName, String] = {
 	&"SKELETONKEY": "Three keys",
 	&"BOWLING": "Rival marbles knocked out",
 	&"TOOLKIT": "Every power-up at once",
-	&"GOLDMINE": "500 coins",
+	&"GOLDMINE": "500 gems",
 	&"ALLACCESS": "Every level unlocked",
 }
 ## Codes that do not touch the run in progress, so using one does not void it.

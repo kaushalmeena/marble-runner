@@ -19,6 +19,7 @@ var _kicker: Label
 var _page_title: Label
 var _dots: PageDots
 var _course_stars: StatPill
+var _course_secrets: StatPill
 var _previous: Button
 var _next: Button
 var _back: Button
@@ -81,6 +82,9 @@ func _ready() -> void:
 	hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	footer.add_child(hint)
 	footer.add_child(Ui.spring())
+	_course_secrets = StatPill.new(Icon.Kind.DIAMOND, Icon.DIAMOND_WHITE)
+	_course_secrets.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	footer.add_child(_course_secrets)
 	_course_stars = StatPill.new(Icon.Kind.STAR, Icon.GOLD)
 	_course_stars.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	footer.add_child(_course_stars)
@@ -128,6 +132,7 @@ func _show_page(page: int, direction: int) -> void:
 	var focus: Button = null
 	var cards: Array = []
 	var stars := 0
+	var secrets := 0
 	var levels := 0
 	for slot in LevelCatalog.PAGE_SIZE:
 		var index := first + slot
@@ -143,6 +148,8 @@ func _show_page(page: int, direction: int) -> void:
 		cards.append(card)
 		levels += 1
 		stars += GameState.stars(LevelCatalog.at(index))
+		if GameState.has_secret(LevelCatalog.at(index)):
+			secrets += 1
 		# Focus lands on the level the player is up to, else the first open one.
 		if not card.disabled and (focus == null or index == GameState.next_unbeaten()):
 			focus = card
@@ -150,6 +157,7 @@ func _show_page(page: int, direction: int) -> void:
 	_page_title.text = LevelCatalog.page_title(page)
 	_dots.current = page
 	_course_stars.text = "%d / %d" % [stars, levels * StarRow.COUNT]
+	_course_secrets.text = "%d / %d" % [secrets, levels]
 	_previous.disabled = page <= 0
 	_next.disabled = page >= LevelCatalog.page_count() - 1
 	(focus if focus != null else _back).grab_focus()
@@ -208,6 +216,12 @@ func _build_card(index: int) -> Button:
 	var stars := StarRow.new(20.0, GameState.stars(level))
 	stars.position = Vector2(14.0, 80.0)
 	card.add_child(stars)
+	# The secret diamond, after the stars: lit once it has been brought home.
+	var secret := Icon.new(Icon.Kind.DIAMOND, 19.0, Icon.DIAMOND_WHITE)
+	secret.position = Vector2(14.0 + stars.custom_minimum_size.x + 8.0, 80.5)
+	if not GameState.has_secret(level):
+		secret.color = StarRow.UNLIT
+	card.add_child(secret)
 	var status: Control
 	if open and best < 0.0 and index == GameState.next_unbeaten():
 		var tag := PanelContainer.new()
@@ -221,6 +235,6 @@ func _build_card(index: int) -> Button:
 	card.add_child(status)
 	Ui.pin(status, Control.PRESET_BOTTOM_RIGHT, Vector2(14.0, 17.0))
 	if not open:
-		for child: Control in [title, place, stars, status]:
+		for child: Control in [title, place, stars, secret, status]:
 			child.modulate.a = 0.45
 	return card

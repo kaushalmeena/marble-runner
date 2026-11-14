@@ -37,6 +37,9 @@ var _thickness: float = 1.0
 ## Index in the route of the waypoint that closes the stretch just laid, or
 ## -1. A jump, a pad or a pickup that comes next wants it out of the way.
 var _end_mark: int = -1
+## Where the hidden button for a concealed diamond stands, between
+## [method secret_switch] and [method secret_reveal].
+var _switch_spot := Vector3.ZERO
 
 
 func _init(builder: LevelBuilder, from := Vector3.ZERO, quarter_turns: int = 0,
@@ -400,6 +403,52 @@ func key(side: float = 0.0) -> void:
 ## A gate across the end of the stretch just laid.
 func gate() -> void:
 	b.gate(pt(-0.6), width, heading * 90.0)
+
+
+# --- The secret diamond ----------------------------------------------------------
+#
+# One per level, and none of these adds a waypoint: the bot does not go
+# looking. A diamond on a ledge off the path is a one-way trip, which is fine:
+# stepping off afterwards is a respawn, and the diamond is kept.
+
+
+## A ledge behind and below the starting pad. Call it straight after
+## [method start]: the way nobody looks first.
+func secret_behind() -> void:
+	b.secret_ledge(pt(-12.5, 0.0, -3.0))
+
+
+## Tucked under the lip of the stretch just laid, on its [constant LEFT] or
+## [constant RIGHT]. Not after a step or a pad, whose floor is solid below.
+func secret_below(side: int) -> void:
+	b.secret_nook(pt(-3.0, side * width / 2.0), SIDE[heading] * side)
+
+
+## A ledge out to one side of the stretch just laid and a little lower: in
+## plain sight, a running jump away, and nowhere near the route.
+func secret_side(side: int) -> void:
+	b.secret_ledge(pt(-3.0, side * (width / 2.0 + 3.5), -2.0))
+
+
+## A patrolling rival on the stretch just laid that is carrying the diamond:
+## pop it, by landing on it or with a shield, and the diamond is left behind.
+func secret_guard(back: float = 3.0, period: float = 3.6) -> void:
+	var keeper := b.patroller(pt(-back, -width / 2.0 + 0.8), SIDE[heading] * (width - 1.6),
+		period)
+	keeper.reveals = [b.secret(pt(-back), true)]
+
+
+## A button on a ledge below the stretch just laid. It brings out the diamond
+## wherever [method secret_reveal] is called later in the level.
+func secret_switch(side: int) -> void:
+	_switch_spot = pt(-3.0, side * (width / 2.0 + 1.7), -3.5)
+	b.floor(_switch_spot.x, _switch_spot.z, 3.0, 3.0, _switch_spot.y,
+		LevelBuilder.Surface.WALL, 0.5)
+
+
+## Where the diamond appears once the hidden button is down.
+func secret_reveal() -> void:
+	b.button(_switch_spot, [b.secret(pt(-2.0), true)])
 
 
 # --- Internals ----------------------------------------------------------------

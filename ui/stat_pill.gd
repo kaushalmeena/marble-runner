@@ -1,6 +1,6 @@
 class_name StatPill
 extends PanelContainer
-## An icon and a number in a pill: the coin purse, the star count.
+## An icon and a number in a pill: the purse of gems, the stars, the secret diamonds.
 
 var text: String = "":
 	set(value):

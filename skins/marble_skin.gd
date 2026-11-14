@@ -12,7 +12,7 @@ extends Resource
 
 @export var display_name: String = "Classic"
 
-## Cost in coins. Zero means it is available from the start.
+## Cost in gems. Zero means it is available from the start.
 @export var price: int = 0
 
 @export var material: StandardMaterial3D

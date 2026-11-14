@@ -64,6 +64,8 @@ var fire_period: float = 2.2
 ## What a chaser hunts. Set by the game.
 var target: Node3D = null
 var defeated: bool = false
+## Things brought out when this rival is popped: a concealed secret diamond.
+var reveals: Array = []
 
 var _home := Vector3.ZERO
 var _time: float = 0.0
@@ -169,6 +171,8 @@ func defeat() -> void:
 		return
 	defeated = true
 	set_deferred(&"monitoring", false)
+	for target: Object in reveals:
+		target.switch_to(true)
 	var tween := create_tween()
 	tween.tween_property(_body, ^"scale", Vector3(1.5, 0.2, 1.5), 0.08)
 	tween.tween_property(_body, ^"scale", Vector3.ZERO, 0.15)
