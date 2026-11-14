@@ -5,9 +5,9 @@ extends RefCounted
 ## Keeping this in one place means the pickup, the game and the HUD all agree
 ## without any of them knowing about each other.
 ##
-## Most power-ups are *held*: picking one up puts it in the slot, and the player
-## chooses the moment to spend it. The stopwatch is the exception and fires on
-## pickup, because there is never a reason to save it.
+## A power-up takes effect the moment it is picked up and runs for a while.
+## Different ones run side by side, and picking up another of one that is
+## already running adds its time on top, up to [constant MAX_STACK] of them.
 
 enum Kind {
 	SUPER_JUMP,
@@ -31,13 +31,13 @@ const LABELS: Dictionary = {
 
 ## One line for the tip that shows the first time a kind is collected.
 const HINTS: Dictionary = {
-	Kind.SUPER_JUMP: "Launches you far higher than a jump.",
-	Kind.BOOST: "A burst of speed the way you are facing.",
-	Kind.FEATHER: "Falls slowly for a few seconds. Jump first.",
+	Kind.SUPER_JUMP: "Your jumps go far higher for a while.",
+	Kind.BOOST: "A shove now, and a higher top speed for a while.",
+	Kind.FEATHER: "You fall slowly for a while. Jump and glide.",
 	Kind.MAGNET: "Pulls nearby gems to you.",
-	Kind.STOPWATCH: "Froze the clock.",
-	Kind.SHIELD: "Rival marbles and red bars cannot hurt you for a while.",
-	Kind.DOUBLE_JUMP: "Jump again in mid-air, for a while.",
+	Kind.STOPWATCH: "The clock is frozen.",
+	Kind.SHIELD: "Rival marbles and red bars cannot hurt you.",
+	Kind.DOUBLE_JUMP: "Press SPACE again in mid-air for a second jump.",
 }
 
 const COLORS: Dictionary = {
@@ -50,16 +50,19 @@ const COLORS: Dictionary = {
 	Kind.DOUBLE_JUMP: Color(1.0, 0.45, 0.75),
 }
 
-## Seconds an effect lasts once triggered. Zero is a one-off impulse.
+## Seconds an effect lasts from one pickup.
 const DURATIONS: Dictionary = {
-	Kind.SUPER_JUMP: 0.0,
-	Kind.BOOST: 0.0,
-	Kind.FEATHER: 6.0,
-	Kind.MAGNET: 10.0,
-	Kind.STOPWATCH: 5.0,
-	Kind.SHIELD: 8.0,
-	Kind.DOUBLE_JUMP: 12.0,
+	Kind.SUPER_JUMP: 12.0,
+	Kind.BOOST: 10.0,
+	Kind.FEATHER: 10.0,
+	Kind.MAGNET: 15.0,
+	Kind.STOPWATCH: 8.0,
+	Kind.SHIELD: 12.0,
+	Kind.DOUBLE_JUMP: 18.0,
 }
+
+## How many pickups' worth of time one effect can hold at once.
+const MAX_STACK := 3.0
 
 
 static func label(kind: Kind) -> String:
@@ -76,8 +79,3 @@ static func color(kind: Kind) -> Color:
 
 static func duration(kind: Kind) -> float:
 	return DURATIONS.get(kind, 0.0)
-
-
-## True for power-ups that fire the moment they are touched.
-static func is_instant(kind: Kind) -> bool:
-	return kind == Kind.STOPWATCH

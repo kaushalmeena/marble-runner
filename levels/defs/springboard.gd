@@ -19,7 +19,7 @@ func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
 	b.floor(0, -3, 10, 10)
 	b.power_up(double_jump, Vector3(0, 0, -4))
-	b.tip(Vector3(0, 0, -2), "Use DOUBLE JUMP, then press SPACE again in mid-air.")
+	b.tip(Vector3(0, 0, -2), "With DOUBLE JUMP running, press SPACE again in mid-air.")
 	b.floor(0, -13, 8, 8, 2.2, floor_kind, 3.2)
 	b.gem(Vector3(-2, 2.2, -13))
 	b.gem(Vector3(2, 2.2, -13))

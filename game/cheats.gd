@@ -7,8 +7,8 @@ extends Node
 ## reports a code when the tail matches one. What a code *does* is decided in
 ## [code]game.gd[/code], next to the things it changes.
 ##
-## Codes avoid the letters R, P and F, which restart, pause and spend the
-## power-up. Typing still rolls the marble about, which is part of the charm.
+## Codes avoid the letters R and P, which restart and pause. Typing still
+## rolls the marble about, which is part of the charm.
 
 signal entered(code: StringName)
 
@@ -22,7 +22,7 @@ const CODES: Dictionary[StringName, String] = {
 	&"ALLGEMS": "Every gem collected",
 	&"SKELETONKEY": "Three keys",
 	&"BOWLING": "Rival marbles knocked out",
-	&"TOOLKIT": "Next power-up in the slot",
+	&"TOOLKIT": "Every power-up at once",
 	&"GOLDMINE": "500 coins",
 	&"ALLACCESS": "Every level unlocked",
 }

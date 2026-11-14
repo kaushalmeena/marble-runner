@@ -24,7 +24,7 @@ func build(b: LevelBuilder) -> void:
 	b.floor(0, -17, 8, 8, 3, floor_kind, thin)
 	b.checkpoint(Vector3(0, 3, -15))
 	b.power_up(PowerUps.Kind.FEATHER, Vector3(0, 3, -17.5))
-	b.tip(Vector3(0, 3, -16), "Take a run up, jump, then SHIFT to float across.")
+	b.tip(Vector3(0, 3, -16), "The feather is running. Take a run up, jump, and float across.")
 	b.gem(Vector3(0, 3, -19.5))
 
 	b.floor(0, -44, 8, 16, 3, floor_kind, thin)

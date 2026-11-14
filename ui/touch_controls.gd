@@ -1,6 +1,6 @@
 class_name TouchControls
 extends Control
-## On-screen stick and buttons, shown only on a touchscreen.
+## On-screen stick and jump button, shown only on a touchscreen.
 ##
 ## The left half of the screen is a floating stick: it appears wherever the
 ## thumb lands. It drives the same input actions as the keyboard, so nothing
@@ -24,7 +24,6 @@ func _ready() -> void:
 		return
 	var buttons := Ui.column(14)
 	buttons.mouse_filter = Control.MOUSE_FILTER_PASS
-	buttons.add_child(_action_button("USE", &"use_power_up"))
 	buttons.add_child(_action_button("JUMP", &"jump"))
 	add_child(buttons)
 	Ui.pin(buttons, Control.PRESET_BOTTOM_RIGHT, Vector2(30, 120))

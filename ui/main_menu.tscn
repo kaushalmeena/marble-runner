@@ -178,8 +178,3 @@ theme_type_variation = &"CaptionLabel"
 layout_mode = 2
 text = "Q E / MOUSE    CAMERA"
 theme_type_variation = &"CaptionLabel"
-
-[node name="Use" type="Label" parent="Controls"]
-layout_mode = 2
-text = "SHIFT    POWER-UP"
-theme_type_variation = &"CaptionLabel"

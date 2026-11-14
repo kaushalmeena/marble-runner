@@ -52,7 +52,7 @@ func build(b: LevelBuilder) -> void:
 | `crumble` | A tile that drops shortly after being touched, then regrows. |
 | `start`, `finish_at`, `checkpoint` | Where the run begins, ends, and resumes after a fall. |
 | `gem`, `gem_line`, `gem_ring` | Collectibles. All of them open the finish. |
-| `power_up` | A pickup for the slot. Respawns, so it can never be wasted for good. |
+| `power_up` | A pickup. Takes effect on touch and respawns a few seconds later. |
 | `boost_pad`, `bounce_pad` | Fling the marble along the floor, or straight up. |
 | `bumper`, `spinner` | A post that kicks back; a bar that sweeps round a hub. |
 | `fan` | A column of rising air. The marble hovers halfway up it. |
@@ -101,13 +101,30 @@ and it bobs up and down. A chaser only moves in the horizontal plane.
 ## Power-ups
 
 Described in `powerups/power_ups.gd`; what each does is in `game/game.gd`.
-Held power-ups wait in the slot until the player spends them. The stopwatch
-fires on pickup.
+A power-up takes effect the moment it is touched and runs for a while.
+Different ones run side by side, and another of one already running adds its
+time, up to three pickups' worth. There is no button to spend one.
+
+| Power-up | Lasts | Effect |
+| --- | --- | --- |
+| Super jump | 12 s | Jumps are about three and a half times as high |
+| Boost | 10 s | A shove on pickup, then a higher top speed |
+| Feather | 10 s | Falls at about a third of the level's gravity |
+| Magnet | 15 s | Pulls gems within 7 units |
+| Stopwatch | 8 s | The clock stops |
+| Shield | 12 s | Rival marbles and hazards cannot hurt |
+| Double jump | 18 s | One more jump in mid-air |
+
+`_apply_effects` in `game.gd` sets everything a power-up changes on the marble
+from what is running now. It is derived from scratch each time rather than
+added and removed, so effects ending in any order cannot leave a value stuck.
 
 To add one: add it to the `Kind` enum and the tables in `PowerUps`, give it a
-shape in `PowerUpPickup._build_icon`, and handle it in `_use_power_up` (a
-one-off) or `_start_effect` / `_end_effect` (timed). Timed effects that should
-show a bar also go in `Hud.EFFECT_KINDS`.
+shape in `PowerUpPickup._build_icon`, apply it in `_apply_effects`, and add it
+to `Hud.EFFECT_KINDS` so it gets a bar.
+
+The HUD also shows a level's standing conditions (low gravity, water) under
+the level name. Those come from `_environment_tags` in `game.gd`.
 
 ## Biomes
 

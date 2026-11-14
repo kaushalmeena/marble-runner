@@ -66,6 +66,8 @@ func _physics_process(_delta: float) -> void:
 		if marble == null:
 			continue
 		var above := clampf((marble.global_position.y - global_position.y) / height, 0.0, 1.0)
-		var lift := _gravity * LIFT_AT_BASE * (1.0 - above)
+		# Scaled by the marble's own gravity, so the hover height is the same
+		# on the moon or under a feather as anywhere else.
+		var lift := _gravity * marble.gravity_scale * LIFT_AT_BASE * (1.0 - above)
 		marble.apply_central_force(Vector3.UP * marble.mass * (
 			lift - marble.linear_velocity.y * DAMPING))

@@ -1,5 +1,5 @@
 extends LevelDef
-## Introduces the power-up slot with the super jump, then the bounce pad.
+## Introduces power-ups with the super jump, then the bounce pad.
 
 
 func _init() -> void:
@@ -15,7 +15,7 @@ func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
 	b.floor(0, -3, 8, 10)
 	b.power_up(PowerUps.Kind.SUPER_JUMP, Vector3(0, 0, -4))
-	b.tip(Vector3(0, 0, -2), "Power-ups wait in your slot. SHIFT spends the one you hold.")
+	b.tip(Vector3(0, 0, -2), "Power-ups switch on as you touch them. This one lifts your jumps.")
 
 	b.floor(0, -13, 8, 10, 3, LevelBuilder.Surface.FLOOR, 4)
 	b.gem(Vector3(-2, 3, -11))

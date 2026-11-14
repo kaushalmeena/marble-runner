@@ -1,19 +1,21 @@
 class_name Hud
 extends Control
 ## In-level HUD: a thin row along the top (gems, the clock, the level) and
-## nothing else unless there is something to say. The power-up pill only exists
-## while a power-up is held; tips and effect bars fade in and out.
+## nothing else unless there is something to say. Running power-ups show as
+## bars bottom left; tips fade in and out along the bottom.
 ##
 ## The HUD is read-only. It is told what to show by [code]game.gd[/code] and
 ## never reaches into the game to find out.
 ##
 ## Every readout has a fixed footprint. Text changing width, or something
-## fading in, never moves anything else on screen.
+## fading in, never moves anything else on screen. The one list that reflows
+## is the running power-ups, and only when one starts or ends.
 
 const TIP_SECONDS := 4.5
 const EFFECT_KINDS: Array[PowerUps.Kind] = [
-	PowerUps.Kind.FEATHER, PowerUps.Kind.MAGNET, PowerUps.Kind.STOPWATCH,
-	PowerUps.Kind.SHIELD, PowerUps.Kind.DOUBLE_JUMP]
+	PowerUps.Kind.SUPER_JUMP, PowerUps.Kind.BOOST, PowerUps.Kind.FEATHER,
+	PowerUps.Kind.MAGNET, PowerUps.Kind.STOPWATCH, PowerUps.Kind.SHIELD,
+	PowerUps.Kind.DOUBLE_JUMP]
 const COMPLETE_COLOR := Color(1.0, 0.79, 0.24)
 const FROZEN_COLOR := Color(0.78, 0.6, 1.0)
 
@@ -22,9 +24,8 @@ var _keys_pill: PanelContainer
 var _keys_value: Label
 var _clock: ClockLabel
 var _best: Label
-var _slot: PanelContainer
-var _slot_name: Label
-var _slot_tween: Tween
+var _environment_pill: PanelContainer
+var _environment: Label
 var _tip_panel: PanelContainer
 var _tip: Label
 var _banner: Label
@@ -42,7 +43,6 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_gems()
 	_build_clock()
-	_build_slot()
 	_build_effects()
 	_build_tip()
 	_build_banner()
@@ -58,7 +58,16 @@ func setup(level_number: int, level: LevelDef, gem_total: int, best_time: float)
 		&"CaptionLabel", HORIZONTAL_ALIGNMENT_RIGHT)
 	add_child(title)
 	Ui.pin(title, Control.PRESET_TOP_RIGHT, Vector2(24, 20))
-	set_power_up(-1)
+	# Under the level name: what is unusual about this level's world.
+	_environment_pill = PanelContainer.new()
+	_environment_pill.theme_type_variation = &"HudPill"
+	_environment_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_environment_pill.modulate.a = 0.0
+	_environment = Ui.label("", &"ChipLabel", HORIZONTAL_ALIGNMENT_RIGHT)
+	_environment.modulate = Color(0.75, 0.9, 1.0)
+	_environment_pill.add_child(_environment)
+	add_child(_environment_pill)
+	Ui.pin(_environment_pill, Control.PRESET_TOP_RIGHT, Vector2(20, 50))
 
 
 func set_gems(collected: int, total: int) -> void:
@@ -84,31 +93,23 @@ func set_time(seconds: float, frozen: bool) -> void:
 	_clock.modulate = FROZEN_COLOR if frozen else Color.WHITE
 
 
-## Shows what is in the slot. Pass a negative [param kind] for empty, which
-## hides the pill altogether: an empty slot is not worth screen space.
-func set_power_up(kind: int) -> void:
-	if _slot_tween != null:
-		_slot_tween.kill()
-	_slot_tween = create_tween()
-	if kind < 0:
-		_slot_tween.tween_property(_slot, ^"modulate:a", 0.0, 0.15)
+## Lists the level's standing conditions (low gravity, water) under the level
+## name. Passing the same list again does nothing.
+func set_environment(tags: PackedStringArray) -> void:
+	var text := "   ".join(tags)
+	if _environment.text == text:
 		return
-	_slot_name.text = PowerUps.label(kind)
-	_slot_name.modulate = PowerUps.color(kind).lightened(0.25)
-	_slot.pivot_offset = _slot.size / 2.0
-	_slot.scale = Vector2.ONE * 1.2
-	_slot_tween.set_parallel()
-	_slot_tween.tween_property(_slot, ^"modulate:a", 1.0, 0.12)
-	_slot_tween.tween_property(_slot, ^"scale", Vector2.ONE, 0.25) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_environment.text = text
+	_environment_pill.modulate.a = 0.0 if tags.is_empty() else 1.0
 
 
 ## Updates a running effect's bar. A [param fraction] of zero hides it.
 func set_effect(kind: PowerUps.Kind, fraction: float) -> void:
 	if not _effect_rows.has(kind):
 		return
-	# Faded rather than hidden: a hidden row would shuffle the ones below it.
-	_effect_rows[kind].modulate.a = 1.0 if fraction > 0.0 else 0.0
+	# Rows that are not running are taken out, so what is running sits in one
+	# tight block in the corner instead of scattered across seven fixed slots.
+	_effect_rows[kind].visible = fraction > 0.0
 	_effect_bars[kind].value = fraction
 
 
@@ -198,26 +199,8 @@ func _build_clock() -> void:
 	Ui.pin(box, Control.PRESET_CENTER_TOP, Vector2(0, 6))
 
 
-func _build_slot() -> void:
-	_slot = PanelContainer.new()
-	_slot.theme_type_variation = &"HudPill"
-	_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_slot.modulate.a = 0.0
-	var box := Ui.row(12)
-	var key := Ui.label("SHIFT", &"CaptionLabel")
-	key.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	box.add_child(key)
-	_slot_name = Ui.label("", &"AccentLabel", HORIZONTAL_ALIGNMENT_CENTER)
-	_slot_name.add_theme_color_override(&"font_color", Color.WHITE)
-	_slot_name.custom_minimum_size.x = 150.0
-	box.add_child(_slot_name)
-	_slot.add_child(box)
-	add_child(_slot)
-	Ui.pin(_slot, Control.PRESET_CENTER_BOTTOM, Vector2(0, 22))
-
-
 func _build_effects() -> void:
-	var box := Ui.column(8)
+	var box := Ui.column(5)
 	for kind in EFFECT_KINDS:
 		var entry := Ui.column(2)
 		entry.add_child(Ui.label(PowerUps.label(kind), &"ChipLabel"))
@@ -228,7 +211,7 @@ func _build_effects() -> void:
 		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		bar.modulate = PowerUps.color(kind)
 		entry.add_child(bar)
-		entry.modulate.a = 0.0
+		entry.visible = false
 		box.add_child(entry)
 		_effect_rows[kind] = entry
 		_effect_bars[kind] = bar
@@ -244,7 +227,7 @@ func _build_tip() -> void:
 	_tip = Ui.label("", &"HintLabel", HORIZONTAL_ALIGNMENT_CENTER)
 	_tip_panel.add_child(_tip)
 	add_child(_tip_panel)
-	Ui.pin(_tip_panel, Control.PRESET_CENTER_BOTTOM, Vector2(0, 76))
+	Ui.pin(_tip_panel, Control.PRESET_CENTER_BOTTOM, Vector2(0, 26))
 
 
 func _build_banner() -> void:

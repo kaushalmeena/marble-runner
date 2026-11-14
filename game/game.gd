@@ -1,6 +1,6 @@
 extends Node3D
 ## Gameplay root. Builds the level, then referees it: the clock, the gems, the
-## power-up slot, falls and the finish.
+## running power-ups, falls and the finish.
 ##
 ## Everything here is a connection or a hand-off. Gimmicks act on the marble by
 ## themselves; this script only hears about the things that change the state of
@@ -8,7 +8,6 @@ extends Node3D
 ## objects it affects.
 
 const ENVIRONMENT := preload("res://resources/environments/day_sky.tres")
-const EMPTY := -1
 ## Pause between crossing the finish and the results card, so the moment lands.
 const FINISH_HOLD_SECONDS := 0.9
 ## A guard is popped when the marble is at least this far above it and falling
@@ -18,9 +17,12 @@ const STOMP_SPEED := 1.0
 const STOMP_BOUNCE := 8.0
 
 @export_group("Power-up tuning")
-## Take-off speed of the super jump. Roughly three and a half normal jumps high.
-@export var super_jump_speed: float = 14.0
-@export var boost_speed: float = 20.0
+## Jump speed multiplier while super jump runs. At 1.85 a jump is about three
+## and a half times as high.
+@export var super_jump_scale: float = 1.85
+## Top speed and torque multiplier while boost runs, and the shove on pickup.
+@export var boost_scale: float = 1.6
+@export var boost_kick: float = 16.0
 ## Gravity multiplier while the feather runs.
 @export var feather_gravity: float = 0.3
 ## How far the magnet reaches for gems, and how fast it drags them in.
@@ -44,7 +46,6 @@ var _running: bool = false
 var _finished: bool = false
 var _gems_collected: int = 0
 var _respawn_position := Vector3.ZERO
-var _held: int = EMPTY
 ## Seconds left on each running effect, keyed by [enum PowerUps.Kind].
 var _effects: Dictionary[int, float] = {}
 var _seen_kinds: Dictionary[int, bool] = {}
@@ -54,6 +55,11 @@ var _cheated: bool = false
 ## Gravity multiplier for this run: the level's own, unless a cheat changed it.
 var _base_gravity: float = 1.0
 var _endless_air_jumps: bool = false
+var _speed_cheat: float = 1.0
+## The marble's own tuning, read once, so effects scale it rather than drift it.
+var _marble_jump_speed: float = 0.0
+var _marble_max_speed: float = 0.0
+var _marble_roll_torque: float = 0.0
 
 
 func _ready() -> void:
@@ -71,13 +77,16 @@ func _ready() -> void:
 	_respawn_position = _builder.start_position
 	_marble.global_position = _respawn_position
 	_base_gravity = _level.gravity_scale
-	_marble.gravity_scale = _base_gravity
+	_marble_jump_speed = _marble.jump_speed
+	_marble_max_speed = _marble.max_speed
+	_marble_roll_torque = _marble.roll_torque
 	_marble.landed.connect(_on_marble_landed)
 	_marble.jumped.connect(_on_marble_jumped)
 	_camera.follow(_marble, _builder.start_yaw)
 
 	_hud.setup(GameState.current_level + 1, _level, _builder.gems.size(),
 		GameState.best_time(_level))
+	_apply_effects()
 	_results.next_pressed.connect(_on_next_pressed)
 	_results.retry_pressed.connect(SceneManager.restart_level)
 	_results.levels_pressed.connect(SceneManager.goto_level_select)
@@ -127,8 +136,6 @@ func _run_countdown() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"restart"):
 		SceneManager.restart_level()
-	elif event.is_action_pressed(&"use_power_up"):
-		_use_power_up()
 	elif event is InputEventMouseButton and event.pressed and not _finished:
 		# Mouse look is opt-in: a click captures the pointer, pausing frees it.
 		# It has to happen inside an input event or a browser refuses it.
@@ -142,7 +149,7 @@ func _process(_delta: float) -> void:
 	_hud.set_time(_time, _effects.has(PowerUps.Kind.STOPWATCH))
 	_hud.set_underwater(_marble.in_water)
 	for kind in Hud.EFFECT_KINDS:
-		_hud.set_effect(kind, _effects.get(kind, 0.0) / PowerUps.duration(kind))
+		_hud.set_effect(kind, minf(1.0, _effects.get(kind, 0.0) / PowerUps.duration(kind)))
 
 
 func _physics_process(delta: float) -> void:
@@ -288,6 +295,8 @@ func _on_tip_entered(zone: TriggerZone) -> void:
 # --- Power-ups --------------------------------------------------------------
 
 
+## A pickup takes effect the moment it is touched. Different power-ups run
+## side by side; another of one already running adds its time on top.
 func _on_pickup_taken(pickup: PowerUpPickup) -> void:
 	var kind := pickup.kind
 	_bursts.burst(pickup.global_position + Vector3.UP, PowerUps.color(kind))
@@ -295,56 +304,65 @@ func _on_pickup_taken(pickup: PowerUpPickup) -> void:
 	if not _seen_kinds.has(kind):
 		_seen_kinds[kind] = true
 		_hud.show_tip("%s: %s" % [PowerUps.label(kind), PowerUps.hint(kind)])
-	if PowerUps.is_instant(kind):
-		_start_effect(kind)
-		return
-	_held = kind
-	_hud.set_power_up(kind)
+	_start_effect(kind)
+	if kind == PowerUps.Kind.BOOST:
+		# A shove to go with the higher top speed, the way the marble is
+		# already heading, or the way the view faces if it is standing still.
+		var heading := _marble.linear_velocity
+		heading.y = 0.0
+		if heading.length_squared() < 1.0:
+			heading = Basis(Vector3.UP, _marble.steer_yaw) * Vector3.FORWARD
+		_marble.boost(heading, boost_kick)
+		Audio.play(&"boost", -4.0)
 
 
-func _use_power_up() -> void:
-	if _held == EMPTY or not _running:
-		return
-	var kind := _held as PowerUps.Kind
-	_held = EMPTY
-	_hud.set_power_up(EMPTY)
-	_bursts.burst(_marble.global_position, PowerUps.color(kind))
-	match kind:
-		PowerUps.Kind.SUPER_JUMP:
-			_marble.launch(super_jump_speed)
-			Audio.play(&"bounce", -2.0)
-		PowerUps.Kind.BOOST:
-			# Along the held direction if there is one, otherwise the view.
-			var heading := _marble.wish_direction()
-			if heading.length_squared() < 0.01:
-				heading = Basis(Vector3.UP, _marble.steer_yaw) * Vector3.FORWARD
-			_marble.boost(heading, boost_speed)
-			Audio.play(&"boost", -2.0)
-		_:
-			_start_effect(kind)
-			Audio.play(&"power_up", -4.0)
-
-
-func _start_effect(kind: PowerUps.Kind) -> void:
-	_effects[kind] = PowerUps.duration(kind)
-	match kind:
-		PowerUps.Kind.FEATHER:
-			_marble.gravity_scale = _base_gravity * feather_gravity
-		PowerUps.Kind.SHIELD:
-			_marble.set_shielded(true)
-		PowerUps.Kind.DOUBLE_JUMP:
-			_marble.air_jumps = 1
+## Starts an effect, or extends one that is already running. Stacked time is
+## capped, so hoarding a respawning pickup cannot bank an effect for ever.
+func _start_effect(kind: PowerUps.Kind, seconds: float = -1.0) -> void:
+	var duration := PowerUps.duration(kind) if seconds < 0.0 else seconds
+	var cap := maxf(duration, PowerUps.duration(kind) * PowerUps.MAX_STACK)
+	_effects[kind] = minf(_effects.get(kind, 0.0) + duration, cap)
+	_apply_effects()
 
 
 func _end_effect(kind: int) -> void:
 	_effects.erase(kind)
-	match kind:
-		PowerUps.Kind.FEATHER:
-			_marble.gravity_scale = _base_gravity
-		PowerUps.Kind.SHIELD:
-			_marble.set_shielded(false)
-		PowerUps.Kind.DOUBLE_JUMP:
-			_marble.air_jumps = 99 if _endless_air_jumps else 0
+	_apply_effects()
+
+
+## Sets everything a power-up can change on the marble from what is running
+## now. Derived from scratch each time rather than added and removed, so two
+## effects ending in either order can never leave a value stuck.
+func _apply_effects() -> void:
+	var has := func(kind: PowerUps.Kind) -> bool: return _effects.has(kind)
+	_marble.gravity_scale = _base_gravity * (
+		feather_gravity if has.call(PowerUps.Kind.FEATHER) else 1.0)
+	_marble.jump_speed = _marble_jump_speed * (
+		super_jump_scale if has.call(PowerUps.Kind.SUPER_JUMP) else 1.0)
+	var pace := _speed_cheat * (boost_scale if has.call(PowerUps.Kind.BOOST) else 1.0)
+	_marble.max_speed = _marble_max_speed * pace
+	_marble.roll_torque = _marble_roll_torque * pace
+	_marble.set_shielded(has.call(PowerUps.Kind.SHIELD))
+	var air_jumps := 99 if _endless_air_jumps else (
+		1 if has.call(PowerUps.Kind.DOUBLE_JUMP) else 0)
+	# Only on a change: setting it refills the jump, which would otherwise
+	# hand out a free one every time some other effect started or ended.
+	if _marble.air_jumps != air_jumps:
+		_marble.air_jumps = air_jumps
+	_hud.set_environment(_environment_tags())
+
+
+## Standing conditions of the level, for the HUD: things that are true the
+## whole way through rather than for a few seconds.
+func _environment_tags() -> PackedStringArray:
+	var tags := PackedStringArray()
+	if _base_gravity < 0.99:
+		tags.append("LOW GRAVITY")
+	if _builder.has_water:
+		tags.append("WATER")
+	if _speed_cheat > 1.0:
+		tags.append("FAST")
+	return tags
 
 
 func _tick_effects(delta: float) -> void:
@@ -386,18 +404,14 @@ func _on_cheat_entered(code: StringName) -> void:
 	match code:
 		&"MOONBOOTS":
 			_base_gravity = 0.35
-			_marble.gravity_scale = _base_gravity
 		&"BUBBLE":
-			_start_effect(PowerUps.Kind.SHIELD)
-			_effects[PowerUps.Kind.SHIELD] = 60.0
+			_start_effect(PowerUps.Kind.SHIELD, 60.0)
 		&"SKYHOOK":
 			_endless_air_jumps = true
-			_marble.air_jumps = 99
 		&"ZOOMZOOM":
-			_marble.max_speed *= 1.6
-			_marble.roll_torque *= 1.5
+			_speed_cheat = 1.6
 		&"TICKTOCK":
-			_effects[PowerUps.Kind.STOPWATCH] = 60.0
+			_start_effect(PowerUps.Kind.STOPWATCH, 60.0)
 		&"ALLGEMS":
 			for gem in _builder.gems:
 				if not gem.taken:
@@ -409,15 +423,14 @@ func _on_cheat_entered(code: StringName) -> void:
 			for enemy in _builder.enemies:
 				enemy.defeat()
 		&"TOOLKIT":
-			_held = (_held + 1) % PowerUps.Kind.size()
-			if PowerUps.is_instant(_held as PowerUps.Kind):
-				_held = (_held + 1) % PowerUps.Kind.size()
-			_hud.set_power_up(_held)
+			for kind in PowerUps.Kind.values():
+				_start_effect(kind)
 		&"GOLDMINE":
 			GameState.coins += 500
 			GameState.save_progress()
 		&"ALLACCESS":
 			GameState.unlock_all()
+	_apply_effects()
 
 
 # --- Feel -------------------------------------------------------------------

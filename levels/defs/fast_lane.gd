@@ -32,7 +32,7 @@ func build(b: LevelBuilder) -> void:
 
 	b.floor(-55, -60, 8, 18)
 	b.power_up(PowerUps.Kind.BOOST, Vector3(-55, 0, -54))
-	b.tip(Vector3(-55, 0, -53), "Too far to jump. Spend the BOOST, then jump at the edge.")
+	b.tip(Vector3(-55, 0, -53), "Too far to jump. Grab the BOOST and jump at the edge.")
 	b.floor(-55, -86, 10, 16)
 	b.gem(Vector3(-55, 0, -82))
 	b.finish_at(Vector3(-55, 0, -88))

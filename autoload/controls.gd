@@ -13,14 +13,12 @@ const KEYS: Dictionary[StringName, Array] = {
 	&"jump": [KEY_SPACE],
 	&"camera_left": [KEY_Q],
 	&"camera_right": [KEY_E],
-	&"use_power_up": [KEY_SHIFT, KEY_F],
 	&"restart": [KEY_R],
 	&"pause": [KEY_ESCAPE, KEY_P],
 }
 
 const PAD_BUTTONS: Dictionary[StringName, JoyButton] = {
 	&"jump": JOY_BUTTON_A,
-	&"use_power_up": JOY_BUTTON_X,
 	&"restart": JOY_BUTTON_BACK,
 	&"pause": JOY_BUTTON_START,
 }

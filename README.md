@@ -54,9 +54,9 @@ every gem to open the finish, then do it again faster for the stars.
   that open for one key each.
 - **Water and the moon** — pools you sink and swim in, and low-gravity levels
   where one jump lasts two seconds.
-- **A power-up slot** — pick up a super jump, boost, feather, magnet, shield
-  or double jump and spend it when you choose. The stopwatch freezes the
-  clock on the spot.
+- **Seven power-ups** — super jump, boost, feather, magnet, stopwatch, shield
+  and double jump. They switch on as you touch them, run side by side, and
+  picking up another of the same adds its time.
 - **Stars and best times** — three stars per level against gold and silver
   targets. Checkpoints mean a fall costs time, not the attempt.
 - **Coins and skins** — gems and new stars pay coins, spent on marbles in the
@@ -131,12 +131,11 @@ fresh clone once the matching export templates are installed.
 | Roll            | `W` `A` `S` `D` or arrows   | Left stick   |
 | Jump            | `Space` (hold to keep hopping) | `A`       |
 | Turn the camera | `Q` `E`, or click and move the mouse | Right stick |
-| Use power-up    | `Shift` or `F`              | `X`          |
 | Restart level   | `R`                         | `Back`       |
 | Pause           | `Esc` or `P`                | `Start`      |
 
 The camera also follows the marble on its own, so the movement keys and
-`Space` are enough to play. On a touchscreen a stick and two buttons appear.
+`Space` are enough to play. On a touchscreen a stick and a jump button appear.
 
 ### Cheats
 
@@ -154,7 +153,7 @@ unlock the next level. The last two do not touch the run, so they are exempt.
 | `ALLGEMS` | Every gem collected |
 | `SKELETONKEY` | Three keys |
 | `BOWLING` | Rival marbles knocked out |
-| `TOOLKIT` | Next power-up in the slot |
+| `TOOLKIT` | Every power-up at once |
 | `GOLDMINE` | 500 coins |
 | `ALLACCESS` | Every level unlocked |
 

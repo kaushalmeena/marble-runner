@@ -40,6 +40,8 @@ var enemies: Array[Enemy] = []
 var portals: Array[Portal] = []
 var keys: Array[GateKey] = []
 var gates: Array[Gate] = []
+## True once any water has been placed, for the HUD's level conditions.
+var has_water: bool = false
 ## Bounds of everything solid, for the fall limit and the scenery.
 var bounds := AABB()
 
@@ -316,6 +318,7 @@ func gate(at: Vector3, width: float = 4.0, yaw_degrees: float = 0.0) -> Gate:
 ## A box of water, by centre and size. Its top face is the surface.
 func water(center: Vector3, size: Vector3) -> WaterZone:
 	var pool := WaterZone.new(size)
+	has_water = true
 	_place(pool, center)
 	return pool
 
