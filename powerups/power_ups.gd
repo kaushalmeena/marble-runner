@@ -1,80 +1,73 @@
 class_name PowerUps
 extends RefCounted
-## Static description of every pickup effect, good and bad.
+## Static description of every power-up.
 ##
-## Keeping this in one place means the pickup scene, the manager, the HUD and
-## the spawn table all agree without any of them knowing about each other.
+## Keeping this in one place means the pickup, the game and the HUD all agree
+## without any of them knowing about each other.
 ##
-## The good/bad split is deliberately legible before a player can read a label:
-## helpful pickups are rounded and cool-coloured, hostile ones share a single
-## spiked silhouette in hot red. One rule, no memorisation.
+## Most power-ups are *held*: picking one up puts it in the slot, and the player
+## chooses the moment to spend it. The stopwatch is the exception and fires on
+## pickup, because there is never a reason to save it.
 
 enum Kind {
-	SHIELD,
-	MAGNET,
-	SLOW_MO,
-	BOOST,
 	SUPER_JUMP,
-	FOG,
-	SLUGGISH,
-	REVERSED,
+	BOOST,
+	FEATHER,
+	MAGNET,
+	STOPWATCH,
 }
 
-## Everything from here on is a debuff. Ordering the enum this way means the
-## test is a comparison rather than a lookup table that can fall out of date.
-const FIRST_DEBUFF := Kind.FOG
-
-## Seconds each effect lasts. Debuffs are short: they should sting, not ruin a
-## run that was going well.
-const DURATIONS: Dictionary = {
-	Kind.SHIELD: 10.0,
-	Kind.MAGNET: 8.0,
-	Kind.SLOW_MO: 5.0,
-	Kind.BOOST: 4.5,
-	Kind.SUPER_JUMP: 8.0,
-	Kind.FOG: 4.0,
-	Kind.SLUGGISH: 4.5,
-	Kind.REVERSED: 3.5,
-}
-
-## Short names for the HUD chips.
 const LABELS: Dictionary = {
-	Kind.SHIELD: "SHIELD",
-	Kind.MAGNET: "MAGNET",
-	Kind.SLOW_MO: "SLOW",
+	Kind.SUPER_JUMP: "SUPER JUMP",
 	Kind.BOOST: "BOOST",
-	Kind.SUPER_JUMP: "HIGH JUMP",
-	Kind.FOG: "FOG",
-	Kind.SLUGGISH: "SLUGGISH",
-	Kind.REVERSED: "REVERSED",
+	Kind.FEATHER: "FEATHER",
+	Kind.MAGNET: "MAGNET",
+	Kind.STOPWATCH: "STOPWATCH",
 }
 
-## Buffs get cool, distinct hues. Debuffs all sit in the same hot red band, so
-## the colour reads as a warning before the shape or the label registers.
+## One line for the tip that shows the first time a kind is collected.
+const HINTS: Dictionary = {
+	Kind.SUPER_JUMP: "Launches you far higher than a jump.",
+	Kind.BOOST: "A burst of speed the way you are facing.",
+	Kind.FEATHER: "Falls slowly for a few seconds. Jump first.",
+	Kind.MAGNET: "Pulls nearby gems to you.",
+	Kind.STOPWATCH: "Froze the clock.",
+}
+
 const COLORS: Dictionary = {
-	Kind.SHIELD: Color(0.35, 0.75, 1.0),
-	Kind.MAGNET: Color(1.0, 0.55, 0.2),
-	Kind.SLOW_MO: Color(0.68, 0.45, 1.0),
+	Kind.SUPER_JUMP: Color(1.0, 0.85, 0.25),
 	Kind.BOOST: Color(0.3, 1.0, 0.6),
-	Kind.SUPER_JUMP: Color(1.0, 0.88, 0.3),
-	Kind.FOG: Color(0.85, 0.35, 0.45),
-	Kind.SLUGGISH: Color(0.92, 0.25, 0.3),
-	Kind.REVERSED: Color(0.95, 0.2, 0.6),
+	Kind.FEATHER: Color(0.75, 0.9, 1.0),
+	Kind.MAGNET: Color(1.0, 0.5, 0.25),
+	Kind.STOPWATCH: Color(0.72, 0.5, 1.0),
 }
 
-
-static func duration(kind: Kind) -> float:
-	return DURATIONS.get(kind, 0.0)
+## Seconds an effect lasts once triggered. Zero is a one-off impulse.
+const DURATIONS: Dictionary = {
+	Kind.SUPER_JUMP: 0.0,
+	Kind.BOOST: 0.0,
+	Kind.FEATHER: 6.0,
+	Kind.MAGNET: 10.0,
+	Kind.STOPWATCH: 5.0,
+}
 
 
 static func label(kind: Kind) -> String:
 	return LABELS.get(kind, "")
 
 
+static func hint(kind: Kind) -> String:
+	return HINTS.get(kind, "")
+
+
 static func color(kind: Kind) -> Color:
 	return COLORS.get(kind, Color.WHITE)
 
 
-## True for pickups the player should be dodging.
-static func is_debuff(kind: Kind) -> bool:
-	return kind >= FIRST_DEBUFF
+static func duration(kind: Kind) -> float:
+	return DURATIONS.get(kind, 0.0)
+
+
+## True for power-ups that fire the moment they are touched.
+static func is_instant(kind: Kind) -> bool:
+	return kind == Kind.STOPWATCH
