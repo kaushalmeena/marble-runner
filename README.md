@@ -64,10 +64,14 @@ every gem to open the finish, then do it again faster for the stars.
   side, and picking up another of the same adds its time.
 - **Traps** — pickups in a dark bubble that slow you, reverse your steering
   or weigh you down for a few seconds. A shield soaks them up.
+- **A secret diamond in every level** — off the route, under a ledge, behind
+  a hidden button, or carried by a rival you have to pop. It never blocks
+  the finish, it only counts if you carry it there, and the level select
+  shows which ones you have.
 - **Stars and best times** — three stars per level against gold and silver
   targets. Checkpoints mean a fall costs time, not the attempt.
-- **Coins and skins** — gems and new stars pay coins, spent on marbles in the
-  shop.
+- **Gems and skins** — every gem you collect is banked when you finish, new
+  stars and secret diamonds pay a bonus, and gems buy marbles in the shop.
 - **Ten palettes** — meadow, desert, tundra, dusk, reef, moon, night, storm,
   foundry and canyon.
 - **Cheat codes** — typed during play, no menu. See below.
@@ -148,7 +152,7 @@ The camera also follows the marble on its own, so the movement keys and
 ### Cheats
 
 Type a word during a level. There is no prompt; the HUD confirms it. A run that
-used a cheat still finishes, but records no time, stars or coins and does not
+used a cheat still finishes, but records no time, stars, gems or secret diamond and does not
 unlock the next level. The last two do not touch the run, so they are exempt.
 
 | Code | Effect |
@@ -162,7 +166,7 @@ unlock the next level. The last two do not touch the run, so they are exempt.
 | `SKELETONKEY` | Three keys |
 | `BOWLING` | Rival marbles knocked out |
 | `TOOLKIT` | Every power-up at once |
-| `GOLDMINE` | 500 coins |
+| `GOLDMINE` | 500 gems |
 | `ALLACCESS` | Every level unlocked |
 
 ## Deployment

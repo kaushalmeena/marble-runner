@@ -116,6 +116,7 @@ Things to know:
 | `key`, `gate` | A key is carried; a gate opens for one key. |
 | `water` | A box of water: slow sinking, drag, and jump becomes a swim stroke. |
 | `tip` | A line of text shown on the HUD when the marble gets close. |
+| `secret`, `secret_ledge`, `secret_nook` | The level's one secret diamond: bare, on a ledge of its own, or tucked under the lip of a floor. |
 
 ## The ruler
 
@@ -156,6 +157,28 @@ level card (`LevelDef.conditions`):
 | `gravity_scale` | `0.35` is the moon: a jump about 4 high and two seconds long. `1.4` is heavy: a jump about 1 high, gaps of 1.5, steps of 0.6. |
 | `wind` | A steady acceleration on the marble, e.g. `Vector3(3, 0, 0)`. Not felt under water or with grip. On ice the wind wins outright, so give a kerb or the grip power-up. Do not put a cannon in a windy level: its shot is not corrected for wind. |
 | `dark` | Night. The sun is all but out and the marble carries a lamp. Glowing things (gems, pads, beams) still show. |
+
+## The secret diamond
+
+Every level has exactly one. It never blocks the finish, it is only kept if
+it is carried there, and finding it for the first time pays 50 gems. The
+level card and the HUD show whether it is held.
+
+Hide it by action rather than by position alone. The ways in use:
+
+| Way | How |
+| --- | --- |
+| Under a lip | `b.secret_nook(edge, outward)`: a ledge below the floor's edge with the diamond at the back, out of sight from on top. Roll off slowly and roll in under. |
+| Off the route | `b.secret_ledge(top)`: a ledge behind the start, out to one side, or above a deck that only a power-up reaches. |
+| Behind a button | `b.button(at, [b.secret(spot, true)])`: a concealed diamond comes out when a button somewhere unlikely is pressed. |
+| Carried by a rival | `keeper.reveals = [b.secret(spot, true)]`: it comes out when that rival is popped. |
+
+A ledge off the path can be a one-way trip. Stepping off afterwards is a
+respawn, and the diamond stays in hand. `Trail` has the same set as
+`secret_behind`, `secret_below`, `secret_side`, `secret_guard`, and
+`secret_switch` with `secret_reveal`.
+
+The test bot does not look for diamonds. Each one needs finding by hand.
 
 ## Rival marbles
 

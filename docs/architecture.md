@@ -6,7 +6,7 @@ anything.
 ## Layout
 
 ```
-autoload/      GameState (progress, coins, skins), SceneManager, Audio, Controls
+autoload/      GameState (progress, gems, secret diamonds, skins), SceneManager, Audio, Controls
 game/          Gameplay root, the orbit camera and the cheat codes
 player/        The marble
 levels/        LevelDef, LevelBuilder, LevelCatalog, and one script per level
@@ -86,8 +86,10 @@ picture:
 A level is finished by touching the finish with every gem collected. The save
 file keeps the best time per level id; stars are derived from that time against
 the level's gold and silver targets, never stored. A level unlocks when the one
-before it has been finished. Coins are paid per gem on every finish and per
-star the first time it is earned, and are spent on skins.
+before it has been finished. Gems are the currency: every gem collected is banked
+on every finish, with a bonus per star and per secret diamond the first time
+each is earned, and they are spent on skins. The save also lists the levels
+whose secret diamond has been carried to the finish.
 
 Falling off, or touching a hazard, returns the marble to the last checkpoint.
 The clock keeps running: a fall costs time, not the attempt.
