@@ -88,47 +88,22 @@ func _build_icon(color: Color) -> void:
 				arrow.rotation.z = -PI / 2.0
 				_body.add_child(arrow)
 		PowerUps.Kind.FEATHER:
-			# A feather: one flat leaf-shaped vane on a quill that pokes out
-			# below it, with barbs drawn across the vane.
+			# A feather in two shapes: a thick oval vane, and one bold quill
+			# running through it and out of the bottom.
 			var feather := Node3D.new()
 			feather.rotation.z = -0.45
 			_body.add_child(feather)
-			var half := Vector2(0.19, 0.38)
-			var middle := 0.12
-			var vane := SphereMesh.new()
-			vane.radius = 0.5
-			vane.height = 1.0
-			var blade := Mats.mesh(vane, pale, Vector3.UP * middle)
-			blade.scale = Vector3(half.x * 2.0, half.y * 2.0, 0.06)
-			feather.add_child(blade)
-			var quill := CylinderMesh.new()
-			quill.top_radius = 0.012
-			quill.bottom_radius = 0.035
-			quill.height = 0.98
-			feather.add_child(Mats.mesh(quill, lit, Vector3.UP * -0.02))
-			# The quill is thinner than the vane is thick, so inside the vane it
-			# is buried. A spine as deep as the barbs shows it on both faces.
-			var spine := BoxMesh.new()
-			spine.size = Vector3(0.03, half.y * 1.84, 0.075)
-			feather.add_child(Mats.mesh(spine, lit, Vector3.UP * middle))
-			# Each barb runs from the quill up and out, and stops short of the
-			# vane's edge at the height its tip reaches, so none pokes outside.
-			const SLANT := 0.5
-			for index in 5:
-				var root := -0.24 + index * 0.115
-				for side: float in [-1.0, 1.0]:
-					var reach := 0.0
-					for _pass in 4:
-						var tip := root + tan(SLANT) * reach
-						reach = half.x * sqrt(maxf(0.0, 1.0 - pow(tip / half.y, 2.0))) * 0.8
-					if reach < 0.03:
-						continue
-					var barb := BoxMesh.new()
-					barb.size = Vector3(reach / cos(SLANT), 0.022, 0.075)
-					var stroke := Mats.mesh(barb, lit, Vector3(
-						side * reach / 2.0, middle + root + tan(SLANT) * reach / 2.0, 0.0))
-					stroke.rotation.z = side * SLANT
-					feather.add_child(stroke)
+			var oval := CylinderMesh.new()
+			oval.top_radius = 0.4
+			oval.bottom_radius = 0.4
+			oval.height = 0.14
+			var vane := Mats.mesh(oval, pale, Vector3.UP * 0.12)
+			vane.rotation.x = PI / 2.0
+			vane.scale = Vector3(0.52, 1.0, 1.0)
+			feather.add_child(vane)
+			var quill := BoxMesh.new()
+			quill.size = Vector3(0.07, 1.0, 0.2)
+			feather.add_child(Mats.mesh(quill, lit, Vector3.UP * -0.06))
 		PowerUps.Kind.MAGNET:
 			# A horseshoe: a round bend at the bottom, two legs, and pale tips.
 			const BEND_RADIUS := 0.3
@@ -152,6 +127,30 @@ func _build_icon(color: Color) -> void:
 			for side: float in [-1.0, 1.0]:
 				_body.add_child(Mats.mesh(leg, lit, Vector3(side * BEND_RADIUS, 0.15, 0.0)))
 				_body.add_child(Mats.mesh(tip, pale, Vector3(side * BEND_RADIUS, 0.38, 0.0)))
+		PowerUps.Kind.SHIELD:
+			# A round shield, face on, with a pale boss in the middle.
+			var plate := CylinderMesh.new()
+			plate.top_radius = 0.46
+			plate.bottom_radius = 0.46
+			plate.height = 0.12
+			var face := Mats.mesh(plate, lit)
+			face.rotation.x = PI / 2.0
+			_body.add_child(face)
+			var boss := SphereMesh.new()
+			boss.radius = 0.2
+			boss.height = 0.4
+			var stud := Mats.mesh(boss, pale)
+			stud.scale.z = 0.6
+			_body.add_child(stud)
+		PowerUps.Kind.DOUBLE_JUMP:
+			# A coiled spring: three rings stacked.
+			for height: float in [-0.26, 0.0, 0.26]:
+				var coil := TorusMesh.new()
+				coil.inner_radius = 0.22
+				coil.outer_radius = 0.38
+				var ring_mesh := Mats.mesh(coil, lit if height != 0.0 else pale, Vector3.UP * height)
+				ring_mesh.scale.y = 0.7
+				_body.add_child(ring_mesh)
 		PowerUps.Kind.STOPWATCH:
 			# A clock face on edge, with hands and a crown.
 			var face := CylinderMesh.new()

@@ -29,6 +29,13 @@ const GROUND_NORMAL_Y := 0.35
 const MIN_AIR_TIME := 0.14
 ## How quickly an idle marble comes to rest on a moving platform, per second.
 const PLATFORM_SETTLE := 14.0
+## Share of the marble's weight that water carries. Under 1 so it still sinks.
+const WATER_BUOYANCY := 0.8
+## How quickly water bleeds off speed, per second.
+const WATER_DRAG := 1.8
+## Upward speed of one swimming stroke, and the gap between strokes.
+const SWIM_SPEED := 5.0
+const SWIM_INTERVAL := 0.28
 
 @export_group("Rolling")
 ## Torque applied while a direction is held. Against the marble's inertia this
@@ -60,6 +67,13 @@ var steer_yaw: float = 0.0
 var grounded: bool = false
 ## True while the thing under the marble is ice.
 var on_ice: bool = false
+## Jumps allowed in mid-air before landing again. The double jump power-up
+## sets this to one.
+var air_jumps: int = 0
+## True while the marble is inside a body of water.
+var in_water: bool:
+	get:
+		return _water_zones > 0
 
 var _coyote: float = 0.0
 var _jump_buffer: float = 0.0
@@ -72,6 +86,12 @@ var _platform: Mover = null
 var _platform_velocity := Vector3.ZERO
 var _teleport_pending: bool = false
 var _teleport_position := Vector3.ZERO
+var _teleport_velocity := Vector3.ZERO
+var _air_jumps_left: int = 0
+var _air_jump_pressed: bool = false
+var _water_zones: int = 0
+var _swim_cooldown: float = 0.0
+var _bubble: MeshInstance3D = null
 
 @onready var _mesh: MeshInstance3D = $Mesh
 
@@ -90,9 +110,32 @@ func apply_skin(skin: MarbleSkin) -> void:
 
 ## Moves the marble somewhere and brings it to rest. Used for the start and for
 ## respawns. Deferred to the next physics step, where it is safe.
-func teleport(world_position: Vector3) -> void:
+## [param velocity] is what it arrives with: a portal passes its speed through.
+func teleport(world_position: Vector3, velocity := Vector3.ZERO) -> void:
 	_teleport_position = world_position
+	_teleport_velocity = velocity
 	_teleport_pending = true
+
+
+## Called by a body of water as the marble crosses its surface.
+func enter_water() -> void:
+	_water_zones += 1
+
+
+func exit_water() -> void:
+	_water_zones = maxi(0, _water_zones - 1)
+
+
+## Shows or hides the bubble that marks an active shield.
+func set_shielded(active: bool) -> void:
+	if _bubble == null:
+		var shell := SphereMesh.new()
+		shell.radius = RADIUS * 1.45
+		shell.height = RADIUS * 2.9
+		_bubble = Mats.mesh(shell, Mats.ghost(PowerUps.color(PowerUps.Kind.SHIELD), 0.3))
+		_bubble.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(_bubble)
+	_bubble.visible = active
 
 
 ## Throws the marble straight up at [param speed], replacing any downward motion.
@@ -126,15 +169,20 @@ func _physics_process(_delta: float) -> void:
 	# moment it lands instead of needing a press timed to the frame.
 	if control_enabled and Input.is_action_pressed(&"jump"):
 		_jump_buffer = jump_buffer_time
+	# A mid-air jump needs a fresh press. Holding the key would spend it the
+	# instant the marble left the ground.
+	if control_enabled and Input.is_action_just_pressed(&"jump"):
+		_air_jump_pressed = true
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if _teleport_pending:
 		_teleport_pending = false
 		state.transform = Transform3D(Basis.IDENTITY, _teleport_position)
-		state.linear_velocity = Vector3.ZERO
-		state.angular_velocity = Vector3.ZERO
-		_previous_velocity = Vector3.ZERO
+		state.linear_velocity = _teleport_velocity
+		var flat := Vector3(_teleport_velocity.x, 0.0, _teleport_velocity.z)
+		state.angular_velocity = Vector3.UP.cross(flat) / RADIUS
+		_previous_velocity = _teleport_velocity
 		return
 
 	var step := state.step
@@ -143,9 +191,15 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if not control_enabled:
 		return
 	_roll(state)
+	if in_water:
+		_swim(state)
 	_jump_buffer -= step
 	if _jump_buffer > 0.0 and _coyote > 0.0:
 		_jump(state)
+	elif _air_jump_pressed and _air_jumps_left > 0 and _coyote <= 0.0 and not in_water:
+		_air_jumps_left -= 1
+		_jump(state)
+	_air_jump_pressed = false
 
 
 ## Works out whether the marble is standing on something, from this step's
@@ -164,6 +218,7 @@ func _read_ground(state: PhysicsDirectBodyState3D) -> void:
 	if on_ground:
 		_ground_normal = best
 		_coyote = coyote_time
+		_air_jumps_left = air_jumps
 		if not grounded and _air_time > MIN_AIR_TIME:
 			landed.emit(maxf(0.0, -_previous_velocity.y))
 		_air_time = 0.0
@@ -236,6 +291,22 @@ func _settle_on_platform(state: PhysicsDirectBodyState3D) -> void:
 	relative.y = 0.0
 	state.linear_velocity -= relative * ease
 	state.angular_velocity -= state.angular_velocity * ease
+
+
+## Water: most of the marble's weight is carried, speed bleeds away, and jump
+## becomes a swimming stroke that works without anything to push off.
+func _swim(state: PhysicsDirectBodyState3D) -> void:
+	var weight := mass * gravity_scale * float(
+		ProjectSettings.get_setting("physics/3d/default_gravity"))
+	state.apply_central_force(Vector3.UP * weight * WATER_BUOYANCY)
+	state.linear_velocity -= state.linear_velocity * minf(1.0, WATER_DRAG * state.step)
+	_swim_cooldown -= state.step
+	if _jump_buffer > 0.0 and _coyote <= 0.0 and _swim_cooldown <= 0.0:
+		var velocity := state.linear_velocity
+		velocity.y = maxf(velocity.y, SWIM_SPEED)
+		state.linear_velocity = velocity
+		_swim_cooldown = SWIM_INTERVAL
+		_jump_buffer = 0.0
 
 
 func _jump(state: PhysicsDirectBodyState3D) -> void:

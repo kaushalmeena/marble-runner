@@ -15,6 +15,8 @@ enum Kind {
 	FEATHER,
 	MAGNET,
 	STOPWATCH,
+	SHIELD,
+	DOUBLE_JUMP,
 }
 
 const LABELS: Dictionary = {
@@ -23,6 +25,8 @@ const LABELS: Dictionary = {
 	Kind.FEATHER: "FEATHER",
 	Kind.MAGNET: "MAGNET",
 	Kind.STOPWATCH: "STOPWATCH",
+	Kind.SHIELD: "SHIELD",
+	Kind.DOUBLE_JUMP: "DOUBLE JUMP",
 }
 
 ## One line for the tip that shows the first time a kind is collected.
@@ -32,6 +36,8 @@ const HINTS: Dictionary = {
 	Kind.FEATHER: "Falls slowly for a few seconds. Jump first.",
 	Kind.MAGNET: "Pulls nearby gems to you.",
 	Kind.STOPWATCH: "Froze the clock.",
+	Kind.SHIELD: "Guards and red bars cannot hurt you for a while.",
+	Kind.DOUBLE_JUMP: "Jump again in mid-air, for a while.",
 }
 
 const COLORS: Dictionary = {
@@ -40,6 +46,8 @@ const COLORS: Dictionary = {
 	Kind.FEATHER: Color(0.75, 0.9, 1.0),
 	Kind.MAGNET: Color(1.0, 0.5, 0.25),
 	Kind.STOPWATCH: Color(0.72, 0.5, 1.0),
+	Kind.SHIELD: Color(0.35, 0.65, 1.0),
+	Kind.DOUBLE_JUMP: Color(1.0, 0.45, 0.75),
 }
 
 ## Seconds an effect lasts once triggered. Zero is a one-off impulse.
@@ -49,6 +57,8 @@ const DURATIONS: Dictionary = {
 	Kind.FEATHER: 6.0,
 	Kind.MAGNET: 10.0,
 	Kind.STOPWATCH: 5.0,
+	Kind.SHIELD: 8.0,
+	Kind.DOUBLE_JUMP: 12.0,
 }
 
 
