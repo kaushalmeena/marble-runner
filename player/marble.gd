@@ -27,6 +27,8 @@ const GRIP_FRICTION := 1.0
 const GROUND_NORMAL_Y := 0.35
 ## Airborne for less than this is a bump over a seam, not a landing.
 const MIN_AIR_TIME := 0.14
+## How quickly an idle marble comes to rest on a moving platform, per second.
+const PLATFORM_SETTLE := 6.0
 
 @export_group("Rolling")
 ## Torque applied while a direction is held. Against the marble's inertia this
@@ -64,6 +66,10 @@ var _jump_buffer: float = 0.0
 var _air_time: float = 0.0
 var _ground_normal := Vector3.UP
 var _previous_velocity := Vector3.ZERO
+## The moving platform under the marble, if any, and how fast it was going on
+## the previous step.
+var _platform: Mover = null
+var _platform_velocity := Vector3.ZERO
 var _teleport_pending: bool = false
 var _teleport_position := Vector3.ZERO
 
@@ -103,6 +109,10 @@ func boost(direction: Vector3, speed: float) -> void:
 	var along := linear_velocity.dot(heading)
 	if along < speed:
 		linear_velocity += heading * (speed - along)
+	# Spin to match, or the marble arrives skidding and friction takes back
+	# half of what the boost just gave.
+	var flat := Vector3(linear_velocity.x, 0.0, linear_velocity.z)
+	angular_velocity = Vector3.UP.cross(flat) / RADIUS
 
 
 ## Horizontal direction the player is holding, in world space, length 0..1.
@@ -158,6 +168,7 @@ func _read_ground(state: PhysicsDirectBodyState3D) -> void:
 			landed.emit(maxf(0.0, -_previous_velocity.y))
 		_air_time = 0.0
 	else:
+		_platform = null
 		_coyote -= state.step
 		_air_time += state.step
 	grounded = on_ground
@@ -166,6 +177,7 @@ func _read_ground(state: PhysicsDirectBodyState3D) -> void:
 ## Looks up the shape being stood on and sets the marble's grip to match.
 func _read_surface(state: PhysicsDirectBodyState3D, contact: int) -> void:
 	var body := state.get_contact_collider_object(contact) as CollisionObject3D
+	_ride(state, body as Mover)
 	var icy := false
 	if body != null:
 		var owner_id := body.shape_find_owner(state.get_contact_collider_shape(contact))
@@ -177,9 +189,28 @@ func _read_surface(state: PhysicsDirectBodyState3D, contact: int) -> void:
 	physics_material_override.friction = ICE_FRICTION if icy else GRIP_FRICTION
 
 
+## Carries the marble along with a moving platform.
+##
+## Friction alone only passes on two sevenths of a platform's acceleration to
+## a ball free to roll: the rest goes into spin, and the marble is left behind
+## as the platform pulls away. Handing it the remainder directly is what makes
+## a platform something you can stand on.
+func _ride(state: PhysicsDirectBodyState3D, platform: Mover) -> void:
+	if platform != null:
+		# Stepping onto a platform that is already moving counts as it having
+		# accelerated from rest under the marble.
+		var before := _platform_velocity if platform == _platform else Vector3.ZERO
+		var change := platform.velocity - before
+		change.y = 0.0
+		state.linear_velocity += change * (5.0 / 7.0)
+		_platform_velocity = platform.velocity
+	_platform = platform
+
+
 func _roll(state: PhysicsDirectBodyState3D) -> void:
 	var wish := wish_direction()
 	if wish.length_squared() < 0.0001:
+		_settle_on_platform(state)
 		return
 	# Rolling toward `wish` is a spin about the axis at right angles to it.
 	var axis := Vector3.UP.cross(wish)
@@ -193,6 +224,18 @@ func _roll(state: PhysicsDirectBodyState3D) -> void:
 		# it would steer the marble as if the ice were not there.
 		var push := air_push if not grounded else (ground_push * 0.25 if on_ice else ground_push)
 		state.apply_central_force(wish * push)
+
+
+## With no direction held, a marble on a moving platform is eased to rest
+## relative to it, so standing still on one actually means standing still.
+func _settle_on_platform(state: PhysicsDirectBodyState3D) -> void:
+	if _platform == null or not grounded:
+		return
+	var ease := minf(1.0, PLATFORM_SETTLE * state.step)
+	var relative := state.linear_velocity - _platform.velocity
+	relative.y = 0.0
+	state.linear_velocity -= relative * ease
+	state.angular_velocity -= state.angular_velocity * ease
 
 
 func _jump(state: PhysicsDirectBodyState3D) -> void:

@@ -33,7 +33,7 @@ func apply(environment: Environment, sun: DirectionalLight3D) -> void:
 		return
 	# The levels float, so there is no ground to meet the horizon. The lower
 	# half of the sky fades into the haze colour instead, which reads as depth.
-	var haze := sky_horizon_color.lerp(fog_color, 0.35)
+	var haze := sky_horizon_color
 	environment.fog_light_color = haze
 	if environment.sky == null:
 		return
@@ -43,4 +43,4 @@ func apply(environment: Environment, sun: DirectionalLight3D) -> void:
 	sky.sky_top_color = sky_top_color
 	sky.sky_horizon_color = sky_horizon_color
 	sky.ground_horizon_color = haze
-	sky.ground_bottom_color = sky_top_color.lerp(fog_color, 0.5).darkened(0.25)
+	sky.ground_bottom_color = sky_horizon_color.lerp(sky_top_color, 0.6).darkened(0.2)

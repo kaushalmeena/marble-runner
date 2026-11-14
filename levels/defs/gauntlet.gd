@@ -17,7 +17,7 @@ func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
 	b.floor(0, -3, 6, 10)
 	b.boost_pad(Vector3(0, 0, -3.5), 0, 22)
-	b.ramp(Vector3(0, 0, -8), Vector3(0, 1.6, -12), 6)
+	b.curved_ramp(Vector3(0, 0, -8), Vector3(0, 1.6, -14), 6)
 
 	b.floor(0, -34, 8, 26)
 	b.checkpoint(Vector3(0, 0, -31))

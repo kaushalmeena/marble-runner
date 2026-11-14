@@ -26,6 +26,10 @@ const COINS_PER_GEM := 1
 ## it can only be collected once per star.
 const COINS_PER_NEW_STAR := 25
 
+## When false nothing is written to disk. Test harnesses turn this off so an
+## automated run cannot overwrite a real player's times.
+var persist: bool = true
+
 ## Level played next, as an index into [LevelCatalog].
 var current_level: int = 0
 
@@ -159,6 +163,8 @@ func load_progress() -> void:
 
 
 func save_progress() -> void:
+	if not persist:
+		return
 	var config := ConfigFile.new()
 	# Load first so keys this version does not know about survive the write.
 	config.load(SAVE_PATH)

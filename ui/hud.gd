@@ -180,7 +180,7 @@ func _build_tip() -> void:
 	_tip = Ui.label("", &"HintLabel", HORIZONTAL_ALIGNMENT_CENTER)
 	_tip_panel.add_child(_tip)
 	add_child(_tip_panel)
-	Ui.pin(_tip_panel, Control.PRESET_CENTER_BOTTOM, Vector2(0, 110))
+	Ui.pin(_tip_panel, Control.PRESET_CENTER_BOTTOM, Vector2(0, 132))
 
 
 func _build_banner() -> void:

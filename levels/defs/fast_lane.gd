@@ -17,7 +17,7 @@ func build(b: LevelBuilder) -> void:
 	b.tip(Vector3(0, 0, 0), "Green pads fling you forward. Line up with the ramp first.")
 	b.floor(0, -5, 6, 14)
 	b.boost_pad(Vector3(0, 0, -5), 0, 22)
-	b.ramp(Vector3(0, 0, -12), Vector3(0, 1.6, -16), 6)
+	b.curved_ramp(Vector3(0, 0, -12), Vector3(0, 1.6, -18), 6)
 
 	b.floor(0, -38, 8, 26)
 	b.checkpoint(Vector3(0, 0, -36))
@@ -25,7 +25,7 @@ func build(b: LevelBuilder) -> void:
 
 	b.floor(-12, -47, 16, 8)
 	b.boost_pad(Vector3(-9, 0, -47), 90, 22)
-	b.ramp(Vector3(-20, 0, -47), Vector3(-24, 1.6, -47), 6)
+	b.curved_ramp(Vector3(-20, 0, -47), Vector3(-26, 1.6, -47), 6)
 	b.floor(-46, -47, 26, 8)
 	b.checkpoint(Vector3(-44, 0, -47))
 	b.gem_line(Vector3(-48, 0, -47), Vector3(-56, 0, -47), 3)

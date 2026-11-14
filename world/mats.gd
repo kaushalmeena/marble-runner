@@ -18,10 +18,12 @@ static func solid(color: Color, roughness: float = 0.6, metallic: float = 0.0) -
 
 ## Opaque and self-lit, bright enough to bloom.
 static func glow(color: Color, energy: float = 1.6) -> StandardMaterial3D:
-	var material := solid(color, 0.35)
+	# Darker underneath than it glows: lit albedo plus emission of the same
+	# colour adds up to white, and every gimmick ends up the same pastel.
+	var material := solid(color.darkened(0.35), 0.35)
 	material.emission_enabled = true
 	material.emission = color
-	material.emission_energy_multiplier = energy
+	material.emission_energy_multiplier = energy * 0.5
 	return material
 
 

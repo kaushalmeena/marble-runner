@@ -35,7 +35,7 @@ func _init(color_index: int = 0) -> void:
 	stone.height = 0.9
 	stone.radial_segments = 6
 	stone.rings = 2
-	_mesh = Mats.mesh(stone, Mats.glow(color, 1.1), Vector3.UP * HOVER)
+	_mesh = Mats.mesh(stone, Mats.glow(color, 0.45), Vector3.UP * HOVER)
 	add_child(_mesh)
 	_time = randf() * TAU
 	body_entered.connect(_on_body_entered)

@@ -8,6 +8,8 @@ signal taken(pickup: PowerUpPickup)
 const RESPAWN_SECONDS := 6.0
 const HOVER := 0.95
 const FONT := preload("res://assets/fonts/Outfit.ttf")
+## OpenType tag for the weight axis ("wght"). String keys are silently ignored.
+const WEIGHT_AXIS := 2003265652
 
 var kind: PowerUps.Kind = PowerUps.Kind.SUPER_JUMP
 
@@ -28,24 +30,31 @@ func _init(power_up: PowerUps.Kind = PowerUps.Kind.SUPER_JUMP) -> void:
 	_body = Node3D.new()
 	_body.position = Vector3.UP * HOVER
 	add_child(_body)
-	_body.add_child(Mats.mesh(_core_mesh(), Mats.glow(color, 1.3)))
-	var shell := SphereMesh.new()
-	shell.radius = 0.62
-	shell.height = 1.24
-	var bubble := Mats.mesh(shell, Mats.ghost(color, 0.22))
-	bubble.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_body.add_child(bubble)
+	_build_icon(color)
+	_body.scale = Vector3.ONE * 1.3
+	# A ring on the floor marks the spot from above and from a distance.
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.62
+	ring.outer_radius = 0.78
+	var base := Mats.mesh(ring, Mats.glow(color, 1.0), Vector3.UP * 0.04)
+	base.scale.y = 0.3
+	add_child(base)
 
 	# Names the pickup in the world, so nobody has to learn a colour code.
 	var label := Label3D.new()
 	label.text = PowerUps.label(kind)
-	label.font = FONT
-	label.font_size = 40
-	label.outline_size = 10
-	label.pixel_size = 0.006
-	label.modulate = color.lightened(0.4)
+	# The font file's default weight is hairline thin; ask for bold.
+	var bold := FontVariation.new()
+	bold.base_font = FONT
+	bold.variation_opentype = {WEIGHT_AXIS: 800}
+	label.font = bold
+	label.font_size = 48
+	label.outline_size = 14
+	label.pixel_size = 0.0075
+	label.modulate = color.lightened(0.5)
+	label.outline_modulate = Color(0.03, 0.05, 0.1, 0.9)
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.position = Vector3.UP * (HOVER + 0.95)
+	label.position = Vector3.UP * (HOVER + 1.05)
 	add_child(label)
 	body_entered.connect(_on_body_entered)
 
@@ -56,33 +65,73 @@ func _process(delta: float) -> void:
 	_body.position.y = HOVER + sin(_time * 2.0) * 0.08
 
 
-## Each kind gets its own silhouette inside the bubble.
-func _core_mesh() -> Mesh:
+## Each kind is a different object, not a different colour of the same one:
+## the silhouette has to be readable at a glance, mid-roll.
+func _build_icon(color: Color) -> void:
+	var lit := Mats.glow(color, 0.9)
+	var pale := Mats.glow(Color(1.0, 1.0, 1.0), 0.5)
 	match kind:
 		PowerUps.Kind.SUPER_JUMP:
-			var cone := CylinderMesh.new()
-			cone.top_radius = 0.0
-			cone.bottom_radius = 0.32
-			cone.height = 0.6
-			return cone
+			# Two stacked arrowheads pointing up.
+			for height: float in [-0.22, 0.28]:
+				var head := CylinderMesh.new()
+				head.top_radius = 0.0
+				head.bottom_radius = 0.46
+				head.height = 0.5
+				head.radial_segments = 4
+				_body.add_child(Mats.mesh(head, lit, Vector3.UP * height))
 		PowerUps.Kind.BOOST:
-			var wedge := PrismMesh.new()
-			wedge.size = Vector3(0.6, 0.5, 0.25)
-			return wedge
+			# Three chevrons in a row, like the pads on the floor.
+			for index in 3:
+				var wedge := PrismMesh.new()
+				wedge.size = Vector3(0.62, 0.42, 0.3)
+				var chevron := Mats.mesh(wedge, lit, Vector3(0.0, 0.0, 0.42 - index * 0.42))
+				chevron.rotation.x = -PI / 2.0
+				_body.add_child(chevron)
 		PowerUps.Kind.FEATHER:
-			var disc := CylinderMesh.new()
-			disc.top_radius = 0.38
-			disc.bottom_radius = 0.38
-			disc.height = 0.08
-			return disc
+			# A pair of spread wings.
+			for side: float in [-1.0, 1.0]:
+				var wing := SphereMesh.new()
+				wing.radius = 0.5
+				wing.height = 1.0
+				var part := Mats.mesh(wing, pale, Vector3(side * 0.36, 0.06, 0.0))
+				part.scale = Vector3(0.9, 0.16, 0.5)
+				part.rotation.z = side * 0.5
+				_body.add_child(part)
+			var body := SphereMesh.new()
+			body.radius = 0.16
+			body.height = 0.32
+			_body.add_child(Mats.mesh(body, lit))
 		PowerUps.Kind.MAGNET:
-			var ring := TorusMesh.new()
-			ring.inner_radius = 0.18
-			ring.outer_radius = 0.38
-			return ring
-	var cube := BoxMesh.new()
-	cube.size = Vector3.ONE * 0.45
-	return cube
+			# A horseshoe: two legs, a bridge, and pale tips.
+			var leg := BoxMesh.new()
+			leg.size = Vector3(0.2, 0.62, 0.22)
+			var tip := BoxMesh.new()
+			tip.size = Vector3(0.22, 0.18, 0.24)
+			for side: float in [-1.0, 1.0]:
+				_body.add_child(Mats.mesh(leg, lit, Vector3(side * 0.3, 0.0, 0.0)))
+				_body.add_child(Mats.mesh(tip, pale, Vector3(side * 0.3, 0.4, 0.0)))
+			var bridge := BoxMesh.new()
+			bridge.size = Vector3(0.8, 0.2, 0.22)
+			_body.add_child(Mats.mesh(bridge, lit, Vector3(0.0, -0.36, 0.0)))
+		PowerUps.Kind.STOPWATCH:
+			# A clock face on edge, with hands and a crown.
+			var face := CylinderMesh.new()
+			face.top_radius = 0.48
+			face.bottom_radius = 0.48
+			face.height = 0.14
+			var dial := Mats.mesh(face, lit)
+			dial.rotation.x = PI / 2.0
+			_body.add_child(dial)
+			var hand := BoxMesh.new()
+			hand.size = Vector3(0.07, 0.36, 0.2)
+			_body.add_child(Mats.mesh(hand, pale, Vector3(0.0, 0.15, 0.0)))
+			var short_hand := BoxMesh.new()
+			short_hand.size = Vector3(0.24, 0.07, 0.2)
+			_body.add_child(Mats.mesh(short_hand, pale, Vector3(0.1, 0.0, 0.0)))
+			var crown := BoxMesh.new()
+			crown.size = Vector3(0.16, 0.16, 0.14)
+			_body.add_child(Mats.mesh(crown, pale, Vector3(0.0, 0.58, 0.0)))
 
 
 func _on_body_entered(body: Node3D) -> void:

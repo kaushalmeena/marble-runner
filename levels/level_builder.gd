@@ -54,7 +54,8 @@ func _init(parent: Node3D, biome: Biome) -> void:
 	_biome = biome
 	root.add_child(_static)
 	_materials[Surface.FLOOR] = _surface_material(
-		biome.ground_color, biome.ground_color.lightened(0.14), biome.ground_color.darkened(0.5))
+		biome.ground_color.darkened(0.12), biome.ground_color.lightened(0.06),
+		biome.ground_color.darkened(0.55))
 	_materials[Surface.WALL] = _surface_material(
 		biome.rock_color, biome.rock_color.lightened(0.1), biome.rock_color.darkened(0.35))
 	_materials[Surface.ICE] = _surface_material(
@@ -106,6 +107,19 @@ func ramp(from: Vector3, to: Vector3, width: float,
 	node.position = (from + to) / 2.0 - node.basis.y * thickness / 2.0
 	_grow_bounds((from + to) / 2.0, Vector3(width, absf(run.y) + thickness, width).max(run.abs()))
 	return node
+
+
+## A launch ramp that starts flat and steepens toward [param to]. A straight
+## ramp meets the floor at a kink, and a fast marble hits that kink like a
+## wall; easing into the slope keeps the speed the ramp is there to use.
+func curved_ramp(from: Vector3, to: Vector3, width: float, segments: int = 5) -> void:
+	var previous := from
+	for index in range(1, segments + 1):
+		var t := float(index) / segments
+		var point := from.lerp(to, t)
+		point.y = from.y + (to.y - from.y) * t * t
+		ramp(previous, point, width)
+		previous = point
 
 
 ## A kerb along the floor from [param from] to [param to].
@@ -264,42 +278,6 @@ func tip(at: Vector3, text: String, radius: float = 3.0) -> TriggerZone:
 	_place(zone, at + Vector3.UP)
 	tips.append(zone)
 	return zone
-
-
-# --- Scenery ----------------------------------------------------------------
-
-
-## Scatters soft clouds below and around the course. Without them a floating
-## level has nothing to judge height or speed against.
-func add_scenery(seed_value: int) -> void:
-	var random := RandomNumberGenerator.new()
-	random.seed = seed_value
-	var puff := SphereMesh.new()
-	puff.radius = 1.0
-	puff.height = 2.0
-	puff.radial_segments = 12
-	puff.rings = 6
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(1.0, 1.0, 1.0)
-	material.roughness = 1.0
-	material.emission_enabled = true
-	material.emission = _biome.sky_horizon_color.lightened(0.3)
-	material.emission_energy_multiplier = 0.35
-	var center := bounds.get_center()
-	var reach := maxf(bounds.size.x, bounds.size.z) / 2.0 + 30.0
-	for _i in 26:
-		var cloud := Mats.mesh(puff, material)
-		cloud.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		var angle := random.randf() * TAU
-		var distance := random.randf_range(0.25, 1.0) * reach
-		cloud.position = Vector3(
-			center.x + cos(angle) * distance,
-			bounds.position.y - random.randf_range(10.0, 30.0),
-			center.z + sin(angle) * distance)
-		cloud.scale = Vector3(
-			random.randf_range(6.0, 14.0), random.randf_range(1.6, 3.0),
-			random.randf_range(5.0, 11.0))
-		root.add_child(cloud)
 
 
 # --- Internals --------------------------------------------------------------

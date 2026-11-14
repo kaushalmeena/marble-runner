@@ -37,7 +37,6 @@ func _ready() -> void:
 	add_child(root)
 	var builder := LevelBuilder.new(root, level.biome)
 	level.build(builder)
-	builder.add_scenery(hash(level.id))
 	_center = builder.bounds.get_center()
 	_radius = maxf(builder.bounds.size.x, builder.bounds.size.z) * 0.55 + 14.0
 	_camera.fov = 55.0

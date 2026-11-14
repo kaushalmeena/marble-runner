@@ -54,7 +54,6 @@ func _ready() -> void:
 
 	_builder = LevelBuilder.new(_level_root, _level.biome)
 	_level.build(_builder)
-	_builder.add_scenery(hash(_level.id))
 	_connect_level()
 
 	_respawn_position = _builder.start_position
