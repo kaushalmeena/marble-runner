@@ -7,10 +7,11 @@ anything.
 
 ```
 autoload/      GameState (progress, coins, skins), SceneManager, Audio, Controls
-game/          Gameplay root and the orbit camera
+game/          Gameplay root, the orbit camera and the cheat codes
 player/        The marble
 levels/        LevelDef, LevelBuilder, LevelCatalog, and one script per level
-gimmicks/      Gems, finish, checkpoints, pickups, pads, bumpers, movers, fans
+gimmicks/      Gems, finish, checkpoints, pickups, pads, bumpers, movers, fans,
+               rival marbles, portals, keys and gates, water
 powerups/      The table describing each power-up
 effects/       Particle burst emitter
 world/         The tile shader, shared material helpers, biome palettes
@@ -62,8 +63,11 @@ picture:
 - `Marble` knows nothing about levels, gems or the clock. Anything it bumps
   into that has an `on_marble_hit` method gets told; that is the whole contract.
 - Gimmicks act on the marble directly. A `BoostPad` calls `marble.boost()`.
-- Gems, pickups, checkpoints, hazards and the finish emit a signal and do
-  nothing else. `game.gd` connects them and decides what they mean.
+- Gems, pickups, checkpoints, hazards, rival marbles, keys, gates and the
+  finish emit a signal and do nothing else. `game.gd` connects them and
+  decides what they mean.
+- `Cheats` recognises typed words and nothing more. What a code does is in
+  `game.gd`. A run that used one is finished but not recorded.
 - `PowerUps` describes each power-up. What one *does* is wired in `game.gd`,
   next to the objects it affects.
 - `GameState` owns progress and persistence. The game reports a finished level

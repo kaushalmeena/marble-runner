@@ -8,8 +8,8 @@ func _init() -> void:
 	title = "Lock and Key"
 	hint = "The way on is shut. The key is not far."
 	biome = preload("res://resources/biomes/desert.tres")
-	gold_time = 38.0
-	silver_time = 60.0
+	gold_time = 40.0
+	silver_time = 62.0
 
 
 func build(b: LevelBuilder) -> void:

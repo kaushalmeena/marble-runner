@@ -9,8 +9,8 @@ func _init() -> void:
 	hint = "Everything at once, a long way from home."
 	biome = preload("res://resources/biomes/moon.tres")
 	gravity_scale = 0.35
-	gold_time = 60.0
-	silver_time = 95.0
+	gold_time = 32.0
+	silver_time = 52.0
 
 
 func build(b: LevelBuilder) -> void:

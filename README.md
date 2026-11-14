@@ -6,10 +6,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
 
-**A marble platformer across twelve courses in the sky.**
+**A marble platformer across twenty-four courses in the sky and beyond.**
 
-Roll, jump and glide a physics marble through floating levels. Collect every
-gem to open the finish, then do it again faster for the stars.
+Roll, jump, swim and glide a physics marble through floating levels. Collect
+every gem to open the finish, then do it again faster for the stars.
 
 [**Try it live**](https://kaushalmeena.github.io/marble-runner/)
 
@@ -42,19 +42,27 @@ gem to open the finish, then do it again faster for the stars.
 
 - **A marble you roll, not steer** — it is a physics body driven by torque, so
   it has real momentum: it carries speed off ramps and slides on ice.
-- **Twelve levels, easy to hard** — each one teaches a single idea, and the
-  last two put them together.
+- **Twenty-four levels, easy to hard** — two pages of twelve. Each level
+  teaches a single idea, and the later ones put them together.
 - **Gems open the finish** — every level is a collection problem as well as a
   route, and the open ones let you choose the order.
 - **Things in the way** — moving platforms, bumpers, sweeping bars, boost and
   bounce pads, fans, ice, crumbling tiles and laser bars.
-- **A power-up slot** — pick up a super jump, boost, feather or magnet and
-  spend it when you choose. The stopwatch freezes the clock on the spot.
+- **Rival marbles** — red ones roll a fixed line, purple ones hunt you on
+  their own patch. Drop on one from above, or shield up, and it pops.
+- **Portals, keys and gates** — rings that pass your speed through, and gates
+  that open for one key each.
+- **Water and the moon** — pools you sink and swim in, and low-gravity levels
+  where one jump lasts two seconds.
+- **A power-up slot** — pick up a super jump, boost, feather, magnet, shield
+  or double jump and spend it when you choose. The stopwatch freezes the
+  clock on the spot.
 - **Stars and best times** — three stars per level against gold and silver
   targets. Checkpoints mean a fall costs time, not the attempt.
 - **Coins and skins** — gems and new stars pay coins, spent on marbles in the
   shop.
-- **Four palettes** — meadow, desert, tundra and dusk.
+- **Six palettes** — meadow, desert, tundra, dusk, reef and moon.
+- **Cheat codes** — typed during play, no menu. See below.
 
 ## Tech Stack
 
@@ -129,6 +137,26 @@ fresh clone once the matching export templates are installed.
 
 The camera also follows the marble on its own, so the movement keys and
 `Space` are enough to play. On a touchscreen a stick and two buttons appear.
+
+### Cheats
+
+Type a word during a level. There is no prompt; the HUD confirms it. A run that
+used a cheat still finishes, but records no time, stars or coins and does not
+unlock the next level. The last two do not touch the run, so they are exempt.
+
+| Code | Effect |
+| --- | --- |
+| `MOONBOOTS` | Low gravity |
+| `BUBBLE` | Shield for a minute |
+| `SKYHOOK` | Unlimited air jumps |
+| `ZOOMZOOM` | Faster marble |
+| `TICKTOCK` | Clock stopped for a minute |
+| `ALLGEMS` | Every gem collected |
+| `SKELETONKEY` | Three keys |
+| `BOWLING` | Rival marbles knocked out |
+| `TOOLKIT` | Next power-up in the slot |
+| `GOLDMINE` | 500 coins |
+| `ALLACCESS` | Every level unlocked |
 
 ## Deployment
 

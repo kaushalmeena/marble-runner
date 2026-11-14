@@ -8,8 +8,8 @@ func _init() -> void:
 	title = "Pad Rally"
 	hint = "Fast is easy. Fast and tidy is not."
 	biome = preload("res://resources/biomes/tundra.tres")
-	gold_time = 28.0
-	silver_time = 48.0
+	gold_time = 24.0
+	silver_time = 40.0
 
 
 func build(b: LevelBuilder) -> void:

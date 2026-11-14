@@ -1,7 +1,8 @@
 # Marble Runner
 
-A Godot marble platformer: roll, jump and glide a physics marble through twelve
-floating levels, collect every gem, reach the finish, beat the clock. Levels are
+A Godot marble platformer: roll, jump, swim and glide a physics marble through
+twenty-four floating levels, collect every gem, reach the finish, beat the
+clock. Levels are
 short scripts, not scenes — adding one involves no editor work at all.
 
 ## Done means it runs
@@ -68,5 +69,13 @@ Silent failures that cost real debugging time here:
   its own friction while standing on one.
 - An `AnimatableBody3D` synced to physics does not report its new position until
   later. `Mover` derives its velocity from its motion curve instead.
+- `Engine.time_scale` stretches each physics step rather than running more of
+  them. A harness that speeds the game up five times is simulating at 12 Hz,
+  and reports failures that do not exist. Raise
+  `Engine.physics_ticks_per_second` by the same factor.
+- Two transparent faces in the same plane as an opaque one flicker. Water is a
+  single sheet just below the rim, never a box filling the pool.
+- `Key` is a global enum (keycodes). A class named `Key` fails to parse with a
+  baffling "cannot assign Key to Key". The pickup is `GateKey`.
 - A ball free to roll receives only 2/7 of a moving platform's acceleration
   through friction. The marble is handed the rest directly, or it is left behind.

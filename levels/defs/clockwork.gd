@@ -8,8 +8,8 @@ func _init() -> void:
 	title = "Clockwork"
 	hint = "Everything here moves on a schedule."
 	biome = preload("res://resources/biomes/tundra.tres")
-	gold_time = 60.0
-	silver_time = 90.0
+	gold_time = 50.0
+	silver_time = 78.0
 
 
 func build(b: LevelBuilder) -> void:

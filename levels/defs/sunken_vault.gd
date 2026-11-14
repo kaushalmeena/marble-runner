@@ -8,8 +8,8 @@ func _init() -> void:
 	title = "Sunken Vault"
 	hint = "Two keys, both under water."
 	biome = preload("res://resources/biomes/reef.tres")
-	gold_time = 50.0
-	silver_time = 80.0
+	gold_time = 32.0
+	silver_time = 52.0
 
 
 func build(b: LevelBuilder) -> void:

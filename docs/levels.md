@@ -57,6 +57,10 @@ func build(b: LevelBuilder) -> void:
 | `bumper`, `spinner` | A post that kicks back; a bar that sweeps round a hub. |
 | `fan` | A column of rising air. The marble hovers halfway up it. |
 | `hazard` | A red block that sends the marble back to its checkpoint. |
+| `patroller`, `chaser` | Rival marbles: one on a fixed line, one that hunts inside a leash. |
+| `portal_pair` | Two linked rings. Speed passes through; each yaw is the way out. |
+| `key`, `gate` | A key is carried; a gate opens for one key. |
+| `water` | A box of water: slow sinking, drag, and jump becomes a swim stroke. |
 | `tip` | A line of text shown on the HUD when the marble gets close. |
 
 ## The ruler
@@ -74,8 +78,25 @@ Levels are measured against how the marble moves. With the shipped tuning:
 | Boost pad at 22 into a `curved_ramp` rising 1.6 | carries about 10 |
 | Fan hover height | half the column's height above its base |
 | Crumbling tile | falls 0.9 s after first contact |
+| Double jump | adds another 1.4 on top of wherever the marble is |
+| In water | sinks at a fifth of normal gravity; a stroke lifts about 0.6 |
+| Leaving water | by a ramp. A stroke at the surface will not clear a ledge |
+| Moon gravity (0.35) | jump about 4 high, in the air for about 2 s |
 
 Change `jump_speed`, gravity or the marble's speed and these all move.
+
+A level can also set `gravity_scale` in `_init`. The moon levels use `0.35`,
+which makes a jump about 4 units high and two seconds long.
+
+## Rival marbles
+
+Touching one sends the player back to the checkpoint. Landing on it from
+above pops it and bounces the player; so does touching it with a shield up.
+A popped marble stays gone for the attempt. The decision is made in
+`game.gd`, not by a collision: rivals are areas, not solid bodies.
+
+Put a patroller in water and it swims its line; give it a vertical `travel`
+and it bobs up and down. A chaser only moves in the horizontal plane.
 
 ## Power-ups
 

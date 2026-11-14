@@ -9,8 +9,8 @@ func _init() -> void:
 	hint = "Up is cheap here. Use it to get away."
 	biome = preload("res://resources/biomes/moon.tres")
 	gravity_scale = 0.35
-	gold_time = 45.0
-	silver_time = 75.0
+	gold_time = 34.0
+	silver_time = 56.0
 
 
 func build(b: LevelBuilder) -> void:

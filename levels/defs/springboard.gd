@@ -8,8 +8,8 @@ func _init() -> void:
 	title = "Springboard"
 	hint = "One jump is never quite enough."
 	biome = preload("res://resources/biomes/desert.tres")
-	gold_time = 24.0
-	silver_time = 40.0
+	gold_time = 20.0
+	silver_time = 34.0
 
 
 func build(b: LevelBuilder) -> void:
