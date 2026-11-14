@@ -29,10 +29,10 @@ func build(b: LevelBuilder) -> void:
 
 	# West: a spring up to a ledge with two gems.
 	b.floor(-9, -8, 8, 6)
-	b.bounce_pad(Vector3(-10, 0, -8), 13)
-	b.floor(-10, -15.5, 6, 7, 3, LevelBuilder.Surface.FLOOR, thin)
-	b.gem(Vector3(-10, 3, -14.5))
-	b.gem(Vector3(-10, 3, -17))
+	b.bounce_pad(Vector3(-10, 0, -9.6), 15)
+	b.floor(-10, -15, 6, 7, 3, LevelBuilder.Surface.FLOOR, thin)
+	b.gem(Vector3(-10, 3, -14))
+	b.gem(Vector3(-10, 3, -16.5))
 
 	b.gate(Vector3(0, 0, -19), 4)
 	b.floor(0, -24, 4, 12)

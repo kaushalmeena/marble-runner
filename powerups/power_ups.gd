@@ -36,7 +36,7 @@ const HINTS: Dictionary = {
 	Kind.FEATHER: "Falls slowly for a few seconds. Jump first.",
 	Kind.MAGNET: "Pulls nearby gems to you.",
 	Kind.STOPWATCH: "Froze the clock.",
-	Kind.SHIELD: "Guards and red bars cannot hurt you for a while.",
+	Kind.SHIELD: "Rival marbles and red bars cannot hurt you for a while.",
 	Kind.DOUBLE_JUMP: "Jump again in mid-air, for a while.",
 }
 

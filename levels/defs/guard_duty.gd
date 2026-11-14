@@ -1,5 +1,5 @@
 extends LevelDef
-## Introduces guards: avoid them, shield through them, then drop on one.
+## Introduces rival marbles: avoid them, shield through them, then drop on one.
 
 
 func _init() -> void:
@@ -12,7 +12,7 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
-	b.tip(Vector3(0, 0, 0), "Spiky guards send you back. Time your way past.")
+	b.tip(Vector3(0, 0, 0), "Red marbles send you back. Time your way past.")
 	b.floor(0, -6, 8, 16)
 	b.patroller(Vector3(-3, 0, -9), Vector3(6, 0, 0), 4.0)
 	b.gem_line(Vector3(0, 0, -4), Vector3(0, 0, -12), 3)
@@ -27,7 +27,7 @@ func build(b: LevelBuilder) -> void:
 	b.floor(0, -30, 8, 4, 0.8, LevelBuilder.Surface.FLOOR, 1.8)
 	b.floor(0, -34, 8, 4, 1.6, LevelBuilder.Surface.FLOOR, 2.6)
 	b.checkpoint(Vector3(0, 1.6, -34))
-	b.tip(Vector3(0, 1.6, -34), "Drop onto a guard from above and it pops.")
+	b.tip(Vector3(0, 1.6, -34), "Drop onto one from above and it pops.")
 	b.floor(0, -43, 8, 14)
 	b.patroller(Vector3(-2.5, 0, -38.5), Vector3(5, 0, 0), 5.0)
 	b.gem(Vector3(0, 0, -43))

@@ -147,10 +147,14 @@ func launch(speed: float) -> void:
 
 ## Shoves the marble along [param direction] so it is travelling at least
 ## [param speed] that way.
-func boost(direction: Vector3, speed: float) -> void:
+## With [param align] the sideways motion is dropped too, so the marble leaves
+## travelling exactly along [param direction] however it arrived.
+func boost(direction: Vector3, speed: float, align: bool = false) -> void:
 	var heading := direction.normalized()
 	var along := linear_velocity.dot(heading)
-	if along < speed:
+	if align:
+		linear_velocity = heading * maxf(along, speed) + Vector3.UP * linear_velocity.y
+	elif along < speed:
 		linear_velocity += heading * (speed - along)
 	# Spin to match, or the marble arrives skidding and friction takes back
 	# half of what the boost just gave.

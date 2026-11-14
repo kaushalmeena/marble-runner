@@ -40,5 +40,7 @@ func _on_body_entered(body: Node3D) -> void:
 	var marble := body as Marble
 	if marble == null:
 		return
-	marble.boost(-global_basis.z, speed)
+	# Aligned: a pad crossed at an angle still fires straight down its arrow,
+	# rather than adding its speed to whatever sideways drift came in.
+	marble.boost(-global_basis.z, speed, true)
 	Audio.play(&"boost", -4.0, 0.05)

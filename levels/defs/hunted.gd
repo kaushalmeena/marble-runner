@@ -14,7 +14,7 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, -3.5))
-	b.tip(Vector3(0, 0, -3.5), "Purple guards hunt you, but only on their own patch.")
+	b.tip(Vector3(0, 0, -3.5), "Purple marbles hunt you, but only on their own patch.")
 	b.floor(0, -12, 20, 20)
 	_ring_walls(b, -12)
 	b.chaser(Vector3(0, 0, -13), 9, 4.5)

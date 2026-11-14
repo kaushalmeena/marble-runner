@@ -1,7 +1,7 @@
 class_name Enemy
 extends Area3D
-## A spiky guard. Touching it sends the marble back to its checkpoint, unless
-## the marble lands on it from above or is shielded, either of which pops it.
+## A rival marble. Touching it sends the player back to their checkpoint,
+## unless they land on it from above or are shielded, either of which pops it.
 ##
 ## It is an area, not a solid body, so what a touch *means* is decided by the
 ## game and not by a collision. Two behaviours: a patroller glides back and
@@ -13,7 +13,7 @@ enum Mode { PATROL, CHASE }
 
 const BODY_COLOR := Color(0.85, 0.16, 0.22)
 const CHASER_COLOR := Color(0.7, 0.2, 0.85)
-const RADIUS := 0.6
+const RADIUS := 0.55
 
 var mode: Mode = Mode.PATROL
 ## Patrol: offset to the far end of the line, and seconds there and back.
@@ -42,31 +42,22 @@ func _init(behaviour: Mode = Mode.PATROL) -> void:
 	_body = Node3D.new()
 	_body.position = Vector3.UP * RADIUS
 	add_child(_body)
+	# A rival marble: dark and glossy, with a glowing band round it so the
+	# roll is visible. No face: it is a marble, like the player's.
 	var color := BODY_COLOR if mode == Mode.PATROL else CHASER_COLOR
 	var ball := SphereMesh.new()
-	ball.radius = RADIUS * 0.8
-	ball.height = RADIUS * 1.6
-	_body.add_child(Mats.mesh(ball, Mats.glow(color, 0.5)))
-	# Spikes round the middle and one on top: the shape says "do not touch"
-	# before the colour does.
-	var spike := CylinderMesh.new()
-	spike.top_radius = 0.0
-	spike.bottom_radius = 0.14
-	spike.height = 0.34
-	spike.radial_segments = 6
-	var steel := Mats.solid(Color(0.95, 0.95, 1.0), 0.3, 0.4)
-	for index in 8:
-		var angle := TAU * index / 8.0
-		var thorn := Mats.mesh(spike, steel, Vector3(cos(angle), 0.0, sin(angle)) * RADIUS * 0.9)
-		thorn.rotation = Vector3(0.0, -angle, -PI / 2.0)
-		_body.add_child(thorn)
-	# Eyes, so it has a front and looks like it is watching.
-	var eye := SphereMesh.new()
-	eye.radius = 0.11
-	eye.height = 0.22
-	for side: float in [-1.0, 1.0]:
-		_body.add_child(Mats.mesh(eye, Mats.glow(Color.WHITE, 1.0),
-			Vector3(side * 0.2, 0.14, -RADIUS * 0.7)))
+	ball.radius = RADIUS
+	ball.height = RADIUS * 2.0
+	_body.add_child(Mats.mesh(ball, Mats.solid(Color(0.08, 0.07, 0.1), 0.15, 0.6)))
+	var band := TorusMesh.new()
+	band.inner_radius = RADIUS * 0.82
+	band.outer_radius = RADIUS * 1.04
+	var glow := Mats.glow(color, 2.0)
+	for tilt: float in [0.0, PI / 2.0]:
+		var stripe := Mats.mesh(band, glow)
+		stripe.rotation.x = tilt
+		stripe.scale.y = 0.5
+		_body.add_child(stripe)
 	body_entered.connect(_on_body_entered)
 
 
@@ -78,12 +69,11 @@ func _physics_process(delta: float) -> void:
 	if defeated:
 		return
 	_time += delta
-	_body.position.y = RADIUS + sin(_time * 4.0) * 0.06
 	if mode == Mode.PATROL:
 		var cycle := _time / maxf(period, 0.1)
 		var before := position
 		position = _home + travel * (0.5 - 0.5 * cos(cycle * TAU))
-		_face(position - before)
+		_roll(position - before)
 		return
 	var goal := _home
 	if target != null:
@@ -93,7 +83,7 @@ func _physics_process(delta: float) -> void:
 			goal = Vector3(target.global_position.x, _home.y, target.global_position.z)
 	var step := (goal - position).limit_length(speed * delta)
 	position += step
-	_face(step)
+	_roll(step)
 
 
 ## Pops the guard. It stays gone for the rest of the attempt.
@@ -108,9 +98,14 @@ func defeat() -> void:
 	tween.tween_callback(hide)
 
 
-func _face(motion: Vector3) -> void:
-	if Vector2(motion.x, motion.z).length_squared() > 0.000001:
-		_body.rotation.y = atan2(-motion.x, -motion.z)
+## Turns the ball as if it were rolling along [param motion].
+func _roll(motion: Vector3) -> void:
+	var flat := Vector3(motion.x, 0.0, motion.z)
+	var distance := flat.length()
+	if distance < 0.00001:
+		return
+	_body.rotate(Vector3.UP.cross(flat / distance), distance / RADIUS)
+	_body.basis = _body.basis.orthonormalized()
 
 
 func _on_body_entered(body: Node3D) -> void:
