@@ -109,6 +109,11 @@ func _build_icon(color: Color) -> void:
 			quill.bottom_radius = 0.035
 			quill.height = 0.98
 			feather.add_child(Mats.mesh(quill, lit, Vector3.UP * -0.02))
+			# The quill is thinner than the vane is thick, so inside the vane it
+			# is buried. A spine as deep as the barbs shows it on both faces.
+			var spine := BoxMesh.new()
+			spine.size = Vector3(0.03, half.y * 1.84, 0.075)
+			feather.add_child(Mats.mesh(spine, lit, Vector3.UP * middle))
 			# Each barb runs from the quill up and out, and stops short of the
 			# vane's edge at the height its tip reaches, so none pokes outside.
 			const SLANT := 0.5
