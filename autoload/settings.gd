@@ -30,6 +30,18 @@ var reduced_motion: bool = false:
 		reduced_motion = value
 		changed.emit()
 
+## Lets the view drift round behind the marble on its own, so the game can be
+## played with the movement keys alone.
+var auto_camera: bool = true:
+	set(value):
+		if auto_camera == value:
+			return
+		auto_camera = value
+		changed.emit()
+
+## Multiplier on mouse look speed.
+var mouse_sensitivity: float = 1.0
+
 
 func _ready() -> void:
 	load_settings()
@@ -42,12 +54,14 @@ func load_settings() -> void:
 		return
 	sfx_volume = float(config.get_value(SECTION, "sfx_volume", 0.8))
 	reduced_motion = bool(config.get_value(SECTION, "reduced_motion", false))
+	auto_camera = bool(config.get_value(SECTION, "auto_camera", true))
 
 
 func save_settings() -> void:
 	var config := ConfigFile.new()
 	config.set_value(SECTION, "sfx_volume", sfx_volume)
 	config.set_value(SECTION, "reduced_motion", reduced_motion)
+	config.set_value(SECTION, "auto_camera", auto_camera)
 	var error := config.save(SAVE_PATH)
 	if error != OK:
 		push_warning("Could not save settings to %s (error %d)." % [SAVE_PATH, error])

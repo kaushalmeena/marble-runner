@@ -1,233 +1,216 @@
 class_name Marble
-extends CharacterBody3D
-## The player. Snaps between lanes and reports what it runs into.
+extends RigidBody3D
+## The player: a physics marble that is rolled, not steered.
 ##
-## The marble no longer reaches out to the game scene for its lane layout (the
-## Godot 3 version did [code]get_node("/root/Game")[/code], which broke the
-## moment the scene was renamed or instanced somewhere else). The lanes are
-## handed to it by whoever owns the run, via [method configure].
+## Input never sets a velocity. It applies a torque, the marble spins, and
+## friction with whatever it is standing on turns that spin into travel. That
+## one decision is what makes ice slippery, ramps launch and bumpers bounce
+## without any of those surfaces knowing about the marble.
+##
+## All of it happens in [method _integrate_forces], the one place a rigid body
+## may be read and changed without fighting the solver.
 
-## The player touched an obstacle. Carries the prop so a shielded hit can
-## recycle it instead of ending the run.
-signal hit_obstacle(obstacle: Area3D)
-## The player touched a fruit. Carries the prop so its owner can recycle it.
-signal collected_pickup(pickup: Area3D)
-## The player touched a power-up pickup.
-signal collected_power_up(pickup: Area3D)
-## The marble left the ground.
+## The marble pushed off the ground.
 signal jumped
-## The marble touched down again.
-signal landed
-## An obstacle slipped past without touching the marble.
-signal near_missed
+## The marble touched down after being airborne. [param impact] is the speed it
+## was falling at, for the camera and the sound.
+signal landed(impact: float)
 
-const GROUP_OBSTACLE := &"obstacle"
-const GROUP_COLLECTIBLE := &"collectible"
-const GROUP_POWERUP := &"powerup"
-## Below this distance from the target lane, snap instead of easing forever.
-const LANE_SNAP_EPSILON := 0.05
+const RADIUS := 0.5
+## Metadata flag a collision shape carries to say it is ice.
+const META_ICE := &"ice"
+## The marble's own friction on ice and off it. Grip is changed on the marble
+## rather than on the floor because one body holds every floor in the level.
+const ICE_FRICTION := 0.02
+const GRIP_FRICTION := 1.0
+## Contact normals flatter than this are walls, not ground.
+const GROUND_NORMAL_Y := 0.35
+## Airborne for less than this is a bump over a seam, not a landing.
+const MIN_AIR_TIME := 0.14
 
-## How hard the marble is pulled toward its target lane.
-@export var lane_change_speed: float = 14.0
-## Caps the pull above, so a full-width dash does not look like a teleport.
-@export var max_lateral_speed: float = 40.0
-@export var gravity: float = 45.0
-## Take-off speed. Together with [member gravity] this decides the apex, and the
-## apex is what decides which obstacles are jumpable: at 9.6 against a gravity
-## of 45 the marble rises ~1.02 units, which clears the one-unit rocks and logs
-## but leaves the two-unit bushes and the trees solid.
-@export var jump_velocity: float = 9.6
-## Extra gravity while descending, so the fall does not feel floaty.
-@export var fall_gravity_multiplier: float = 1.35
-## Radius used to convert travel into spin. Match the mesh.
-@export var roll_radius: float = 0.9
+@export_group("Rolling")
+## Torque applied while a direction is held. Against the marble's inertia this
+## is roughly 7 m/s² of rolling acceleration on a grippy floor.
+@export var roll_torque: float = 5.0
+## A direct push on top of the torque. Without it the marble feels like it is
+## on rails made of treacle for the first half second.
+@export var ground_push: float = 5.0
+## The same push in the air, where torque does nothing. This is the air control.
+@export var air_push: float = 6.0
+## Input stops adding speed past this. Ramps, pads and gravity can still exceed it.
+@export var max_speed: float = 13.0
 
-## Set each frame by the game so the marble spins at the speed of the world
-## scrolling past it. The marble itself never moves along Z.
-var forward_speed: float = 0.0
+@export_group("Jumping")
+## Take-off speed. Against a gravity of 20 the apex is ~1.4 units, which is
+## what every step and gap in the levels is measured against.
+@export var jump_speed: float = 7.5
+## Grace period after rolling off an edge in which a jump still counts.
+@export var coyote_time: float = 0.12
+## How long an early jump press is remembered before landing.
+@export var jump_buffer_time: float = 0.14
 
-@onready var _hitbox: Area3D = $Hitbox
-@onready var _near_miss_box: Area3D = $NearMissBox
+## Hands the marble to the player. Off during the countdown and after the finish.
+var control_enabled: bool = false
+## Heading that "forward" maps to, in radians. Written by the camera each frame
+## so the controls are always relative to the view.
+var steer_yaw: float = 0.0
+## True while something walkable is under the marble.
+var grounded: bool = false
+## True while the thing under the marble is ice.
+var on_ice: bool = false
+
+var _coyote: float = 0.0
+var _jump_buffer: float = 0.0
+var _air_time: float = 0.0
+var _ground_normal := Vector3.UP
+var _previous_velocity := Vector3.ZERO
+var _teleport_pending: bool = false
+var _teleport_position := Vector3.ZERO
+
 @onready var _mesh: MeshInstance3D = $Mesh
-@onready var _shield_bubble: MeshInstance3D = $ShieldBubble
-
-## Multipliers applied on top of the exported values, so a debuff can be undone
-## by resetting to 1.0 rather than by remembering the original number.
-var _lane_speed_scale: float = 1.0
-var _jump_scale: float = 1.0
-var _inverted: bool = false
-
-var _lanes: PackedFloat32Array = PackedFloat32Array()
-var _lane_index: int = 0
-var _active: bool = false
-var _airborne: bool = false
 
 
 func _ready() -> void:
-	_hitbox.area_entered.connect(_on_hitbox_area_entered)
+	body_entered.connect(_on_body_entered)
 	apply_skin(SkinLibrary.load_default().get_skin(GameState.selected_skin))
-	_near_miss_box.area_exited.connect(_on_near_miss_box_area_exited)
-	_shield_bubble.hide()
 
 
-## Swaps the marble's look. Skins are cosmetic only, so nothing else here cares
-## which one is equipped.
+## Swaps the marble's look. Skins are cosmetic only.
 func apply_skin(skin: MarbleSkin) -> void:
 	if skin == null or skin.material == null:
 		return
 	_mesh.material_override = skin.material
 
 
-## Scales how fast the marble slides between lanes. Below 1.0 is the sluggish
-## debuff.
-func set_lane_speed_scale(scale: float) -> void:
-	_lane_speed_scale = maxf(0.05, scale)
+## Moves the marble somewhere and brings it to rest. Used for the start and for
+## respawns. Deferred to the next physics step, where it is safe.
+func teleport(world_position: Vector3) -> void:
+	_teleport_position = world_position
+	_teleport_pending = true
 
 
-## Scales take-off speed. Above 1.0 is the high-jump power-up, which raises the
-## apex far enough to clear obstacles that are normally solid.
-func set_jump_scale(scale: float) -> void:
-	_jump_scale = maxf(0.1, scale)
+## Throws the marble straight up at [param speed], replacing any downward motion.
+func launch(speed: float) -> void:
+	var velocity := linear_velocity
+	velocity.y = maxf(velocity.y, speed)
+	linear_velocity = velocity
 
 
-## Swaps left and right. The reversed debuff.
-func set_inverted(inverted: bool) -> void:
-	_inverted = inverted
+## Shoves the marble along [param direction] so it is travelling at least
+## [param speed] that way.
+func boost(direction: Vector3, speed: float) -> void:
+	var heading := direction.normalized()
+	var along := linear_velocity.dot(heading)
+	if along < speed:
+		linear_velocity += heading * (speed - along)
 
 
-## Shows or hides the bubble that marks an active shield.
-func set_shielded(active: bool) -> void:
-	_shield_bubble.visible = active
+## Horizontal direction the player is holding, in world space, length 0..1.
+func wish_direction() -> Vector3:
+	var input := Input.get_vector(&"move_left", &"move_right", &"move_forward", &"move_back")
+	return Basis(Vector3.UP, steer_yaw) * Vector3(input.x, 0.0, input.y)
 
 
-## Hands the marble its lane layout and drops it into a starting lane. Pass a
-## negative [param start_index] to start in the middle lane.
-func configure(lanes: PackedFloat32Array, start_index: int = -1) -> void:
-	if lanes.is_empty():
-		push_error("Marble.configure() needs at least one lane.")
+func _physics_process(_delta: float) -> void:
+	# Holding jump keeps the buffer topped up, so the marble hops again the
+	# moment it lands instead of needing a press timed to the frame.
+	if control_enabled and Input.is_action_pressed(&"jump"):
+		_jump_buffer = jump_buffer_time
+
+
+func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	if _teleport_pending:
+		_teleport_pending = false
+		state.transform = Transform3D(Basis.IDENTITY, _teleport_position)
+		state.linear_velocity = Vector3.ZERO
+		state.angular_velocity = Vector3.ZERO
+		_previous_velocity = Vector3.ZERO
 		return
-	_lanes = lanes
-	_lane_index = start_index if start_index >= 0 else lanes.size() / 2
-	_lane_index = clampi(_lane_index, 0, lanes.size() - 1)
-	position.x = _lanes[_lane_index]
 
-
-## Hands control to the player. Held back until the countdown finishes.
-func begin() -> void:
-	_active = true
-
-
-## Stops input, motion and spin. Called when the run ends.
-func stop() -> void:
-	_active = false
-	velocity = Vector3.ZERO
-	forward_speed = 0.0
-	_lane_speed_scale = 1.0
-	_jump_scale = 1.0
-	_inverted = false
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if not _active:
+	var step := state.step
+	_read_ground(state)
+	_previous_velocity = state.linear_velocity
+	if not control_enabled:
 		return
-	if event.is_action_pressed(&"move_left"):
-		_change_lane(-1)
-	elif event.is_action_pressed(&"move_right"):
-		_change_lane(1)
-	elif event.is_action_pressed(&"jump"):
-		try_jump()
+	_roll(state)
+	_jump_buffer -= step
+	if _jump_buffer > 0.0 and _coyote > 0.0:
+		_jump(state)
+
+
+## Works out whether the marble is standing on something, from this step's
+## contacts, and reports a landing when it has just come down.
+func _read_ground(state: PhysicsDirectBodyState3D) -> void:
+	var best := Vector3.ZERO
+	var best_index := -1
+	for index in state.get_contact_count():
+		var normal := state.get_contact_local_normal(index)
+		if normal.y > best.y:
+			best = normal
+			best_index = index
+	var on_ground := best.y > GROUND_NORMAL_Y
+	if on_ground:
+		_read_surface(state, best_index)
+	if on_ground:
+		_ground_normal = best
+		_coyote = coyote_time
+		if not grounded and _air_time > MIN_AIR_TIME:
+			landed.emit(maxf(0.0, -_previous_velocity.y))
+		_air_time = 0.0
 	else:
+		_coyote -= state.step
+		_air_time += state.step
+	grounded = on_ground
+
+
+## Looks up the shape being stood on and sets the marble's grip to match.
+func _read_surface(state: PhysicsDirectBodyState3D, contact: int) -> void:
+	var body := state.get_contact_collider_object(contact) as CollisionObject3D
+	var icy := false
+	if body != null:
+		var owner_id := body.shape_find_owner(state.get_contact_collider_shape(contact))
+		var shape := body.shape_owner_get_owner(owner_id) as Node
+		icy = shape != null and shape.has_meta(META_ICE)
+	if icy == on_ice:
 		return
-	get_viewport().set_input_as_handled()
+	on_ice = icy
+	physics_material_override.friction = ICE_FRICTION if icy else GRIP_FRICTION
 
 
-## Leaves the ground if the marble is on it. Returns whether it jumped, so a
-## queued input can tell a refused jump from an accepted one.
-func try_jump() -> bool:
-	if not _active or not is_on_floor():
-		return false
-	velocity.y = jump_velocity * _jump_scale
-	_airborne = true
+func _roll(state: PhysicsDirectBodyState3D) -> void:
+	var wish := wish_direction()
+	if wish.length_squared() < 0.0001:
+		return
+	# Rolling toward `wish` is a spin about the axis at right angles to it.
+	var axis := Vector3.UP.cross(wish)
+	var spin := state.angular_velocity.dot(axis.normalized())
+	# Capped so the marble cannot wind itself up without limit on ice or in the
+	# air and then rocket away the moment it finds grip.
+	if spin < max_speed / RADIUS * 1.25:
+		state.apply_torque(axis * roll_torque)
+	if state.linear_velocity.dot(wish.normalized()) < max_speed:
+		# The direct push is the air control. On ice it is cut right down, or
+		# it would steer the marble as if the ice were not there.
+		var push := air_push if not grounded else (ground_push * 0.25 if on_ice else ground_push)
+		state.apply_central_force(wish * push)
+
+
+func _jump(state: PhysicsDirectBodyState3D) -> void:
+	# Mostly up, but leaning with the slope, so a jump off a ramp carries the
+	# ramp's angle with it.
+	var normal := (_ground_normal + Vector3.UP).normalized() if grounded else Vector3.UP
+	var velocity := state.linear_velocity
+	var along := velocity.dot(normal)
+	if along < jump_speed:
+		velocity += normal * (jump_speed - along)
+	state.linear_velocity = velocity
+	_jump_buffer = 0.0
+	_coyote = 0.0
 	jumped.emit()
-	return true
 
 
-func _physics_process(delta: float) -> void:
-	if not _active:
-		return
-	var previous_x := position.x
-	_apply_lane_motion()
-	_apply_gravity(delta)
-	move_and_slide()
-	_apply_roll(position.x - previous_x, delta)
-
-
-## Moves one lane along, if there is one. Public so gesture input can drive the
-## marble through the same path as the keyboard.
-func shift_lane(step: int) -> void:
-	if not _active:
-		return
-	_change_lane(step)
-
-
-func _change_lane(step: int) -> void:
-	if _inverted:
-		step = -step
-	_lane_index = clampi(_lane_index + step, 0, _lanes.size() - 1)
-
-
-func _apply_lane_motion() -> void:
-	var offset := _lanes[_lane_index] - position.x
-	if absf(offset) < LANE_SNAP_EPSILON:
-		position.x = _lanes[_lane_index]
-		velocity.x = 0.0
-		return
-	velocity.x = clampf(offset * lane_change_speed * _lane_speed_scale,
-		-max_lateral_speed, max_lateral_speed)
-
-
-func _apply_gravity(delta: float) -> void:
-	if is_on_floor() and velocity.y <= 0.0:
-		if _airborne:
-			_airborne = false
-			landed.emit()
-		velocity.y = 0.0
-		return
-	# Heavier on the way down than on the way up: the classic platformer trick
-	# for a jump that feels responsive rather than floaty.
-	var scale := fall_gravity_multiplier if velocity.y < 0.0 else 1.0
-	velocity.y -= gravity * scale * delta
-
-
-## Spins the mesh so the marble looks like it is rolling: forward spin from the
-## world scrolling past, sideways spin from the lane change. Only the mesh turns,
-## never the body, so the collision shape stays put.
-func _apply_roll(lateral_distance: float, delta: float) -> void:
-	if roll_radius <= 0.0:
-		return
-	_mesh.rotate_x(-forward_speed * delta / roll_radius)
-	_mesh.rotate_z(-lateral_distance / roll_radius)
-	# Repeated incremental rotations accumulate float error; keep the basis clean.
-	_mesh.basis = _mesh.basis.orthonormalized()
-
-
-func _on_hitbox_area_entered(area: Area3D) -> void:
-	if not _active:
-		return
-	if area.is_in_group(GROUP_COLLECTIBLE):
-		collected_pickup.emit(area)
-	elif area.is_in_group(GROUP_POWERUP):
-		collected_power_up.emit(area)
-	elif area.is_in_group(GROUP_OBSTACLE):
-		hit_obstacle.emit(area)
-
-
-## An obstacle leaving the wider box counts as a near miss only if it left
-## *behind* the marble. Anything recycled mid-run (a shielded hit, or a fruit
-## the magnet grabbed) is parked far below and fails this test, so a hit can
-## never be scored as a dodge.
-func _on_near_miss_box_area_exited(area: Area3D) -> void:
-	if not _active or not area.is_in_group(GROUP_OBSTACLE):
-		return
-	if area.global_position.z > global_position.z:
-		near_missed.emit()
+## Gimmicks that react to being touched (bumpers, crumbling tiles) expose
+## [code]on_marble_hit[/code]. The marble does not know what any of them are.
+func _on_body_entered(body: Node) -> void:
+	if body.has_method(&"on_marble_hit"):
+		body.on_marble_hit(self)

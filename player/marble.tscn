@@ -1,33 +1,31 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://player/marble.gd" id="1_marble"]
 [ext_resource type="StandardMaterial3D" path="res://resources/materials/marble.tres" id="2_material"]
-[ext_resource type="StandardMaterial3D" path="res://resources/materials/shield_bubble.tres" id="3_bubble"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_marble"]
+friction = 1.0
+bounce = 0.3
 
 [sub_resource type="SphereMesh" id="SphereMesh_marble"]
-radius = 0.9
-height = 1.8
+radius = 0.5
+height = 1.0
 radial_segments = 32
 rings = 16
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_body"]
-radius = 0.9
+radius = 0.5
 
-[sub_resource type="SphereMesh" id="SphereMesh_bubble"]
-radius = 1.35
-height = 2.7
-radial_segments = 24
-rings = 12
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_near_miss"]
-size = Vector3(5.2, 2.2, 1.6)
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_hitbox"]
-radius = 0.75
-
-[node name="Marble" type="CharacterBody3D"]
+[node name="Marble" type="RigidBody3D"]
 collision_layer = 2
 collision_mask = 1
+physics_material_override = SubResource("PhysicsMaterial_marble")
+can_sleep = false
+continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 6
+angular_damp = 0.6
+linear_damp = 0.05
 script = ExtResource("1_marble")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
@@ -36,24 +34,3 @@ surface_material_override/0 = ExtResource("2_material")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_body")
-
-[node name="Hitbox" type="Area3D" parent="."]
-collision_layer = 0
-collision_mask = 28
-monitorable = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
-shape = SubResource("SphereShape3D_hitbox")
-
-[node name="ShieldBubble" type="MeshInstance3D" parent="."]
-visible = false
-mesh = SubResource("SphereMesh_bubble")
-surface_material_override/0 = ExtResource("3_bubble")
-
-[node name="NearMissBox" type="Area3D" parent="."]
-collision_layer = 0
-collision_mask = 4
-monitorable = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="NearMissBox"]
-shape = SubResource("BoxShape3D_near_miss")
