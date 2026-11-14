@@ -91,37 +91,42 @@ func _build_icon(color: Color) -> void:
 				chevron.rotation.x = -PI / 2.0
 				_body.add_child(chevron)
 		PowerUps.Kind.FEATHER:
-			# A feather: a leaf-shaped vane leaning on a quill that pokes out
-			# below it.
+			# A feather: one flat leaf-shaped vane on a quill that pokes out
+			# below it, with barbs drawn across the vane.
 			var feather := Node3D.new()
 			feather.rotation.z = -0.45
 			_body.add_child(feather)
+			var half := Vector2(0.19, 0.38)
+			var middle := 0.12
 			var vane := SphereMesh.new()
 			vane.radius = 0.5
 			vane.height = 1.0
-			# Two vanes at right angles: a single flat one vanishes edge-on
-			# every half turn.
-			for turn: float in [0.0, PI / 2.0]:
-				var blade := Mats.mesh(vane, pale, Vector3.UP * 0.12)
-				blade.scale = Vector3(0.36, 0.72, 0.07)
-				blade.rotation.y = turn
-				feather.add_child(blade)
+			var blade := Mats.mesh(vane, pale, Vector3.UP * middle)
+			blade.scale = Vector3(half.x * 2.0, half.y * 2.0, 0.06)
+			feather.add_child(blade)
 			var quill := CylinderMesh.new()
 			quill.top_radius = 0.012
 			quill.bottom_radius = 0.035
-			quill.height = 1.05
-			feather.add_child(Mats.mesh(quill, lit, Vector3.UP * -0.05))
-			# Barbs: short strokes off the quill, so it does not read as a leaf.
-			var barb := BoxMesh.new()
-			barb.size = Vector3(0.3, 0.025, 0.09)
-			for index in 4:
+			quill.height = 0.98
+			feather.add_child(Mats.mesh(quill, lit, Vector3.UP * -0.02))
+			# Each barb runs from the quill up and out, and stops short of the
+			# vane's edge at the height its tip reaches, so none pokes outside.
+			const SLANT := 0.5
+			for index in 5:
+				var root := -0.24 + index * 0.115
 				for side: float in [-1.0, 1.0]:
-					for turn: float in [0.0, PI / 2.0]:
-						var stroke := Mats.mesh(barb, lit)
-						stroke.position = Basis(Vector3.UP, turn) * Vector3(
-							side * 0.1, -0.12 + index * 0.17, 0.0)
-						stroke.rotation = Vector3(0.0, turn, side * 0.6)
-						feather.add_child(stroke)
+					var reach := 0.0
+					for _pass in 4:
+						var tip := root + tan(SLANT) * reach
+						reach = half.x * sqrt(maxf(0.0, 1.0 - pow(tip / half.y, 2.0))) * 0.8
+					if reach < 0.03:
+						continue
+					var barb := BoxMesh.new()
+					barb.size = Vector3(reach / cos(SLANT), 0.022, 0.075)
+					var stroke := Mats.mesh(barb, lit, Vector3(
+						side * reach / 2.0, middle + root + tan(SLANT) * reach / 2.0, 0.0))
+					stroke.rotation.z = side * SLANT
+					feather.add_child(stroke)
 		PowerUps.Kind.MAGNET:
 			# A horseshoe: two legs, a bridge, and pale tips.
 			var leg := BoxMesh.new()
