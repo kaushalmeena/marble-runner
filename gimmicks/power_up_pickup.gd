@@ -79,13 +79,14 @@ func _build_icon(color: Color) -> void:
 				triangle.size = Vector3(0.62, 0.4, 0.2)
 				_body.add_child(Mats.mesh(triangle, lit, Vector3.UP * height))
 		PowerUps.Kind.BOOST:
-			# Three chevrons in a row, like the pads on the floor.
-			for index in 3:
-				var wedge := PrismMesh.new()
-				wedge.size = Vector3(0.62, 0.42, 0.3)
-				var chevron := Mats.mesh(wedge, lit, Vector3(0.0, 0.0, 0.42 - index * 0.42))
-				chevron.rotation.x = -PI / 2.0
-				_body.add_child(chevron)
+			# Two triangles side by side and pointing along: super jump turned
+			# on its side, a fast-forward sign.
+			for along: float in [-0.2, 0.2]:
+				var triangle := PrismMesh.new()
+				triangle.size = Vector3(0.62, 0.4, 0.2)
+				var arrow := Mats.mesh(triangle, lit, Vector3.RIGHT * along)
+				arrow.rotation.z = -PI / 2.0
+				_body.add_child(arrow)
 		PowerUps.Kind.FEATHER:
 			# A feather: one flat leaf-shaped vane on a quill that pokes out
 			# below it, with barbs drawn across the vane.
