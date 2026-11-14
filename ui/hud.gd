@@ -29,6 +29,8 @@ var _tip_panel: PanelContainer
 var _tip: Label
 var _banner: Label
 var _flash: ColorRect
+var _underwater: ColorRect
+var _is_underwater: bool = false
 var _effect_rows: Dictionary[int, Control] = {}
 var _effect_bars: Dictionary[int, ProgressBar] = {}
 var _tip_tween: Tween
@@ -62,6 +64,13 @@ func setup(level_number: int, level: LevelDef, gem_total: int, best_time: float)
 func set_gems(collected: int, total: int) -> void:
 	_gems_value.text = "%d / %d" % [collected, total]
 	_gems_value.modulate = COMPLETE_COLOR if collected >= total else Color.WHITE
+
+
+## Replaces the target under the clock with a warning that this run will not
+## be recorded.
+func mark_cheated() -> void:
+	_best.text = "CHEATS ON   NOT RECORDED"
+	_best.modulate = Color(1.0, 0.55, 0.45)
 
 
 ## Shows how many keys are carried. The pill is hidden at zero.
@@ -127,6 +136,15 @@ func show_banner(text: String, seconds: float = 0.8, color := Color.WHITE) -> vo
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	_banner_tween.tween_interval(seconds)
 	_banner_tween.tween_property(_banner, ^"modulate:a", 0.0, 0.25)
+
+
+## Tints the whole view blue while the marble is under water. With the water
+## drawn only as a surface, this is what says "you are in it".
+func set_underwater(under: bool) -> void:
+	if under == _is_underwater:
+		return
+	_is_underwater = under
+	create_tween().tween_property(_underwater, ^"color:a", 0.24 if under else 0.0, 0.2)
 
 
 ## A brief wash of colour over the whole view, for falls and the finish.
@@ -241,6 +259,12 @@ func _build_banner() -> void:
 	_banner.anchor_bottom = 0.3
 	_banner.grow_vertical = Control.GROW_DIRECTION_BOTH
 	add_child(_banner)
+	_underwater = ColorRect.new()
+	_underwater.color = Color(WaterZone.COLOR, 0.0)
+	_underwater.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_underwater.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_underwater)
+	move_child(_underwater, 0)
 	_flash = ColorRect.new()
 	_flash.color = Color(1, 1, 1, 0)
 	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE

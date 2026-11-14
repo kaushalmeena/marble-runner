@@ -4,6 +4,9 @@ extends Area3D
 ## upward with the jump key.
 
 const COLOR := Color(0.2, 0.55, 0.95)
+const SURFACE_SHADER := preload("res://world/water.gdshader")
+const SURFACE_DROP := 0.08
+const SURFACE_INSET := 0.04
 
 
 func _init(size := Vector3(8.0, 4.0, 8.0)) -> void:
@@ -13,16 +16,15 @@ func _init(size := Vector3(8.0, 4.0, 8.0)) -> void:
 	shape.size = size
 	add_child(Mats.collider(shape))
 
-	var volume := BoxMesh.new()
-	volume.size = size
-	var water := StandardMaterial3D.new()
-	water.albedo_color = Color(COLOR, 0.32)
-	water.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	water.roughness = 0.1
-	water.cull_mode = BaseMaterial3D.CULL_DISABLED
-	var body := Mats.mesh(volume, water)
-	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(body)
+	# Only the surface is drawn, a touch below the rim and a touch inside the
+	# walls, so it never shares a plane with the floor around the pool.
+	var sheet := PlaneMesh.new()
+	sheet.size = Vector2(size.x - SURFACE_INSET, size.z - SURFACE_INSET)
+	var material := ShaderMaterial.new()
+	material.shader = SURFACE_SHADER
+	var surface := Mats.mesh(sheet, material, Vector3.UP * (size.y / 2.0 - SURFACE_DROP))
+	surface.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(surface)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
