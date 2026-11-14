@@ -4,13 +4,13 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"lunar_garden"
+	id = &"lunar_garden_2"
 	title = "Lunar Garden"
 	hint = "Up is cheap here. Use it to get away."
 	biome = preload("res://resources/biomes/moon.tres")
 	gravity_scale = 0.35
-	gold_time = 34.0
-	silver_time = 56.0
+	gold_time = 62.0
+	silver_time = 98.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -37,4 +37,21 @@ func build(b: LevelBuilder) -> void:
 	b.chaser(Vector3(-9, 0, 6), 8, 4.0)
 	b.chaser(Vector3(9, 0, 6), 8, 4.0)
 	b.patroller(Vector3(-14, 0, -13.5), Vector3(28, 0, 0), 7.0)
-	b.finish_at(Vector3(0, 0, -15.5))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 0, -15.5))
+	b.tip(Vector3(0, 0, -15.5), "The finish has moved. The way on is over the far wall.", 4.0)
+	var right := Trail.RIGHT
+	var t := Trail.new(b, Vector3(0, 0, -18.2), 0)
+	t.gap(8)
+	t.run(14, 1)
+	t.step(3)
+	t.run(10, 1)
+	t.turn(right)
+	t.gap(12)
+	t.run(14, 1)
+	t.beam(12, 1, 2.4)
+	t.run(6)
+	t.arena(14, 6, 2)
+	t.run(6)
+	t.finish()

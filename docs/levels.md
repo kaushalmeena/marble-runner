@@ -30,8 +30,56 @@ func build(b: LevelBuilder) -> void:
 2. Add it to `SCRIPTS` in `levels/level_catalog.gd`. Its position there is its
    place in the unlock order. The level select and the menus pick it up.
 
+   If a level that players may already have a time on is rebuilt so that
+   the old time could no longer be set, give it a new `id` (the lengthened
+   levels are `updraft_2` and so on). The old record is orphaned, which is
+   the point: it would otherwise stand as an unbeatable best.
+
 3. Play it to the end. Set the gold time near a clean run and the silver time
    around one and a half times that.
+
+## Long levels: the trail
+
+A level that turns corners is hard to write as raw coordinates. `Trail`
+(`levels/trail.gd`) keeps a cursor, the middle of the path's leading edge
+and its heading, and each call builds the next stretch from there:
+
+```gdscript
+func build(b: LevelBuilder) -> void:
+	var t := Trail.new(b)
+	t.start()
+	t.run(10, 2)            # 10 of floor with 2 gems
+	t.gap(3)                # a jump
+	t.run(6)
+	t.turn(Trail.LEFT)
+	t.step(0.8)             # a ledge
+	t.run(6)
+	t.checkpoint()
+	t.glide(18, 6)          # glider, then a leap 18 across and 6 down
+	t.run(10, 1)
+	t.finish()
+```
+
+| Kind | Calls |
+| --- | --- |
+| Path | `run`, `beam`, `turn`, `start`, `finish`, `checkpoint`, `tip` |
+| Up, down, across | `gap`, `step`, `drop`, `ramp`, `bounce`, `fan`, `glide`, `cannon`, `mover`, `bridge` |
+| In the way | `crumbles`, `lasers`, `belt`, `slalom`, `ice`, `mud`, `bumpers`, `arena` |
+| On the stretch just laid | `power`, `trap`, `patrol`, `sentry`, `key`, `gate` |
+
+Things to know:
+
+- A jump, ledge, glide or cannon needs floor after it to land on: 3 after a
+  `gap` or `step`, 8 after a `glide`, 16 after a `cannon`.
+- The trail does not check that the path misses itself. Turn in S-bends, or
+  climb at least 4 before crossing over an earlier stretch.
+- A trail can start anywhere, so a level can be hand-built first and trailed
+  after: `Trail.new(b, Vector3(0, 0, -50), 0)`. The later levels of each
+  course do this.
+- Each call also appends waypoints to `LevelBuilder.route`. Nothing in the
+  game reads them; a test harness can drive the marble along them to prove
+  the level can be finished. Rivals, beams and traps are not on that line,
+  so they still need playing.
 
 ## Conventions the builder assumes
 
@@ -85,6 +133,7 @@ Levels are measured against how the marble moves. With the shipped tuning:
 | Fan hover height | half the column's height above its base |
 | Crumbling tile | falls 0.9 s after first contact |
 | Double jump | adds another 1.4 on top of wherever the marble is |
+| Glide, from a running jump | about 15 across, plus one and a half for every unit of fall. Without it, about two thirds as far |
 | In water | sinks at a fifth of normal gravity; a stroke lifts about 0.6 |
 | Leaving water | by a ramp. A stroke at the surface will not clear a ledge |
 | Moon gravity (0.35) | jump about 4 high, in the air for about 2 s |
@@ -129,7 +178,7 @@ time, up to three pickups' worth. There is no button to spend one.
 | --- | --- | --- |
 | Super jump | 12 s | Jumps are about three and a half times as high |
 | Boost | 10 s | A shove on pickup, then a higher top speed |
-| Feather | 10 s | Falls at about a third of the level's gravity |
+| Glider | 10 s | Falls at about a third of the level's gravity. Going up is untouched, so jumps are no higher: it is for leaping off something and gliding |
 | Magnet | 15 s | Pulls gems within 7 units |
 | Stopwatch | 8 s | The clock stops |
 | Shield | 12 s | Rival marbles and hazards cannot hurt |

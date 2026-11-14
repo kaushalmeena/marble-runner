@@ -3,12 +3,12 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"switchyard"
+	id = &"switchyard_2"
 	title = "Switchyard"
 	hint = "The key is across a bridge that will not stay."
 	biome = preload("res://resources/biomes/night.tres")
-	gold_time = 39.0
-	silver_time = 62.0
+	gold_time = 60.0
+	silver_time = 95.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -33,4 +33,20 @@ func build(b: LevelBuilder) -> void:
 	b.button(Vector3(0, 0, -39), [last])
 	b.gem(Vector3(0, 0, -50))
 	b.floor(0, -60, 8, 10)
-	b.finish_at(Vector3(0, 0, -61))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 0, -61))
+	var left := Trail.LEFT
+	var t := Trail.new(b, Vector3(0, 0, -65), 0)
+	t.bridge(12, 5.0, 2)
+	t.run(6)
+	t.mover(8)
+	t.run(6)
+	t.turn(left)
+	t.bridge(14, 5.5, 2)
+	t.run(6)
+	t.crumbles(3)
+	t.run(5)
+	t.mover(8)
+	t.run(6)
+	t.finish()

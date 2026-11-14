@@ -1,7 +1,7 @@
 # Marble Runner
 
 A Godot marble platformer: roll, jump, swim and glide a physics marble through
-forty-eight floating levels, collect every gem, reach the finish, beat the
+sixty floating levels, collect every gem, reach the finish, beat the
 clock. Levels are
 short scripts, not scenes — adding one involves no editor work at all.
 
@@ -33,6 +33,8 @@ that name in [architecture.md](docs/architecture.md) before touching movement.
 
 **Levels are scripts.** A level is a `LevelDef` subclass in `levels/defs/` that
 calls `LevelBuilder`. It never creates a mesh, a shape or a material itself.
+Long levels are laid out with `Trail`, which builds one stretch at a time
+from a moving cursor and records the route a test bot follows.
 
 **Gimmicks act on the marble by themselves.** A bumper bumps, a fan lifts.
 `game.gd` only hears about what changes the state of the run: gems, pickups,
@@ -88,5 +90,8 @@ Silent failures that cost real debugging time here:
   cannon) has to solve for it, or a two second flight lands a quarter short.
 - A light at the centre of the marble lights everything but the marble. The
   night lamp is held above it.
+- A cannon's shot is worked out for a plain fall. A glider or a wind
+  would carry the marble past the landing: the blast tears the glider away, and
+  windy levels have no cannons.
 - A ball free to roll receives only 2/7 of a moving platform's acceleration
   through friction. The marble is handed the rest directly, or it is left behind.

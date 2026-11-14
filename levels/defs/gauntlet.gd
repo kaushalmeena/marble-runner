@@ -3,12 +3,12 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"gauntlet"
+	id = &"gauntlet_2"
 	title = "The Gauntlet"
 	hint = "You have seen all of this before. Not in a row."
 	biome = preload("res://resources/biomes/dusk.tres")
-	gold_time = 70.0
-	silver_time = 105.0
+	gold_time = 98.0
+	silver_time = 155.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -48,4 +48,23 @@ func build(b: LevelBuilder) -> void:
 	b.hazard(Vector3(0, 7.3, -115.6), Vector3(3, 0.6, 0.4))
 	b.gem(Vector3(0, 7, -112.6))
 	b.floor(0, -126.6, 10, 10, 7, floor_kind, 0.5)
-	b.finish_at(Vector3(0, 7, -128))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 7, -128))
+	var left := Trail.LEFT
+	var t := Trail.new(b, Vector3(0, 7, -131.6), 0)
+	t.slalom(3)
+	t.gap(3.5)
+	t.run(5)
+	t.beam(10, 1, 1.6)
+	t.run(4)
+	t.turn(left)
+	t.bumpers(3)
+	t.crumbles(3)
+	t.run(6)
+	t.patrol()
+	t.step(0.8)
+	t.run(5)
+	t.slalom(2)
+	t.run(4)
+	t.finish()

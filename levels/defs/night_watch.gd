@@ -3,13 +3,13 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"night_watch"
+	id = &"night_watch_2"
 	title = "Night Watch"
 	hint = "Guards and beams, and no light but yours."
 	biome = preload("res://resources/biomes/night.tres")
 	dark = true
-	gold_time = 18.0
-	silver_time = 29.0
+	gold_time = 40.0
+	silver_time = 63.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -27,4 +27,21 @@ func build(b: LevelBuilder) -> void:
 	b.laser(Vector3(-4, 0, -40), Vector3(4, 0, -40), 1.2, 1.8, 1.5)
 	b.patroller(Vector3(-3, 0, -44), Vector3(6, 0, 0), 3.0)
 	b.gem(Vector3(2, 0, -46))
-	b.finish_at(Vector3(0, 0, -48))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 0, -48))
+	var left := Trail.LEFT
+	var t := Trail.new(b, Vector3(0, 0, -50), 0)
+	t.lasers(3, 4.0)
+	t.run(6)
+	t.patrol()
+	t.turn(left)
+	t.beam(10, 1)
+	t.run(5)
+	t.slalom(2)
+	t.gap(3)
+	t.run(6)
+	t.patrol(3.0, 2.8)
+	t.lasers(2)
+	t.run(5)
+	t.finish()

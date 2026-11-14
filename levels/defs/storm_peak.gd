@@ -3,13 +3,13 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"storm_peak"
+	id = &"storm_peak_2"
 	title = "Storm Peak"
 	hint = "The top of the mountain, and all of it at once."
 	biome = preload("res://resources/biomes/storm.tres")
 	wind = Vector3(2.5, 0.0, 0.0)
-	gold_time = 34.0
-	silver_time = 54.0
+	gold_time = 62.0
+	silver_time = 97.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -43,4 +43,26 @@ func build(b: LevelBuilder) -> void:
 	b.gem(Vector3(0, 4, -83.5))
 	b.crumble(0, -86.5, 4)
 	b.floor(0, -93, 8, 10, 4)
-	b.finish_at(Vector3(0, 4, -95))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 4, -95))
+	var left := Trail.LEFT
+	var right := Trail.RIGHT
+	var t := Trail.new(b, Vector3(0, 4, -98), 0)
+	t.lasers(2)
+	t.belt(10, true)
+	t.run(5)
+	t.turn(right)
+	t.bridge(14, 5.5, 2)
+	t.run(6)
+	t.patrol()
+	t.turn(left)
+	t.beam(12, 2, 2.0)
+	t.run(5)
+	t.crumbles(4)
+	t.run(5)
+	t.step(0.8)
+	t.run(5)
+	t.slalom(2)
+	t.run(4)
+	t.finish()

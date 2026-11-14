@@ -51,12 +51,24 @@ const SCRIPTS: Array[GDScript] = [
 	preload("res://levels/defs/flooded_works.gd"),
 	preload("res://levels/defs/eye_of_storm.gd"),
 	preload("res://levels/defs/storm_peak.gd"),
+	preload("res://levels/defs/long_way_round.gd"),
+	preload("res://levels/defs/switchback.gd"),
+	preload("res://levels/defs/parasol.gd"),
+	preload("res://levels/defs/clockwork_yard.gd"),
+	preload("res://levels/defs/thin_line.gd"),
+	preload("res://levels/defs/night_flight.gd"),
+	preload("res://levels/defs/rogues_gallery.gd"),
+	preload("res://levels/defs/heavy_going.gd"),
+	preload("res://levels/defs/windward.gd"),
+	preload("res://levels/defs/moonshot.gd"),
+	preload("res://levels/defs/medley.gd"),
+	preload("res://levels/defs/grand_tour.gd"),
 ]
 
 ## Levels shown per page of the level select, and what each page is called.
 const PAGE_SIZE := 12
 const PAGE_TITLES: Array[String] = [
-	"SKY COURSES", "FAR SIDE", "NIGHT SHIFT", "STORM PEAK"]
+	"SKY COURSES", "FAR SIDE", "NIGHT SHIFT", "STORM PEAK", "GRAND TOUR"]
 
 static var _levels: Array[LevelDef] = []
 

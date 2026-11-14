@@ -3,13 +3,13 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"eye_of_storm"
+	id = &"eye_of_storm_2"
 	title = "Eye of the Storm"
 	hint = "Wind, beams, a ride and a sentry. Keep your head."
 	biome = preload("res://resources/biomes/storm.tres")
 	wind = Vector3(3.0, 0.0, 0.0)
-	gold_time = 34.0
-	silver_time = 54.0
+	gold_time = 59.0
+	silver_time = 92.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -30,4 +30,23 @@ func build(b: LevelBuilder) -> void:
 	b.gem(Vector3(0, 0, -49))
 	b.gem(Vector3(0, 0, -56))
 	b.floor(0, -66, 8, 12)
-	b.finish_at(Vector3(0, 0, -68))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 0, -68))
+	var left := Trail.LEFT
+	var right := Trail.RIGHT
+	var t := Trail.new(b, Vector3(0, 0, -72), 0)
+	t.lasers(2)
+	t.mover(8)
+	t.run(6)
+	t.turn(right)
+	t.slalom(2)
+	t.gap(3)
+	t.run(6)
+	t.turn(left)
+	t.beam(12, 1, 2.4)
+	t.run(5)
+	t.crumbles(3)
+	t.run(6)
+	t.sentry(2.0, 3.0)
+	t.finish()

@@ -4,12 +4,12 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"crumble_run"
+	id = &"crumble_run_2"
 	title = "Crumble Run"
 	hint = "Sandy tiles fall. Do not stop to think."
 	biome = preload("res://resources/biomes/dusk.tres")
-	gold_time = 34.0
-	silver_time = 55.0
+	gold_time = 48.0
+	silver_time = 76.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -43,4 +43,25 @@ func build(b: LevelBuilder) -> void:
 		b.crumble(0, -62.5 - step * 3.0, 0.6 * (step + 1))
 	b.gem(Vector3(0, 1.8, -68.5))
 	b.floor(0, -83, 8, 8, 3.6, LevelBuilder.Surface.FLOOR, 0.5)
-	b.finish_at(Vector3(0, 3.6, -84))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 3.6, -84))
+	var left := Trail.LEFT
+	var right := Trail.RIGHT
+	var t := Trail.new(b, Vector3(0, 3.6, -87), 0)
+	t.crumbles(4)
+	t.run(5)
+	t.turn(right)
+	t.gap(3)
+	t.run(4)
+	t.crumbles(5)
+	t.run(5)
+	t.step(0.8)
+	t.run(4)
+	t.crumbles(3)
+	t.turn(left)
+	t.beam(8, 1, 1.8)
+	t.run(4)
+	t.crumbles(4)
+	t.run(5)
+	t.finish()

@@ -4,12 +4,12 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"sunken_vault"
+	id = &"sunken_vault_2"
 	title = "Sunken Vault"
 	hint = "Two keys, both under water."
 	biome = preload("res://resources/biomes/reef.tres")
-	gold_time = 32.0
-	silver_time = 52.0
+	gold_time = 56.0
+	silver_time = 88.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -42,4 +42,19 @@ func build(b: LevelBuilder) -> void:
 	b.floor(0, -48, 12, 12, 0, floor_kind, 8.5)
 	b.checkpoint(Vector3(0, 0, -43.5))
 	b.gate(Vector3(0, 0, -45.5), 12)
-	b.finish_at(Vector3(0, 0, -50))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 0, -50))
+	var right := Trail.RIGHT
+	var t := Trail.new(b, Vector3(0, 0, -54), 0)
+	t.run(8, 1)
+	t.patrol()
+	t.turn(right)
+	t.beam(10, 1)
+	t.run(5)
+	t.slalom(2)
+	t.gap(3)
+	t.run(5)
+	t.arena(14, 6, 1)
+	t.run(5)
+	t.finish()

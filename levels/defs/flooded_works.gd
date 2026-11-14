@@ -3,12 +3,12 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"flooded_works"
+	id = &"flooded_works_2"
 	title = "Flooded Works"
 	hint = "The beams still work under water."
 	biome = preload("res://resources/biomes/reef.tres")
-	gold_time = 38.0
-	silver_time = 61.0
+	gold_time = 62.0
+	silver_time = 97.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -32,4 +32,19 @@ func build(b: LevelBuilder) -> void:
 	b.floor(0, -52, 12, 12, 0, floor_kind, 8.5)
 	b.checkpoint(Vector3(0, 0, -47.5))
 	b.gate(Vector3(0, 0, -50), 12)
-	b.finish_at(Vector3(0, 0, -55))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 0, -55))
+	var left := Trail.LEFT
+	var t := Trail.new(b, Vector3(0, 0, -58), 0)
+	t.run(6, 1)
+	t.lasers(3, 4.0)
+	t.turn(left)
+	t.belt(10, true)
+	t.run(5)
+	t.beam(10, 1)
+	t.run(6)
+	t.patrol()
+	t.slalom(2)
+	t.run(5)
+	t.finish()

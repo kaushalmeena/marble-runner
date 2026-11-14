@@ -3,13 +3,13 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"graveyard_shift"
+	id = &"graveyard_shift_2"
 	title = "Graveyard"
 	hint = "Everything on the night shift, with the lights off."
 	biome = preload("res://resources/biomes/night.tres")
 	dark = true
-	gold_time = 26.0
-	silver_time = 42.0
+	gold_time = 51.0
+	silver_time = 80.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -36,4 +36,23 @@ func build(b: LevelBuilder) -> void:
 	b.floor(0, -90, 10, 18, 6)
 	b.patroller(Vector3(-4, 6, -90), Vector3(8, 0, 0), 3.6)
 	b.gem(Vector3(0, 6, -87))
-	b.finish_at(Vector3(0, 6, -95))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 6, -95))
+	var right := Trail.RIGHT
+	var t := Trail.new(b, Vector3(0, 6, -99), 0)
+	t.run(6)
+	t.lasers(2)
+	t.belt(10, true)
+	t.run(5)
+	t.turn(right)
+	t.bridge(14, 5.5, 2)
+	t.run(6)
+	t.patrol()
+	t.glide(18, 5)
+	t.run(10, 1)
+	t.slalom(2)
+	t.crumbles(3)
+	t.run(6)
+	t.sentry(2.0, 3.0)
+	t.finish()

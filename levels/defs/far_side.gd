@@ -4,13 +4,13 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"far_side"
+	id = &"far_side_2"
 	title = "Far Side"
 	hint = "Everything at once, a long way from home."
 	biome = preload("res://resources/biomes/moon.tres")
 	gravity_scale = 0.35
-	gold_time = 32.0
-	silver_time = 52.0
+	gold_time = 56.0
+	silver_time = 88.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -44,4 +44,20 @@ func build(b: LevelBuilder) -> void:
 		b.crumble(0, z, 12, 0, Vector2(4.5, 4.5))
 		b.gem(Vector3(0, 12, z))
 	b.floor(0, -158, 10, 10, 12, floor_kind, thin)
-	b.finish_at(Vector3(0, 12, -159))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 12, -159))
+	var left := Trail.LEFT
+	var t := Trail.new(b, Vector3(0, 12, -163), 0)
+	t.gap(10)
+	t.run(14, 1)
+	t.step(3)
+	t.run(10)
+	t.turn(left)
+	t.gap(12)
+	t.run(14, 1)
+	t.crumbles(4)
+	t.run(8)
+	t.arena(14, 6, 1)
+	t.run(6)
+	t.finish()

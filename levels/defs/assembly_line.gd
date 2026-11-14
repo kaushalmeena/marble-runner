@@ -3,12 +3,12 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"assembly_line"
+	id = &"assembly_line_2"
 	title = "Assembly Line"
 	hint = "The belt will not wait for the beam."
 	biome = preload("res://resources/biomes/foundry.tres")
-	gold_time = 25.0
-	silver_time = 40.0
+	gold_time = 46.0
+	silver_time = 72.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -36,4 +36,19 @@ func build(b: LevelBuilder) -> void:
 	b.laser(Vector3(-2, 0, -69), Vector3(2, 0, -69), 1.0, 2.0)
 	b.gem(Vector3(0, 0, -73))
 	b.floor(0, -82, 8, 10)
-	b.finish_at(Vector3(0, 0, -83))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(0, 0, -83))
+	var right := Trail.RIGHT
+	var t := Trail.new(b, Vector3(0, 0, -87), 0)
+	t.belt(12)
+	t.lasers(2)
+	t.turn(right)
+	t.belt(12, true)
+	t.run(5)
+	t.crumbles(4)
+	t.run(5)
+	t.bridge(12, 5.0, 2)
+	t.run(5)
+	t.lasers(3, 4.0)
+	t.finish()

@@ -4,12 +4,12 @@ extends LevelDef
 
 
 func _init() -> void:
-	id = &"clockwork"
+	id = &"clockwork_2"
 	title = "Clockwork"
 	hint = "Everything here moves on a schedule."
 	biome = preload("res://resources/biomes/tundra.tres")
-	gold_time = 50.0
-	silver_time = 78.0
+	gold_time = 75.0
+	silver_time = 118.0
 
 
 func build(b: LevelBuilder) -> void:
@@ -42,4 +42,20 @@ func build(b: LevelBuilder) -> void:
 	b.mover(Vector3(6.2, 5, -42), pad, Vector3(9, 0, 0), 8.0, 0.5)
 	b.gem(Vector3(10.7, 5, -42))
 	b.floor(21.4, -42, 8, 8, 5, floor_kind, thin)
-	b.finish_at(Vector3(22.4, 5, -42))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(22.4, 5, -42))
+	var left := Trail.LEFT
+	var t := Trail.new(b, Vector3(25.4, 5, -42), 3)
+	t.mover(8)
+	t.run(6)
+	t.crumbles(3)
+	t.run(5)
+	t.turn(left)
+	t.bridge(12, 5.0, 2)
+	t.run(6)
+	t.mover(10)
+	t.run(6)
+	t.lasers(2)
+	t.run(4)
+	t.finish()

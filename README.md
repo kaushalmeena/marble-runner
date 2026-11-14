@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
 
-**A marble platformer across forty-eight levels in the sky and beyond.**
+**A marble platformer across sixty levels in the sky and beyond.**
 
 Roll, jump, swim and glide a physics marble through floating levels. Collect
 every gem to open the finish, then do it again faster for the stars.
@@ -42,9 +42,10 @@ every gem to open the finish, then do it again faster for the stars.
 
 - **A marble you roll, not steer** — it is a physics body driven by torque, so
   it has real momentum: it carries speed off ramps and slides on ice.
-- **Forty-eight levels, easy to hard** — four courses of twelve: Sky Courses,
-  Far Side, Night Shift and Storm Peak. Each level teaches a single idea, and
-  the later ones put them together.
+- **Sixty levels, easy to hard** — five courses of twelve: Sky Courses, Far
+  Side, Night Shift, Storm Peak and Grand Tour. A course opens with short
+  levels that each teach one idea and closes with long ones that turn
+  corners, climb and combine everything. Grand Tour is long from the start.
 - **Gems open the finish** — every level is a collection problem as well as a
   route, and the open ones let you choose the order.
 - **Things in the way** — moving platforms, bumpers, sweeping bars, boost and
@@ -58,7 +59,7 @@ every gem to open the finish, then do it again faster for the stars.
 - **Worlds with weather** — pools you sink and swim in, low gravity on the
   moon, heavy gravity in the foundry, a wind that never stops, and night
   levels lit only by the marble. The HUD names what is in force.
-- **Nine power-ups** — super jump, boost, feather, magnet, stopwatch, shield,
+- **Nine power-ups** — super jump, boost, glider, magnet, stopwatch, shield,
   double jump, grip and flare. They switch on as you touch them, run side by
   side, and picking up another of the same adds its time.
 - **Traps** — pickups in a dark bubble that slow you, reverse your steering

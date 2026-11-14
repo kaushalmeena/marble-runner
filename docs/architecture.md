@@ -28,6 +28,13 @@ torque about the axis at right angles to the held direction, the marble spins,
 and friction with the floor turns that spin into travel. A small direct push is
 added on top so it responds at once, and is all the control there is in the air.
 
+On level, grippy ground there is one assist: motion the player is not asking
+for is bled off. With nothing held the marble slows to a stop; with a
+direction held, its sideways drift goes; and steering against its travel
+pushes harder. Friction alone would let it coast for ever and swing wide on
+every turn. Ice, slopes, water, moving platforms and a marble flung faster
+than its top speed are all left alone (`Marble._steady`).
+
 Everything interesting falls out of that one decision:
 
 - **Ice** is just low friction: the spin has nothing to bite on, so the marble
