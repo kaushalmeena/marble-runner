@@ -1,20 +1,12 @@
 extends Node
-## Owns the score for the current run and the persisted personal best.
+## Owns the player's progress: which levels are beaten and how fast, which
+## secret diamonds are found, the purse of gems, and the skins.
 ##
-## Nothing else in the project writes to these values directly: gameplay calls
-## [method add_score], and the UI reacts to the signals below. That keeps the HUD
-## and the menus free of any knowledge about how scoring works.
+## Nothing else in the project writes to these values directly. Gameplay
+## reports a finished level through [method complete_level], and the UI reads.
 
-## Emitted whenever the live run score changes.
-signal score_changed(score: int)
-## Emitted when the personal best is beaten (during a run, not only at the end).
-signal best_score_changed(best_score: int)
-## Emitted when the pickup streak changes the score multiplier.
-signal multiplier_changed(multiplier: int)
-## Emitted when the furthest run gets further.
-signal best_distance_changed(best_distance: float)
-## Emitted when the coin purse changes.
-signal coins_changed(coins: int)
+## Emitted when the purse changes.
+signal gems_changed(gems: int)
 ## Emitted when a skin is bought.
 signal skin_unlocked(id: StringName)
 ## Emitted when the equipped skin changes.
@@ -22,68 +14,42 @@ signal skin_selected(id: StringName)
 
 const SAVE_PATH := "user://marble_runner.cfg"
 const SAVE_SECTION := "progress"
-const SAVE_KEY_BEST := "best_score"
-const SAVE_KEY_BEST_DISTANCE := "best_distance"
-const SAVE_KEY_COINS := "coins"
+# The purse was once counted in coins; the key is kept so old saves carry over.
+const SAVE_KEY_GEMS := "coins"
+const SAVE_KEY_SECRETS := "secret_diamonds"
 const SAVE_KEY_UNLOCKED := "unlocked_skins"
 const SAVE_KEY_SKIN := "selected_skin"
+const SAVE_KEY_TIMES := "best_times"
+const SAVE_KEY_UNLOCK_ALL := "all_unlocked"
+const SAVE_KEY_PAGE := "level_page"
 
-## Points awarded per collected fruit, before the multiplier.
-const POINTS_PER_PICKUP := 1
-## Points for slipping past an obstacle by a hair.
-const POINTS_PER_NEAR_MISS := 1
-## Consecutive pickups needed for each extra multiplier step.
-const STREAK_PER_MULTIPLIER := 5
-const MAX_MULTIPLIER := 5
+## Every gem collected is banked when the level is finished, every time.
+## Replaying is the steady income.
+## On top of that, gems for each star earned for the first time, and for a
+## level's secret diamond the first time it is brought home. These are the big
+## payouts, and each can only be collected once.
+const GEMS_PER_NEW_STAR := 25
+const GEMS_PER_SECRET := 50
 
-## Coins for each fruit. Deliberately not multiplied: the streak should pay out
-## in score, so the shop stays on a predictable schedule rather than swinging
-## wildly with how a single run went.
-const COINS_PER_PICKUP := 1
-## Distance, in units, worth one extra coin at the end of a run.
-const UNITS_PER_BONUS_COIN := 100.0
+## When false nothing is written to disk. Test harnesses turn this off so an
+## automated run cannot overwrite a real player's times.
+var persist: bool = true
 
-## Cost of the first revive in a run. Each further one doubles, so reviving is
-## a real decision rather than a way to buy an unlimited run.
-const REVIVE_BASE_PRICE := 60
-const MAX_REVIVES_PER_RUN := 2
+## Level played next, as an index into [LevelCatalog].
+var current_level: int = 0
 
-var score: int = 0:
-	set(value):
-		if score == value:
-			return
-		score = value
-		score_changed.emit(score)
+## Page of the level select last looked at, so it reopens where it was left.
+## Negative until the player has opened it once.
+var level_page: int = -1
 
-var best_score: int = 0:
-	set(value):
-		if best_score == value:
-			return
-		best_score = value
-		best_score_changed.emit(best_score)
-
-## Distance covered in the most recent run, for the death screen.
-var run_distance: float = 0.0
-
-## Furthest distance ever reached, persisted between sessions.
-var best_distance: float = 0.0:
-	set(value):
-		if is_equal_approx(best_distance, value):
-			return
-		best_distance = value
-		best_distance_changed.emit(best_distance)
-
-## Coins banked across all runs.
-var coins: int = 0:
+## Gems banked across all runs. This is what the shop is priced in.
+var gems: int = 0:
 	set(value):
 		var clamped := maxi(0, value)
-		if coins == clamped:
+		if gems == clamped:
 			return
-		coins = clamped
-		coins_changed.emit(coins)
-
-## Coins earned in the current run, for the death screen.
-var run_coins: int = 0
+		gems = clamped
+		gems_changed.emit(gems)
 
 ## Skin ids the player owns. Free skins are always considered owned, so this
 ## only ever holds purchases.
@@ -97,117 +63,119 @@ var selected_skin: StringName = &"classic":
 		selected_skin = value
 		skin_selected.emit(selected_skin)
 
-## Revives spent this run.
-var revives_used: int = 0
-
-## Consecutive fruit collected without letting one slip past.
-var streak: int = 0
-
-## Score multiplier earned by the current streak.
-var multiplier: int = 1:
-	set(value):
-		if multiplier == value:
-			return
-		multiplier = value
-		multiplier_changed.emit(multiplier)
-
-## Best distance as it stood when this run began, paired with the score below.
-var _best_distance_at_run_start: float = 0.0
-
-## Best score as it stood when this run began, so [method is_new_record] can
-## still tell a record apart after [member best_score] has been promoted.
-var _best_at_run_start: int = 0
+## Best finishing time per level id, in seconds. A level with no entry has not
+## been finished.
+var _best_times: Dictionary = {}
+## Set by the cheat that opens every level. Saved, so it sticks.
+var _all_unlocked: bool = false
+## Ids of the levels whose secret diamond has been found and carried to the finish.
+var _secrets := PackedStringArray()
 
 
 func _ready() -> void:
 	load_progress()
 
 
-## Clears the run score. Call this when a new run begins.
-func reset_run() -> void:
-	score = 0
-	run_distance = 0.0
-	streak = 0
-	multiplier = 1
-	run_coins = 0
-	revives_used = 0
-	_best_at_run_start = best_score
-	_best_distance_at_run_start = best_distance
+## Best time for [param level], or a negative number if it is unbeaten.
+func best_time(level: LevelDef) -> float:
+	return float(_best_times.get(String(level.id), -1.0))
 
 
-## True when the run that just ended beat the previous personal best.
-func is_new_record() -> bool:
-	return score > _best_at_run_start
+func is_completed(level: LevelDef) -> bool:
+	return best_time(level) >= 0.0
 
 
-## True when the run that just ended went further than any before it.
-func is_new_distance_record() -> bool:
-	return run_distance > _best_distance_at_run_start
+## Stars held on [param level], 0..3.
+func stars(level: LevelDef) -> int:
+	var time := best_time(level)
+	return level.stars_for(time) if time >= 0.0 else 0
 
 
-## Scores a collected fruit, extending the streak and paying out at the
-## current multiplier.
-func collect_pickup() -> void:
-	streak += 1
-	multiplier = clampi(1 + streak / STREAK_PER_MULTIPLIER, 1, MAX_MULTIPLIER)
-	add_score(POINTS_PER_PICKUP * multiplier)
-	run_coins += COINS_PER_PICKUP
-	coins += COINS_PER_PICKUP
+func total_stars() -> int:
+	var total := 0
+	for level in LevelCatalog.all():
+		total += stars(level)
+	return total
 
 
-## Scores a near miss. It pays the multiplier but does not extend the streak:
-## the streak is about collecting, and rewarding both would let a player farm
-## multipliers without touching a single fruit.
-func score_near_miss() -> void:
-	add_score(POINTS_PER_NEAR_MISS * multiplier)
+## A level opens once the one before it has been finished.
+func is_unlocked(index: int) -> bool:
+	if _all_unlocked:
+		return true
+	return index <= 0 or is_completed(LevelCatalog.at(index - 1))
 
 
-## Ends the streak. Called when a fruit is allowed to scroll past uncollected.
-func break_streak() -> void:
-	streak = 0
-	multiplier = 1
+## Index of the first level not yet finished, or the last level if all are.
+func next_unbeaten() -> int:
+	for index in LevelCatalog.count():
+		if not is_completed(LevelCatalog.at(index)):
+			return index
+	return LevelCatalog.count() - 1
 
 
-## Adds points and promotes them to the personal best as soon as they are earned,
-## so the HUD can celebrate a new record mid-run.
-func add_score(amount: int = POINTS_PER_PICKUP) -> void:
-	score += amount
-	if score > best_score:
-		best_score = score
+## True once [param level]'s secret diamond has been brought to the finish.
+func has_secret(level: LevelDef) -> bool:
+	return _secrets.has(String(level.id))
 
 
-## Persists progress at the end of a run.
-func commit_run() -> void:
-	if score > best_score:
-		best_score = score
-	if run_distance > best_distance:
-		best_distance = run_distance
-	# Distance pays out at the end rather than in dribs during the run, so a
-	# long careful run is worth something even without a big score.
-	var distance_bonus := int(run_distance / UNITS_PER_BONUS_COIN)
-	run_coins += distance_bonus
-	coins += distance_bonus
+func total_secrets() -> int:
+	var total := 0
+	for level in LevelCatalog.all():
+		if has_secret(level):
+			total += 1
+	return total
+
+
+## Records a finished level and pays out. [param secret_found] is whether the
+## secret diamond was picked up on this run. Returns what happened, for the
+## results screen: [code]stars[/code], [code]new_stars[/code],
+## [code]new_best[/code], [code]previous_best[/code], [code]gems[/code] and
+## [code]new_secret[/code].
+func complete_level(level: LevelDef, time: float, gem_count: int,
+		secret_found: bool = false) -> Dictionary:
+	var previous := best_time(level)
+	var stars_before := stars(level)
+	var is_best := previous < 0.0 or time < previous
+	if is_best:
+		_best_times[String(level.id)] = time
+	var stars_now := level.stars_for(time)
+	var new_stars := maxi(0, stars_now - stars_before)
+	var new_secret := secret_found and not has_secret(level)
+	if new_secret:
+		_secrets.append(String(level.id))
+	var earned := gem_count + new_stars * GEMS_PER_NEW_STAR + (
+		GEMS_PER_SECRET if new_secret else 0)
+	gems += earned
 	save_progress()
+	return {
+		"stars": stars_now,
+		"new_stars": new_stars,
+		"new_best": is_best,
+		"previous_best": previous,
+		"gems": earned,
+		"new_secret": new_secret,
+	}
 
 
-## Price of the next revive in this run, doubling each time.
-func revive_price() -> int:
-	return REVIVE_BASE_PRICE * int(pow(2, revives_used))
+## What a finished run that must not count reports to the results screen:
+## no stars, no gems, no secret, nothing saved.
+func unrecorded_outcome(level: LevelDef) -> Dictionary:
+	return {
+		"stars": 0,
+		"new_stars": 0,
+		"new_best": false,
+		"previous_best": best_time(level),
+		"gems": 0,
+		"new_secret": false,
+		"cheated": true,
+	}
 
 
-## True when another revive is available and affordable.
-func can_revive() -> bool:
-	return revives_used < MAX_REVIVES_PER_RUN and coins >= revive_price()
-
-
-## Spends coins on a revive. Returns whether it went through.
-func buy_revive() -> bool:
-	if not can_revive():
-		return false
-	coins -= revive_price()
-	revives_used += 1
+## Opens every level, or with [param open] false goes back to unlocking them
+## one at a time.
+func unlock_all(open: bool = true) -> void:
+	_all_unlocked = open
 	save_progress()
-	return true
 
 
 ## True when the player owns [param skin], or it costs nothing.
@@ -217,12 +185,12 @@ func is_skin_unlocked(skin: MarbleSkin) -> bool:
 	return skin.is_free() or unlocked_skins.has(String(skin.id))
 
 
-## Spends coins on a skin. Returns false, changing nothing, when it is already
+## Spends gems on a skin. Returns false, changing nothing, when it is already
 ## owned or unaffordable.
 func purchase_skin(skin: MarbleSkin) -> bool:
-	if skin == null or is_skin_unlocked(skin) or coins < skin.price:
+	if skin == null or is_skin_unlocked(skin) or gems < skin.price:
 		return false
-	coins -= skin.price
+	gems -= skin.price
 	unlocked_skins.append(String(skin.id))
 	skin_unlocked.emit(skin.id)
 	save_progress()
@@ -242,21 +210,32 @@ func load_progress() -> void:
 	var config := ConfigFile.new()
 	if config.load(SAVE_PATH) != OK:
 		return
-	best_score = int(config.get_value(SAVE_SECTION, SAVE_KEY_BEST, 0))
-	best_distance = float(config.get_value(SAVE_SECTION, SAVE_KEY_BEST_DISTANCE, 0.0))
-	coins = int(config.get_value(SAVE_SECTION, SAVE_KEY_COINS, 0))
+	gems = int(config.get_value(SAVE_SECTION, SAVE_KEY_GEMS, 0))
+	_secrets = PackedStringArray(
+		config.get_value(SAVE_SECTION, SAVE_KEY_SECRETS, PackedStringArray()))
 	unlocked_skins = PackedStringArray(
 		config.get_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, PackedStringArray()))
 	selected_skin = StringName(config.get_value(SAVE_SECTION, SAVE_KEY_SKIN, "classic"))
+	var times: Variant = config.get_value(SAVE_SECTION, SAVE_KEY_TIMES, {})
+	if times is Dictionary:
+		_best_times = times
+	_all_unlocked = bool(config.get_value(SAVE_SECTION, SAVE_KEY_UNLOCK_ALL, false))
+	level_page = int(config.get_value(SAVE_SECTION, SAVE_KEY_PAGE, -1))
 
 
 func save_progress() -> void:
+	if not persist:
+		return
 	var config := ConfigFile.new()
-	config.set_value(SAVE_SECTION, SAVE_KEY_BEST, best_score)
-	config.set_value(SAVE_SECTION, SAVE_KEY_BEST_DISTANCE, best_distance)
-	config.set_value(SAVE_SECTION, SAVE_KEY_COINS, coins)
+	# Load first so keys this version does not know about survive the write.
+	config.load(SAVE_PATH)
+	config.set_value(SAVE_SECTION, SAVE_KEY_GEMS, gems)
+	config.set_value(SAVE_SECTION, SAVE_KEY_SECRETS, _secrets)
 	config.set_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, unlocked_skins)
 	config.set_value(SAVE_SECTION, SAVE_KEY_SKIN, String(selected_skin))
+	config.set_value(SAVE_SECTION, SAVE_KEY_TIMES, _best_times)
+	config.set_value(SAVE_SECTION, SAVE_KEY_UNLOCK_ALL, _all_unlocked)
+	config.set_value(SAVE_SECTION, SAVE_KEY_PAGE, level_page)
 	var error := config.save(SAVE_PATH)
 	if error != OK:
 		push_warning("Could not save progress to %s (error %d)." % [SAVE_PATH, error])

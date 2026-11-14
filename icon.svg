@@ -3,33 +3,41 @@
     Godot rasterises SVG with ThorVG, which does not match a browser on
     clip-path, group opacity or transforms. This icon therefore uses only
     plain shapes, solid fills and simple gradients, so the engine, the
-    browser and the exported PNG all agree. The track is shaped to stay
-    inside the rounded corners rather than being clipped to them.
+    browser and the exported PNG all agree.
+
+    The picture is the game: a marble on a checkered platform floating in
+    the sky.
   -->
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#12294F"/>
-      <stop offset="0.52" stop-color="#1F4E8C"/>
-      <stop offset="1" stop-color="#2C6B4C"/>
+      <stop offset="0" stop-color="#0B1736"/>
+      <stop offset="0.55" stop-color="#1E4C8F"/>
+      <stop offset="1" stop-color="#5DB7DC"/>
     </linearGradient>
-    <linearGradient id="track" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4A8B4E"/>
-      <stop offset="1" stop-color="#83CE6C"/>
-    </linearGradient>
-    <radialGradient id="ball" cx="0.34" cy="0.28" r="0.78">
-      <stop offset="0" stop-color="#EDF7FF"/>
-      <stop offset="0.34" stop-color="#7FC4FF"/>
-      <stop offset="1" stop-color="#1A66C6"/>
+    <radialGradient id="ball" cx="0.34" cy="0.28" r="0.8">
+      <stop offset="0" stop-color="#F2F9FF"/>
+      <stop offset="0.3" stop-color="#7CC2FF"/>
+      <stop offset="0.75" stop-color="#1F68CC"/>
+      <stop offset="1" stop-color="#123F8E"/>
     </radialGradient>
   </defs>
 
   <rect width="256" height="256" rx="56" fill="url(#sky)"/>
 
-  <path d="M112 92 L144 92 L196 256 L60 256 Z" fill="url(#track)"/>
-  <path d="M118 96 L122 96 L104 256 L92 256 Z" fill="#3D7A45"/>
-  <path d="M134 96 L138 96 L164 256 L152 256 Z" fill="#3D7A45"/>
+  <!-- The platform: two side faces, then four checker tiles on top. -->
+  <path d="M30 152 L128 194 L128 220 L30 178 Z" fill="#2F6B3C"/>
+  <path d="M128 194 L226 152 L226 178 L128 220 Z" fill="#245231"/>
+  <path d="M128 110 L177 131 L128 152 L79 131 Z" fill="#9BE07F"/>
+  <path d="M177 131 L226 152 L177 173 L128 152 Z" fill="#6FC360"/>
+  <path d="M79 131 L128 152 L79 173 L30 152 Z" fill="#6FC360"/>
+  <path d="M128 152 L177 173 L128 194 L79 173 Z" fill="#9BE07F"/>
 
-  <ellipse cx="128" cy="207" rx="40" ry="11" fill="#2C6038"/>
-  <circle cx="128" cy="170" r="48" fill="url(#ball)"/>
-  <ellipse cx="111" cy="152" rx="14" ry="9" fill="#FFFFFF"/>
+  <!-- The marble, its shadow, and the veins that make it a marble. -->
+  <ellipse cx="128" cy="158" rx="36" ry="13" fill="#3C7F47"/>
+  <circle cx="128" cy="108" r="48" fill="url(#ball)"/>
+  <path d="M86 120 C104 100 128 132 150 110 C158 102 164 104 168 100" fill="none"
+        stroke="#CFE9FF" stroke-width="5" stroke-linecap="round"/>
+  <path d="M98 142 C114 132 126 148 146 138" fill="none"
+        stroke="#9CD0FF" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="110" cy="86" rx="15" ry="9" fill="#FFFFFF"/>
 </svg>

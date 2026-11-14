@@ -1,40 +1,123 @@
 extends Control
-## Skin shop, shown one marble at a time.
+## Skin shop: one marble on show, and a row of swatches to pick from.
 ##
-## A carousel rather than a grid: with a live 3D preview the marble can be big
-## enough to actually see, which a wall of thumbnails cannot manage. Browsing is
-## free; only buying and equipping touch [GameState].
+## The big preview is a live 3D marble, because these are veined materials
+## whose character is in the surface and a flat swatch cannot show that. The
+## swatches underneath are for finding your way around: what there is, what is
+## owned, what is on. Browsing is free; only buying and equipping touch
+## [GameState].
 
-@onready var _preview: MarblePreview = %Preview
-@onready var _name_label: Label = %NameLabel
-@onready var _description: Label = %Description
-@onready var _status: Label = %Status
-@onready var _position_label: Label = %PositionLabel
-@onready var _coins_value: Label = %CoinsValue
-@onready var _action_button: Button = %ActionButton
-@onready var _prev_button: Button = %PrevButton
-@onready var _next_button: Button = %NextButton
-@onready var _back_button: Button = %BackButton
+const PREVIEW := preload("res://ui/marble_preview.tscn")
+const AFFORDABLE := Color(1.0, 0.82, 0.25)
+const TOO_DEAR := Color(1.0, 0.5, 0.5)
 
 var _skins: Array[MarbleSkin] = []
+var _chips: Array[SkinChip] = []
 var _index: int = 0
+var _preview: MarblePreview
+var _name_label: Label
+var _description: Label
+var _status: Label
+var _status_gem: Icon
+var _purse: StatPill
+var _action: Button
+var _swap_tween: Tween
 
 
 func _ready() -> void:
 	_skins.assign(SkinLibrary.load_default().skins.filter(
 		func(skin: MarbleSkin) -> bool: return skin != null))
+	add_child(Ui.shade(Color(0.03, 0.06, 0.12, 0.7)))
 
-	_prev_button.pressed.connect(_step.bind(-1))
-	_next_button.pressed.connect(_step.bind(1))
-	_action_button.pressed.connect(_on_action_pressed)
-	_back_button.pressed.connect(SceneManager.goto_main_menu)
-	GameState.coins_changed.connect(_on_coins_changed)
+	var title := Ui.column(-6)
+	title.add_child(Ui.label("MARBLES", &"CaptionLabel"))
+	title.add_child(Ui.label("SHOP", &"HeadingLabel"))
+	add_child(title)
+	Ui.pin(title, Control.PRESET_TOP_LEFT, Vector2(32, 16))
+	_purse = StatPill.new(Icon.Kind.GEM, Icon.GEM_BLUE)
+	add_child(_purse)
+	Ui.pin(_purse, Control.PRESET_TOP_RIGHT, Vector2(24, 20))
 
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(center)
+	var box := Ui.column(14)
+	center.add_child(box)
+
+	var stage := Ui.row(22)
+	stage.alignment = BoxContainer.ALIGNMENT_CENTER
+	var previous := Ui.round_button(Icon.Kind.LEFT)
+	var next := Ui.round_button(Icon.Kind.RIGHT)
+	previous.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	next.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	previous.focus_mode = Control.FOCUS_NONE
+	next.focus_mode = Control.FOCUS_NONE
+	previous.pressed.connect(_step.bind(-1))
+	next.pressed.connect(_step.bind(1))
+	stage.add_child(previous)
+	stage.add_child(_build_card())
+	stage.add_child(next)
+	box.add_child(stage)
+
+	var swatches := Ui.row(10)
+	swatches.alignment = BoxContainer.ALIGNMENT_CENTER
+	for index in _skins.size():
+		var chip := SkinChip.new(_skins[index].accent_color)
+		chip.pressed.connect(_show.bind(index))
+		swatches.add_child(chip)
+		_chips.append(chip)
+	box.add_child(swatches)
+
+	var buttons := Ui.row(14)
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	var back := Ui.button("Back", 200.0, Icon.Kind.BACK)
+	back.pressed.connect(SceneManager.goto_main_menu)
+	_action = Ui.button("Equip", 260.0, Icon.Kind.NONE, &"PrimaryButton")
+	_action.pressed.connect(_on_action_pressed)
+	buttons.add_child(back)
+	buttons.add_child(_action)
+	box.add_child(buttons)
+
+	var keys := Ui.key_hint(["A", "D"], "BROWSE")
+	add_child(keys)
+	Ui.pin(keys, Control.PRESET_CENTER_BOTTOM, Vector2(0, 16))
+
+	GameState.gems_changed.connect(_on_gems_changed)
+	_on_gems_changed(GameState.gems)
 	# Open on whatever the player is currently wearing.
 	_index = maxi(0, _skins.find(_current_equipped()))
-	_on_coins_changed(GameState.coins)
-	_show_current()
-	_action_button.grab_focus()
+	_refresh()
+	Ui.cascade(_chips, 0.1, 0.03)
+	_action.grab_focus()
+
+
+func _build_card() -> PanelContainer:
+	var card := PanelContainer.new()
+	var box := Ui.column(0)
+	box.custom_minimum_size.x = 440.0
+	card.add_child(box)
+	_preview = PREVIEW.instantiate()
+	_preview.custom_minimum_size = Vector2(250.0, 230.0)
+	_preview.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(_preview)
+	_name_label = Ui.label("", &"HeadingLabel", HORIZONTAL_ALIGNMENT_CENTER)
+	box.add_child(_name_label)
+	_description = Ui.label("", &"HintLabel", HORIZONTAL_ALIGNMENT_CENTER)
+	_description.modulate.a = 0.85
+	box.add_child(_description)
+	box.add_child(Ui.gap(8))
+	# The gem is hidden, not removed, once a skin is owned: the line keeps its
+	# height either way.
+	var status := Ui.row(8)
+	status.alignment = BoxContainer.ALIGNMENT_CENTER
+	status.custom_minimum_size.y = 34.0
+	_status_gem = Icon.new(Icon.Kind.GEM, 22.0, Icon.GEM_BLUE)
+	_status_gem.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	status.add_child(_status_gem)
+	_status = Ui.label("", &"AccentLabel")
+	status.add_child(_status)
+	box.add_child(status)
+	return card
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -50,48 +133,58 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _step(direction: int) -> void:
-	if _skins.is_empty():
+	if not _skins.is_empty():
+		_show(wrapi(_index + direction, 0, _skins.size()))
+
+
+func _show(index: int) -> void:
+	if index == _index:
 		return
-	_index = wrapi(_index + direction, 0, _skins.size())
+	_index = index
 	Audio.play(&"jump", -14.0, 0.04)
-	_show_current()
+	_refresh()
+	# The marble blinks out and back as it changes, so a swap reads as a swap.
+	if _swap_tween != null:
+		_swap_tween.kill()
+	_preview.modulate.a = 0.0
+	_swap_tween = create_tween()
+	_swap_tween.tween_property(_preview, ^"modulate:a", 1.0, 0.22)
 
 
-func _show_current() -> void:
-	var skin := _skins[_index]
-	_preview.show_skin(skin)
-	_name_label.text = skin.display_name
-	_description.text = skin.description
-	_position_label.text = "%d / %d" % [_index + 1, _skins.size()]
-	_refresh_action()
-
-
-## The button is the only control whose meaning changes: buy what you can
-## afford, equip what you own, and nothing when it is already on.
-func _refresh_action() -> void:
+## Redraws everything that depends on which skin is on show and what the
+## player owns. The action button is the only control whose meaning changes:
+## buy what you can afford, equip what you own, nothing when it is already on.
+func _refresh() -> void:
 	if _skins.is_empty():
 		return
 	var skin := _skins[_index]
 	var owned := GameState.is_skin_unlocked(skin)
 	var equipped := owned and GameState.selected_skin == skin.id
-
+	_preview.show_skin(skin)
+	_name_label.text = skin.display_name
+	_description.text = skin.description
+	_status_gem.visible = not owned
 	if equipped:
 		_status.text = "EQUIPPED"
-		_status.add_theme_color_override(&"font_color", skin.accent_color)
-		_action_button.text = "Equipped"
-		_action_button.disabled = true
+		_status.add_theme_color_override(&"font_color", skin.accent_color.lightened(0.25))
+		_action.text = "Equipped"
 	elif owned:
 		_status.text = "OWNED"
-		_status.add_theme_color_override(&"font_color", Color(1, 1, 1, 0.75))
-		_action_button.text = "Equip"
-		_action_button.disabled = false
+		_status.add_theme_color_override(&"font_color", Color(1, 1, 1, 0.8))
+		_action.text = "Equip"
 	else:
-		_status.text = "%d COINS" % skin.price
-		var affordable := GameState.coins >= skin.price
-		_status.add_theme_color_override(&"font_color",
-			Color(1, 0.82, 0.25) if affordable else Color(1, 0.45, 0.45))
-		_action_button.text = "Buy"
-		_action_button.disabled = not affordable
+		var affordable := GameState.gems >= skin.price
+		_status.text = str(skin.price)
+		_status.add_theme_color_override(&"font_color", AFFORDABLE if affordable else TOO_DEAR)
+		_action.text = "Buy" if affordable else "Not enough gems"
+	_action.disabled = equipped or (not owned and GameState.gems < skin.price)
+	for index in _chips.size():
+		var other := _skins[index]
+		var has := GameState.is_skin_unlocked(other)
+		_chips[index].current = index == _index
+		_chips[index].state = SkinChip.State.LOCKED if not has else (
+			SkinChip.State.EQUIPPED if GameState.selected_skin == other.id
+			else SkinChip.State.OWNED)
 
 
 func _on_action_pressed() -> void:
@@ -103,12 +196,12 @@ func _on_action_pressed() -> void:
 		Audio.play(&"power_up")
 		# Nobody buys a marble to leave it in the drawer.
 		GameState.select_skin(skin)
-	_refresh_action()
+	_refresh()
 
 
-func _on_coins_changed(coins: int) -> void:
-	_coins_value.text = str(coins)
-	_refresh_action()
+func _on_gems_changed(gems: int) -> void:
+	_purse.text = str(gems)
+	_refresh()
 
 
 func _current_equipped() -> MarbleSkin:

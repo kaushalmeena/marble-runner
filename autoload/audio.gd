@@ -14,7 +14,15 @@ const SOUND_NAMES: Array[StringName] = [
 	&"crash",
 	&"power_up",
 	&"power_down",
-	&"shield_break",
+	&"count",
+	&"go",
+	&"boost",
+	&"bounce",
+	&"bumper",
+	&"crumble",
+	&"checkpoint",
+	&"finish",
+	&"unlock",
 ]
 ## Simultaneous sounds. Anything past this steals the oldest voice.
 const VOICES := 10
@@ -43,14 +51,16 @@ func _ready() -> void:
 
 ## Plays a clip. [param pitch_jitter] randomises the pitch by up to that
 ## fraction either way, which stops repeated pickups sounding mechanical.
-func play(sound_name: StringName, volume_db: float = 0.0, pitch_jitter: float = 0.0) -> void:
+## [param pitch] shifts the whole clip, so one sound can climb a scale.
+func play(sound_name: StringName, volume_db: float = 0.0, pitch_jitter: float = 0.0,
+		pitch: float = 1.0) -> void:
 	var stream: AudioStream = _streams.get(sound_name)
 	if stream == null:
 		return
 	var player := _take_player()
 	player.stream = stream
 	player.volume_db = volume_db
-	player.pitch_scale = 1.0 + randf_range(-pitch_jitter, pitch_jitter)
+	player.pitch_scale = pitch + randf_range(-pitch_jitter, pitch_jitter)
 	player.play()
 
 
