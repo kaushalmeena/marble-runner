@@ -59,8 +59,15 @@ static func collider(shape: Shape3D, position := Vector3.ZERO) -> CollisionShape
 ## A round tube following [param path], as one mesh with smooth normals.
 ##
 ## For anything that curves: built from separate straight pieces, a curve
-## shows a ridge at every joint. The path must not run straight up or down.
-static func tube(path: PackedVector3Array, radius: float, sides: int = 10) -> ArrayMesh:
+## shows a ridge at every joint.
+##
+## Each ring is squared up against [param reference], so the path must never
+## run along it: where it does, the ring collapses and the tube pinches and
+## twists. A coil wound round the Y axis is fine with the default; a flat
+## spiral in the XY plane heads straight up twice a turn and needs
+## [code]Vector3.BACK[/code].
+static func tube(path: PackedVector3Array, radius: float, sides: int = 10,
+		reference := Vector3.UP) -> ArrayMesh:
 	var tool := SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var count := path.size()
@@ -69,7 +76,7 @@ static func tube(path: PackedVector3Array, radius: float, sides: int = 10) -> Ar
 		# either side of it meet without a crease.
 		var ahead := path[mini(index + 1, count - 1)] - path[maxi(index - 1, 0)]
 		var tangent := ahead.normalized()
-		var side := (Vector3.UP - tangent * Vector3.UP.dot(tangent)).normalized()
+		var side := (reference - tangent * reference.dot(tangent)).normalized()
 		var other := tangent.cross(side)
 		for corner in sides:
 			var angle := TAU * corner / sides

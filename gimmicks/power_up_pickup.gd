@@ -206,12 +206,22 @@ func _build_icon(color: Color) -> void:
 				_body.add_child(arrow)
 		PowerUps.Kind.DIZZY:
 			# A spiral, wound outward from the middle.
+			const STEPS := 160
 			var path := PackedVector3Array()
-			for step in 73:
-				var along := step / 72.0
+			for step in STEPS + 1:
+				var along := float(step) / STEPS
 				var angle := along * TAU * 2.25
-				path.append(Vector3(cos(angle), sin(angle), 0.0) * (0.06 + 0.4 * along))
-			_body.add_child(Mats.mesh(Mats.tube(path, 0.055, 10), lit))
+				# Starts a tube's width out from the middle, so the first
+				# turn does not fold into itself.
+				path.append(Vector3(cos(angle), sin(angle), 0.0) * (0.1 + 0.36 * along))
+			# The spiral lies flat in XY, so its rings are squared against Z.
+			_body.add_child(Mats.mesh(Mats.tube(path, 0.05, 14, Vector3.BACK), lit))
+			# Round off both cut ends.
+			var cap := SphereMesh.new()
+			cap.radius = 0.05
+			cap.height = 0.1
+			for end: Vector3 in [path[0], path[STEPS]]:
+				_body.add_child(Mats.mesh(cap, lit, end))
 		PowerUps.Kind.HEAVY:
 			# A scale weight: a squat block with a ring to lift it by.
 			var block := CylinderMesh.new()
