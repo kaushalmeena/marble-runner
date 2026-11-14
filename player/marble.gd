@@ -69,7 +69,11 @@ var grounded: bool = false
 var on_ice: bool = false
 ## Jumps allowed in mid-air before landing again. The double jump power-up
 ## sets this to one.
-var air_jumps: int = 0
+var air_jumps: int = 0:
+	set(value):
+		air_jumps = value
+		# Granted at once, so spending the power-up in mid-air still counts.
+		_air_jumps_left = value
 ## True while the marble is inside a body of water.
 var in_water: bool:
 	get:
