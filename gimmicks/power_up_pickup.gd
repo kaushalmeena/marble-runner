@@ -241,24 +241,32 @@ func _build_icon(color: Color) -> void:
 			_body.add_child(Mats.mesh(crown, pale, Vector3(0.0, 0.58, 0.0)))
 
 
-## A paper plane: two wings folded up from a keel. Shared with the game,
-## which flies a small one over the marble while the power-up runs. The nose
-## points down -Z.
+## A paper plane, folded the usual way: two flat wings, and between them a
+## crease that drops to a keel, so the middle reads as a fold line from above
+## and as a fin from the side. Shared with the game, which flies a small one
+## over the marble while the power-up runs. The nose points down -Z.
 static func build_plane(wing_material: Material, keel_material: Material) -> Node3D:
 	var plane := Node3D.new()
 	# Folded paper is a single sheet, seen from underneath as often as above.
 	var paper := wing_material.duplicate() as BaseMaterial3D
 	paper.cull_mode = BaseMaterial3D.CULL_DISABLED
-	var fold := keel_material.duplicate() as BaseMaterial3D
-	fold.cull_mode = BaseMaterial3D.CULL_DISABLED
+	# The two sides of the fold are shaded apart, or the crease would vanish.
+	var near_fold := keel_material.duplicate() as BaseMaterial3D
+	near_fold.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var far_fold := near_fold.duplicate() as BaseMaterial3D
+	far_fold.albedo_color = near_fold.albedo_color.darkened(0.28)
+	far_fold.emission = near_fold.emission.darkened(0.28)
+	const HALF_FOLD := 0.11
 	var nose := Vector3(0.0, 0.02, -0.52)
-	var back := Vector3(0.0, 0.1, 0.36)
 	var keel := Vector3(0.0, -0.2, 0.36)
-	# The wing tips sit a little above the centre crease, as a dart's do.
+	var left_root := Vector3(-HALF_FOLD, 0.1, 0.36)
+	var right_root := Vector3(HALF_FOLD, 0.1, 0.36)
+	# The wing tips sit a little above the roots, as a dart's do.
 	plane.add_child(Mats.mesh(_triangles([
-		nose, Vector3(-0.5, 0.16, 0.36), back,
-		nose, back, Vector3(0.5, 0.16, 0.36)]), paper))
-	plane.add_child(Mats.mesh(_triangles([nose, back, keel]), fold))
+		nose, Vector3(-0.52, 0.16, 0.36), left_root,
+		nose, right_root, Vector3(0.52, 0.16, 0.36)]), paper))
+	plane.add_child(Mats.mesh(_triangles([nose, left_root, keel]), near_fold))
+	plane.add_child(Mats.mesh(_triangles([nose, keel, right_root]), far_fold))
 	plane.rotation.x = 0.15
 	return plane
 
