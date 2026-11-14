@@ -12,11 +12,14 @@ extends Control
 
 const TIP_SECONDS := 4.5
 const EFFECT_KINDS: Array[PowerUps.Kind] = [
-	PowerUps.Kind.FEATHER, PowerUps.Kind.MAGNET, PowerUps.Kind.STOPWATCH]
+	PowerUps.Kind.FEATHER, PowerUps.Kind.MAGNET, PowerUps.Kind.STOPWATCH,
+	PowerUps.Kind.SHIELD, PowerUps.Kind.DOUBLE_JUMP]
 const COMPLETE_COLOR := Color(1.0, 0.79, 0.24)
 const FROZEN_COLOR := Color(0.78, 0.6, 1.0)
 
 var _gems_value: Label
+var _keys_pill: PanelContainer
+var _keys_value: Label
 var _clock: ClockLabel
 var _best: Label
 var _slot: PanelContainer
@@ -59,6 +62,12 @@ func setup(level_number: int, level: LevelDef, gem_total: int, best_time: float)
 func set_gems(collected: int, total: int) -> void:
 	_gems_value.text = "%d / %d" % [collected, total]
 	_gems_value.modulate = COMPLETE_COLOR if collected >= total else Color.WHITE
+
+
+## Shows how many keys are carried. The pill is hidden at zero.
+func set_keys(count: int) -> void:
+	_keys_value.text = str(count)
+	_keys_pill.modulate.a = 1.0 if count > 0 else 0.0
 
 
 func set_time(seconds: float, frozen: bool) -> void:
@@ -142,6 +151,21 @@ func _build_gems() -> void:
 	pill.add_child(box)
 	add_child(pill)
 	Ui.pin(pill, Control.PRESET_TOP_LEFT, Vector2(20, 14))
+
+	_keys_pill = PanelContainer.new()
+	_keys_pill.theme_type_variation = &"HudPill"
+	_keys_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_keys_pill.modulate.a = 0.0
+	var keys := Ui.row(10)
+	var keys_caption := Ui.label("KEYS", &"CaptionLabel")
+	keys_caption.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	keys.add_child(keys_caption)
+	_keys_value = Ui.label("0", &"AccentLabel", HORIZONTAL_ALIGNMENT_RIGHT)
+	_keys_value.custom_minimum_size.x = 24.0
+	keys.add_child(_keys_value)
+	_keys_pill.add_child(keys)
+	add_child(_keys_pill)
+	Ui.pin(_keys_pill, Control.PRESET_TOP_LEFT, Vector2(20, 60))
 
 
 func _build_clock() -> void:

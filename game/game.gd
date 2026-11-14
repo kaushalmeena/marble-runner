@@ -11,6 +11,11 @@ const ENVIRONMENT := preload("res://resources/environments/day_sky.tres")
 const EMPTY := -1
 ## Pause between crossing the finish and the results card, so the moment lands.
 const FINISH_HOLD_SECONDS := 0.9
+## A guard is popped when the marble is at least this far above it and falling
+## at least this fast, and the marble bounces off at the speed below.
+const STOMP_HEIGHT := 0.25
+const STOMP_SPEED := 1.0
+const STOMP_BOUNCE := 8.0
 
 @export_group("Power-up tuning")
 ## Take-off speed of the super jump. Roughly three and a half normal jumps high.
@@ -42,6 +47,7 @@ var _held: int = EMPTY
 ## Seconds left on each running effect, keyed by [enum PowerUps.Kind].
 var _effects: Dictionary[int, float] = {}
 var _seen_kinds: Dictionary[int, bool] = {}
+var _keys: int = 0
 
 
 func _ready() -> void:
@@ -58,6 +64,7 @@ func _ready() -> void:
 
 	_respawn_position = _builder.start_position
 	_marble.global_position = _respawn_position
+	_marble.gravity_scale = _level.gravity_scale
 	_marble.landed.connect(_on_marble_landed)
 	_marble.jumped.connect(_on_marble_jumped)
 	_camera.follow(_marble, _builder.start_yaw)
@@ -81,6 +88,15 @@ func _connect_level() -> void:
 		tip.entered.connect(_on_tip_entered)
 	for hazard in _builder.hazards:
 		hazard.entered.connect(_on_hazard_entered)
+	for enemy in _builder.enemies:
+		enemy.target = _marble
+		enemy.touched.connect(_on_enemy_touched)
+	for portal in _builder.portals:
+		portal.used.connect(_on_portal_used)
+	for key in _builder.keys:
+		key.collected.connect(_on_key_collected)
+	for gate in _builder.gates:
+		gate.touched.connect(_on_gate_touched)
 	if _builder.finish != null:
 		_builder.finish.reached.connect(_on_finish_reached)
 		# A level with no gems has nothing to wait for.
@@ -189,8 +205,55 @@ func _on_checkpoint_reached(checkpoint: Checkpoint) -> void:
 
 
 func _on_hazard_entered(_zone: TriggerZone) -> void:
-	if _running:
+	if _running and not _effects.has(PowerUps.Kind.SHIELD):
 		_respawn()
+
+
+## A guard was touched. Landing on it from above, or being shielded, pops it;
+## anything else is a trip back to the checkpoint.
+func _on_enemy_touched(enemy: Enemy) -> void:
+	if not _running:
+		return
+	var from_above := _marble.global_position.y > enemy.global_position.y + STOMP_HEIGHT \
+		and _marble.linear_velocity.y < -STOMP_SPEED
+	if _effects.has(PowerUps.Kind.SHIELD) or from_above:
+		enemy.defeat()
+		_bursts.burst(enemy.global_position + Vector3.UP * Enemy.RADIUS, Enemy.BODY_COLOR)
+		Audio.play(&"bumper", -2.0, 0.05, 0.8)
+		_camera.add_trauma(0.25)
+		if from_above:
+			_marble.launch(STOMP_BOUNCE)
+		return
+	_respawn()
+
+
+# --- Portals, keys and gates ------------------------------------------------
+
+
+## Turns the view to face the way the marble was thrown out, then catches up.
+func _on_portal_used(exit: Portal) -> void:
+	var out := exit.exit_direction()
+	_camera.yaw = atan2(-out.x, -out.z)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_camera.snap()
+
+
+func _on_key_collected(key: GateKey) -> void:
+	_keys += 1
+	_hud.set_keys(_keys)
+	_bursts.burst(key.global_position + Vector3.UP, GateKey.COLOR)
+	Audio.play(&"checkpoint", -2.0, 0.0, 1.3)
+
+
+func _on_gate_touched(gate: Gate) -> void:
+	if _keys <= 0:
+		_hud.show_tip("Locked. There is a key somewhere.")
+		return
+	_keys -= 1
+	_hud.set_keys(_keys)
+	gate.open()
+	Audio.play(&"unlock", -2.0)
 
 
 ## Puts the marble back at the last checkpoint. The clock keeps running: a fall
@@ -252,14 +315,24 @@ func _use_power_up() -> void:
 
 func _start_effect(kind: PowerUps.Kind) -> void:
 	_effects[kind] = PowerUps.duration(kind)
-	if kind == PowerUps.Kind.FEATHER:
-		_marble.gravity_scale = feather_gravity
+	match kind:
+		PowerUps.Kind.FEATHER:
+			_marble.gravity_scale = _level.gravity_scale * feather_gravity
+		PowerUps.Kind.SHIELD:
+			_marble.set_shielded(true)
+		PowerUps.Kind.DOUBLE_JUMP:
+			_marble.air_jumps = 1
 
 
 func _end_effect(kind: int) -> void:
 	_effects.erase(kind)
-	if kind == PowerUps.Kind.FEATHER:
-		_marble.gravity_scale = 1.0
+	match kind:
+		PowerUps.Kind.FEATHER:
+			_marble.gravity_scale = _level.gravity_scale
+		PowerUps.Kind.SHIELD:
+			_marble.set_shielded(false)
+		PowerUps.Kind.DOUBLE_JUMP:
+			_marble.air_jumps = 0
 
 
 func _tick_effects(delta: float) -> void:

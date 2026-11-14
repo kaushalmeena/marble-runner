@@ -23,6 +23,8 @@ enum Surface {
 const SHADER := preload("res://world/surface.gdshader")
 const ICE_COLOR := Color(0.72, 0.9, 1.0)
 const HAZARD_COLOR := Color(1.0, 0.2, 0.2)
+const PORTAL_COLORS: Array[Color] = [
+	Color(0.3, 0.8, 1.0), Color(1.0, 0.6, 0.2), Color(0.75, 0.45, 1.0)]
 
 var root: Node3D
 var start_position := Vector3(0.0, 1.0, 0.0)
@@ -34,6 +36,10 @@ var pickups: Array[PowerUpPickup] = []
 var checkpoints: Array[Checkpoint] = []
 var tips: Array[TriggerZone] = []
 var hazards: Array[TriggerZone] = []
+var enemies: Array[Enemy] = []
+var portals: Array[Portal] = []
+var keys: Array[GateKey] = []
+var gates: Array[Gate] = []
 ## Bounds of everything solid, for the fall limit and the scenery.
 var bounds := AABB()
 
@@ -253,6 +259,65 @@ func fan(at: Vector3, height: float = 12.0, radius: float = 2.2) -> Fan:
 	var column := Fan.new(height, radius)
 	_place(column, at)
 	return column
+
+
+## A guard gliding back and forth between [param at] and [param travel] away.
+func patroller(at: Vector3, travel: Vector3, period: float = 4.0) -> Enemy:
+	var guard := Enemy.new(Enemy.Mode.PATROL)
+	guard.travel = travel
+	guard.period = period
+	_place(guard, at)
+	enemies.append(guard)
+	return guard
+
+
+## A guard that hunts the marble while it is within [param leash] of [param at].
+func chaser(at: Vector3, leash: float = 8.0, speed: float = 4.5) -> Enemy:
+	var guard := Enemy.new(Enemy.Mode.CHASE)
+	guard.leash = leash
+	guard.speed = speed
+	_place(guard, at)
+	enemies.append(guard)
+	return guard
+
+
+## Two linked doors. Each yaw is the way the marble is thrown *out* of that
+## door: zero is down -Z, 90 is down -X.
+func portal_pair(first: Vector3, first_yaw: float, second: Vector3, second_yaw: float) -> void:
+	var color := PORTAL_COLORS[(portals.size() / 2) % PORTAL_COLORS.size()]
+	var a := Portal.new(color)
+	var b := Portal.new(color)
+	_place(a, first)
+	_place(b, second)
+	a.rotation.y = deg_to_rad(first_yaw)
+	b.rotation.y = deg_to_rad(second_yaw)
+	a.partner = b
+	b.partner = a
+	portals.append(a)
+	portals.append(b)
+
+
+func key(at: Vector3) -> GateKey:
+	var node := GateKey.new()
+	_place(node, at)
+	keys.append(node)
+	return node
+
+
+## A barred gate across the path, [param width] wide. Opens for one key.
+func gate(at: Vector3, width: float = 4.0, yaw_degrees: float = 0.0) -> Gate:
+	var node := Gate.new(width)
+	_place(node, at)
+	node.rotation.y = deg_to_rad(yaw_degrees)
+	gates.append(node)
+	return node
+
+
+## A box of water, by centre and size. Its top face is the surface.
+func water(center: Vector3, size: Vector3) -> WaterZone:
+	var pool := WaterZone.new(size)
+	_place(pool, center)
+	return pool
 
 
 ## A glowing red block that sends the marble back to its checkpoint.

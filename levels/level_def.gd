@@ -17,6 +17,8 @@ var biome: Biome = preload("res://resources/biomes/meadow.tres")
 ## Finishing at or under these earns the third and second star.
 var gold_time: float = 30.0
 var silver_time: float = 60.0
+## Multiplier on gravity for the whole level. Below 1 is the moon.
+var gravity_scale: float = 1.0
 
 
 func build(_b: LevelBuilder) -> void:
