@@ -1,5 +1,5 @@
 extends LevelDef
-## Air: fan columns that lift the marble to a hover, and the glider, which
+## Air: fan columns that lift the marble to a hover, and the plane, which
 ## turns a leap off a ledge into a glide.
 
 
@@ -23,8 +23,8 @@ func build(b: LevelBuilder) -> void:
 
 	b.floor(0, -17, 8, 8, 3, floor_kind, thin)
 	b.checkpoint(Vector3(0, 3, -15))
-	b.power_up(PowerUps.Kind.GLIDER, Vector3(0, 3, -17.5))
-	b.tip(Vector3(0, 3, -16), "The glider slows your fall. Take a run up, jump, and glide across.")
+	b.power_up(PowerUps.Kind.PLANE, Vector3(0, 3, -17.5))
+	b.tip(Vector3(0, 3, -16), "The plane slows your fall. Take a run up, jump, and glide across.")
 	b.gem(Vector3(0, 3, -19.5))
 
 	b.floor(0, -41.25, 8, 21.5, 3, floor_kind, thin)

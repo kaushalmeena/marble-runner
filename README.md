@@ -59,7 +59,7 @@ every gem to open the finish, then do it again faster for the stars.
 - **Worlds with weather** — pools you sink and swim in, low gravity on the
   moon, heavy gravity in the foundry, a wind that never stops, and night
   levels lit only by the marble. The HUD names what is in force.
-- **Nine power-ups** — super jump, boost, glider, magnet, stopwatch, shield,
+- **Nine power-ups** — super jump, boost, plane, magnet, stopwatch, shield,
   double jump, grip and flare. They switch on as you touch them, run side by
   side, and picking up another of the same adds its time.
 - **Traps** — pickups in a dark bubble that slow you, reverse your steering

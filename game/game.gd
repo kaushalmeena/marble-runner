@@ -23,9 +23,9 @@ const STOMP_BOUNCE := 8.0
 ## Top speed and torque multiplier while boost runs, and the shove on pickup.
 @export var boost_scale: float = 1.6
 @export var boost_kick: float = 16.0
-## Gravity multiplier on the way down while the glider is out. Going up is
+## Gravity multiplier on the way down while the plane is out. Going up is
 ## untouched: it slows a fall, it does not make a jump higher.
-@export var glider_fall: float = 0.3
+@export var plane_fall: float = 0.3
 ## Top speed multiplier while slowed, and what being heavy does to jumps and
 ## to gravity.
 @export var slow_scale: float = 0.45
@@ -71,7 +71,7 @@ var _lamp: OmniLight3D = null
 var _lit: bool = true
 var _light_tween: Tween
 var _wind_streaks: CPUParticles3D = null
-## Gravity on the marble before the glider has its say.
+## Gravity on the marble before the plane has its say.
 var _gravity: float = 1.0
 ## The wing flown over the marble while that power-up runs.
 var _wing: Node3D = null
@@ -194,10 +194,10 @@ func _physics_process(delta: float) -> void:
 	_tick_effects(delta)
 	if _effects.has(PowerUps.Kind.MAGNET):
 		_pull_gems(delta)
-	if _effects.has(PowerUps.Kind.GLIDER):
+	if _effects.has(PowerUps.Kind.PLANE):
 		# Only on the way down, and not under water.
 		var falling := _marble.linear_velocity.y < 0.0 and not _marble.in_water
-		_marble.gravity_scale = _gravity * (glider_fall if falling else 1.0)
+		_marble.gravity_scale = _gravity * (plane_fall if falling else 1.0)
 	if _level.wind != Vector3.ZERO and not _marble.in_water \
 			and not _effects.has(PowerUps.Kind.GRIP):
 		_marble.apply_central_force(_level.wind * _marble.mass)
@@ -317,11 +317,11 @@ func _on_gate_touched(gate: Gate) -> void:
 	Audio.play(&"unlock", -2.0)
 
 
-## A cannon's shot is worked out for a plain fall. A glider would carry the
+## A cannon's shot is worked out for a plain fall. A plane would carry the
 ## marble clean over the landing, so the blast tears it away.
 func _on_cannon_fired() -> void:
-	if _effects.has(PowerUps.Kind.GLIDER):
-		_end_effect(PowerUps.Kind.GLIDER)
+	if _effects.has(PowerUps.Kind.PLANE):
+		_end_effect(PowerUps.Kind.PLANE)
 		_marble.gravity_scale = _gravity
 
 
@@ -398,7 +398,7 @@ func _apply_effects() -> void:
 	var heavy: bool = has.call(PowerUps.Kind.HEAVY)
 	_gravity = _base_gravity * (heavy_gravity if heavy else 1.0)
 	_marble.gravity_scale = _gravity
-	_show_glider(has.call(PowerUps.Kind.GLIDER))
+	_show_plane(has.call(PowerUps.Kind.PLANE))
 	_marble.jump_speed = _marble_jump_speed * (
 		super_jump_scale if has.call(PowerUps.Kind.SUPER_JUMP) else 1.0) * (
 		heavy_jump if heavy else 1.0)
@@ -462,13 +462,13 @@ func _pull_gems(delta: float) -> void:
 			gem.global_position += offset.limit_length(magnet_pull * delta)
 
 
-## Shows or hides the glider over the marble.
-func _show_glider(out: bool) -> void:
+## Shows or hides the plane over the marble.
+func _show_plane(out: bool) -> void:
 	if _wing == null:
 		if not out:
 			return
-		var color := PowerUps.color(PowerUps.Kind.GLIDER)
-		_wing = PowerUpPickup.build_glider(Mats.glow(color, 0.5), Mats.glow(Color.WHITE, 0.4))
+		var color := PowerUps.color(PowerUps.Kind.PLANE)
+		_wing = PowerUpPickup.build_plane(Mats.glow(color, 0.5), Mats.glow(Color.WHITE, 0.4))
 		_wing.scale = Vector3.ONE * 1.6
 		add_child(_wing)
 	_wing.visible = out

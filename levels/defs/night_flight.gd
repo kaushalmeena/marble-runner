@@ -5,7 +5,7 @@ extends LevelDef
 func _init() -> void:
 	id = &"night_flight"
 	title = "Night Flight"
-	hint = "Cannons and a glider, and you cannot see where you land."
+	hint = "Cannons and a plane, and you cannot see where you land."
 	biome = preload("res://resources/biomes/night.tres")
 	dark = true
 	gold_time = 32.0

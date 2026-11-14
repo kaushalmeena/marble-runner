@@ -106,8 +106,8 @@ func _build_icon(color: Color) -> void:
 				var arrow := Mats.mesh(triangle, lit, Vector3.RIGHT * along)
 				arrow.rotation.z = -PI / 2.0
 				_body.add_child(arrow)
-		PowerUps.Kind.GLIDER:
-			_body.add_child(build_glider(lit, pale))
+		PowerUps.Kind.PLANE:
+			_body.add_child(build_plane(lit, pale))
 		PowerUps.Kind.MAGNET:
 			# A horseshoe: a round bend at the bottom, two legs, and pale tips.
 			const BEND_RADIUS := 0.3
@@ -244,8 +244,8 @@ func _build_icon(color: Color) -> void:
 ## A paper plane: two wings folded up from a keel. Shared with the game,
 ## which flies a small one over the marble while the power-up runs. The nose
 ## points down -Z.
-static func build_glider(wing_material: Material, keel_material: Material) -> Node3D:
-	var glider := Node3D.new()
+static func build_plane(wing_material: Material, keel_material: Material) -> Node3D:
+	var plane := Node3D.new()
 	# Folded paper is a single sheet, seen from underneath as often as above.
 	var paper := wing_material.duplicate() as BaseMaterial3D
 	paper.cull_mode = BaseMaterial3D.CULL_DISABLED
@@ -255,12 +255,12 @@ static func build_glider(wing_material: Material, keel_material: Material) -> No
 	var back := Vector3(0.0, 0.1, 0.36)
 	var keel := Vector3(0.0, -0.2, 0.36)
 	# The wing tips sit a little above the centre crease, as a dart's do.
-	glider.add_child(Mats.mesh(_triangles([
+	plane.add_child(Mats.mesh(_triangles([
 		nose, Vector3(-0.5, 0.16, 0.36), back,
 		nose, back, Vector3(0.5, 0.16, 0.36)]), paper))
-	glider.add_child(Mats.mesh(_triangles([nose, back, keel]), fold))
-	glider.rotation.x = 0.15
-	return glider
+	plane.add_child(Mats.mesh(_triangles([nose, back, keel]), fold))
+	plane.rotation.x = 0.15
+	return plane
 
 
 ## A flat-shaded mesh from a list of corners, three to a triangle.

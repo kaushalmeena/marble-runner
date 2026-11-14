@@ -2,7 +2,7 @@ extends LevelDef
 ## The last level: a staircase of separate steps spiralling round a tower.
 ## Every step is a jump, and the steps stop being trustworthy on the way up.
 ## The finish is not at the top: it is on an island far out and far below,
-## reached by taking the glider and stepping off.
+## reached by taking the plane and stepping off.
 
 
 func _init() -> void:
@@ -47,10 +47,10 @@ func build(b: LevelBuilder) -> void:
 	var summit := top + RISE
 	b.floor(0, 0, 11, 11, summit, LevelBuilder.Surface.FLOOR, 0.5)
 	b.checkpoint(Vector3(0, summit, 2.5))
-	b.power_up(PowerUps.Kind.GLIDER, Vector3(0, summit, 0))
+	b.power_up(PowerUps.Kind.PLANE, Vector3(0, summit, 0))
 	b.gem(Vector3(0, summit, -3.5))
-	b.tip(Vector3(0, summit, 1), "The finish is out there, below. Take the glider, run, and jump.")
-	# Too far for a bare jump from this height; an easy glide with the glider.
+	b.tip(Vector3(0, summit, 1), "The finish is out there, below. Take the plane, run, and jump.")
+	# Too far for a bare jump from this height; an easy glide with the plane.
 	b.floor(0, -36, 14, 16, 6.0, LevelBuilder.Surface.FLOOR, 0.5)
 	b.gem(Vector3(0, 6, -32))
 	b.finish_at(Vector3(0, 6, -38))

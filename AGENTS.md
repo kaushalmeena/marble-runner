@@ -90,8 +90,8 @@ Silent failures that cost real debugging time here:
   cannon) has to solve for it, or a two second flight lands a quarter short.
 - A light at the centre of the marble lights everything but the marble. The
   night lamp is held above it.
-- A cannon's shot is worked out for a plain fall. A glider or a wind
-  would carry the marble past the landing: the blast tears the glider away, and
+- A cannon's shot is worked out for a plain fall. A plane or a wind
+  would carry the marble past the landing: the blast tears the plane away, and
   windy levels have no cannons.
 - A ball free to roll receives only 2/7 of a moving platform's acceleration
   through friction. The marble is handed the rest directly, or it is left behind.

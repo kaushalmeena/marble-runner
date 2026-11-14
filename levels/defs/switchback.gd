@@ -33,7 +33,7 @@ func build(b: LevelBuilder) -> void:
 	t.bounce(3)
 	t.run(9, 1)
 	t.checkpoint()
-	t.tip("A long way down. Take the glider, run, and jump.")
+	t.tip("A long way down. Take the plane, run, and jump.")
 	t.glide(18, 6)
 	t.run(10, 1)
 	t.slalom(2)

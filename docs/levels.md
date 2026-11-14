@@ -55,7 +55,7 @@ func build(b: LevelBuilder) -> void:
 	t.step(0.8)             # a ledge
 	t.run(6)
 	t.checkpoint()
-	t.glide(18, 6)          # glider, then a leap 18 across and 6 down
+	t.glide(18, 6)          # plane, then a leap 18 across and 6 down
 	t.run(10, 1)
 	t.finish()
 ```
@@ -178,7 +178,7 @@ time, up to three pickups' worth. There is no button to spend one.
 | --- | --- | --- |
 | Super jump | 12 s | Jumps are about three and a half times as high |
 | Boost | 10 s | A shove on pickup, then a higher top speed |
-| Glider | 10 s | Falls at about a third of the level's gravity. Going up is untouched, so jumps are no higher: it is for leaping off something and gliding |
+| Plane | 10 s | Falls at about a third of the level's gravity. Going up is untouched, so jumps are no higher: it is for leaping off something and gliding |
 | Magnet | 15 s | Pulls gems within 7 units |
 | Stopwatch | 8 s | The clock stops |
 | Shield | 12 s | Rival marbles and hazards cannot hurt |

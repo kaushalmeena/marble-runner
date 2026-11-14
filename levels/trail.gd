@@ -208,13 +208,13 @@ func fan(rise: float) -> void:
 	way(2.2, 0.0, "h%.1f" % (at.y - 0.3))
 
 
-## A glider, then a leap [param distance] across and [param fall] down.
+## A plane, then a leap [param distance] across and [param fall] down.
 ## Follow it with at least 8 of floor. As a guide, from a running jump the
-## glider carries about 15 plus one and a half for every unit of fall;
+## plane carries about 15 plus one and a half for every unit of fall;
 ## without it the marble reaches about two thirds as far.
 func glide(distance: float, fall: float) -> void:
 	_clear_end()
-	b.power_up(PowerUps.Kind.GLIDER, pt(-5.0))
+	b.power_up(PowerUps.Kind.PLANE, pt(-5.0))
 	way(-5.0)
 	way(-0.5, 0.0, "f")
 	at = pt(distance, 0.0, -fall)
