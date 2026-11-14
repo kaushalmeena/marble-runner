@@ -106,8 +106,8 @@ func _build_icon(color: Color) -> void:
 				var arrow := Mats.mesh(triangle, lit, Vector3.RIGHT * along)
 				arrow.rotation.z = -PI / 2.0
 				_body.add_child(arrow)
-		PowerUps.Kind.UMBRELLA:
-			_body.add_child(build_umbrella(lit, pale))
+		PowerUps.Kind.GLIDER:
+			_body.add_child(build_glider(lit, pale))
 		PowerUps.Kind.MAGNET:
 			# A horseshoe: a round bend at the bottom, two legs, and pale tips.
 			const BEND_RADIUS := 0.3
@@ -241,63 +241,36 @@ func _build_icon(color: Color) -> void:
 			_body.add_child(Mats.mesh(crown, pale, Vector3(0.0, 0.58, 0.0)))
 
 
-## An open umbrella: a scalloped canopy on a stick with a hooked handle.
-## Shared with the game, which holds a small one over the marble while the
-## power-up runs.
-static func build_umbrella(canopy_material: Material, stick_material: Material) -> Node3D:
-	var umbrella := Node3D.new()
-	# The canopy is a single sheet, seen from underneath as often as above.
-	var cloth := canopy_material.duplicate() as BaseMaterial3D
+## A hang glider: a delta wing, a spine along it, and a ball slung beneath.
+## Shared with the game, which flies a small one over the marble while the
+## power-up runs. The nose points down -Z.
+static func build_glider(wing_material: Material, frame_material: Material) -> Node3D:
+	var glider := Node3D.new()
+	# The wing is a single sheet, seen from underneath as often as above.
+	var cloth := wing_material.duplicate() as BaseMaterial3D
 	cloth.cull_mode = BaseMaterial3D.CULL_DISABLED
-	umbrella.add_child(Mats.mesh(_umbrella_canopy(), cloth, Vector3.UP * 0.12))
-	var tip := CylinderMesh.new()
-	tip.top_radius = 0.0
-	tip.bottom_radius = 0.04
-	tip.height = 0.14
-	umbrella.add_child(Mats.mesh(tip, stick_material, Vector3.UP * 0.5))
-	# The stick and the hook are one tube, so the bend is smooth.
-	const HOOK := 0.1
-	var path := PackedVector3Array([Vector3(0.0, 0.4, 0.0), Vector3(0.0, -0.1, 0.0)])
-	for step in 15:
-		var angle := PI * 1.15 * step / 14.0
-		path.append(Vector3(HOOK - cos(angle) * HOOK, -0.36 - sin(angle) * HOOK, 0.0))
-	umbrella.add_child(Mats.mesh(Mats.tube(path, 0.032, 10, Vector3.BACK), stick_material))
-	return umbrella
-
-
-## The canopy: a shallow dome of eight panels. The rim hangs lowest at the
-## ribs and arches up between them, which is what gives an umbrella its
-## scalloped edge, and each panel is faceted so the ribs catch the light.
-static func _umbrella_canopy() -> ArrayMesh:
-	const RIBS := 8
-	const RADIUS := 0.52
-	const HEIGHT := 0.3
-	const ARCH := 0.11
-	const RINGS := 6
-	const SLICES := 6
+	var nose := Vector3(0.0, 0.12, -0.46)
+	var tail := Vector3(0.0, 0.1, 0.22)
 	var tool := SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	# A point on the canopy: [param out] is 0 at the crown and 1 at the rim,
-	# [param across] is 0..1 from one rib to the next.
-	var point := func(rib: int, across: float, out: float) -> Vector3:
-		var angle := TAU * (rib + across) / RIBS
-		var spread := sin(out * PI / 2.0) * RADIUS
-		var height := cos(out * PI / 2.0) * HEIGHT
-		# The lift is nothing at a rib, most half way between two, and grows
-		# toward the rim, so the crown stays round.
-		height += ARCH * sin(across * PI) * out * out * out
-		return Vector3(cos(angle) * spread, height, sin(angle) * spread)
-	for rib in RIBS:
-		for ring in RINGS:
-			for slice in SLICES:
-				var a: Vector3 = point.call(rib, float(slice) / SLICES, float(ring) / RINGS)
-				var b: Vector3 = point.call(rib, float(slice + 1) / SLICES, float(ring) / RINGS)
-				var c: Vector3 = point.call(rib, float(slice) / SLICES, float(ring + 1) / RINGS)
-				var d: Vector3 = point.call(rib, float(slice + 1) / SLICES, float(ring + 1) / RINGS)
-				for corner: Vector3 in [a, b, c, b, d, c]:
-					tool.add_vertex(corner)
+	# Wing tips sit higher than the spine, so the wing reads as a shallow V.
+	for corner: Vector3 in [nose, Vector3(-0.62, 0.22, 0.32), tail,
+			nose, tail, Vector3(0.62, 0.22, 0.32)]:
+		tool.add_vertex(corner)
 	tool.generate_normals()
-	return tool.commit()
+	glider.add_child(Mats.mesh(tool.commit(), cloth))
+	var spine := BoxMesh.new()
+	spine.size = Vector3(0.05, 0.05, 0.7)
+	glider.add_child(Mats.mesh(spine, frame_material, Vector3(0.0, 0.12, -0.12)))
+	var strut := BoxMesh.new()
+	strut.size = Vector3(0.03, 0.28, 0.03)
+	glider.add_child(Mats.mesh(strut, frame_material, Vector3(0.0, -0.03, -0.02)))
+	var pilot := SphereMesh.new()
+	pilot.radius = 0.12
+	pilot.height = 0.24
+	glider.add_child(Mats.mesh(pilot, frame_material, Vector3(0.0, -0.2, -0.02)))
+	glider.rotation.x = 0.2
+	return glider
 
 
 ## A point [param along] (0..1) a helix wound round the Y axis.

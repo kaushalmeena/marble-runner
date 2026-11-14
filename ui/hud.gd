@@ -13,7 +13,7 @@ extends Control
 
 const TIP_SECONDS := 4.5
 const EFFECT_KINDS: Array[PowerUps.Kind] = [
-	PowerUps.Kind.SUPER_JUMP, PowerUps.Kind.BOOST, PowerUps.Kind.UMBRELLA,
+	PowerUps.Kind.SUPER_JUMP, PowerUps.Kind.BOOST, PowerUps.Kind.GLIDER,
 	PowerUps.Kind.MAGNET, PowerUps.Kind.STOPWATCH, PowerUps.Kind.SHIELD,
 	PowerUps.Kind.DOUBLE_JUMP, PowerUps.Kind.GRIP, PowerUps.Kind.FLARE,
 	PowerUps.Kind.SLOW, PowerUps.Kind.DIZZY, PowerUps.Kind.HEAVY]
