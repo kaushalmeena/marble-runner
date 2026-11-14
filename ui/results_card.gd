@@ -14,18 +14,20 @@ var _coins: Label
 var _stars: StarRow
 var _next: Button
 var _retry: Button
+var _dim: ColorRect
+var _center: Control
 
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	hide()
-	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.04, 0.08, 0.6)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(dim)
+	_dim = Ui.shade(Color(0.02, 0.04, 0.08, 0.6))
+	_dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_dim)
 	var center := CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
+	_center = center
 	var card := PanelContainer.new()
 	center.add_child(card)
 	var box := Ui.column(2)
@@ -50,17 +52,19 @@ func _ready() -> void:
 	box.add_child(_coins)
 	box.add_child(Ui.gap(14))
 
-	var buttons := Ui.column(10)
+	var buttons := Ui.column(12)
 	buttons.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_next = Ui.button("Next Level", 300.0)
-	_retry = Ui.button("Retry", 300.0)
-	var levels := Ui.button("Levels", 300.0)
+	_next = Ui.button("Next Level", 340.0, Icon.Kind.NEXT, &"PrimaryButton")
+	_retry = Ui.button("Retry", 164.0, Icon.Kind.RESTART)
+	var levels := Ui.button("Levels", 164.0, Icon.Kind.LEVELS)
 	_next.pressed.connect(next_pressed.emit)
 	_retry.pressed.connect(retry_pressed.emit)
 	levels.pressed.connect(levels_pressed.emit)
+	var pair := Ui.row(12)
+	pair.add_child(_retry)
+	pair.add_child(levels)
 	buttons.add_child(_next)
-	buttons.add_child(_retry)
-	buttons.add_child(levels)
+	buttons.add_child(pair)
 	box.add_child(buttons)
 
 
@@ -69,7 +73,6 @@ func _ready() -> void:
 func present(level: LevelDef, time: float, outcome: Dictionary, has_next: bool) -> void:
 	_title.text = level.title
 	_time.text = LevelDef.format_time(time)
-	_stars.filled = outcome.stars
 	var previous: float = outcome.previous_best
 	if outcome.get("cheated", false):
 		_detail.text = "CHEATS USED   NOT RECORDED"
@@ -86,6 +89,18 @@ func present(level: LevelDef, time: float, outcome: Dictionary, has_next: bool) 
 	_next.disabled = not has_next
 	_next.text = "Next Level" if has_next else "All Levels Clear"
 	show()
-	modulate.a = 0.0
-	create_tween().tween_property(self, ^"modulate:a", 1.0, 0.25)
+	Ui.fade_in(_dim, 0.0, 0.25)
+	Ui.rise_in(_center, 34.0, 0.32)
+	# The stars land one at a time once the card is up.
+	_stars.filled = 0
+	var count := create_tween()
+	count.tween_interval(0.3)
+	for star in int(outcome.stars):
+		count.tween_callback(_light_star.bind(star + 1))
+		count.tween_interval(0.16)
 	(_next if has_next else _retry).grab_focus()
+
+
+func _light_star(count: int) -> void:
+	_stars.filled = count
+	Audio.play(&"pickup", -6.0, 0.0, 0.9 + 0.2 * count)

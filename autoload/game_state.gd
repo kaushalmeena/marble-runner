@@ -19,6 +19,7 @@ const SAVE_KEY_UNLOCKED := "unlocked_skins"
 const SAVE_KEY_SKIN := "selected_skin"
 const SAVE_KEY_TIMES := "best_times"
 const SAVE_KEY_UNLOCK_ALL := "all_unlocked"
+const SAVE_KEY_PAGE := "level_page"
 
 ## Coins for each gem, paid every time a level is finished. Replaying is the
 ## steady income.
@@ -33,6 +34,10 @@ var persist: bool = true
 
 ## Level played next, as an index into [LevelCatalog].
 var current_level: int = 0
+
+## Page of the level select last looked at, so it reopens where it was left.
+## Negative until the player has opened it once.
+var level_page: int = -1
 
 ## Coins banked across all runs.
 var coins: int = 0:
@@ -186,6 +191,7 @@ func load_progress() -> void:
 	if times is Dictionary:
 		_best_times = times
 	_all_unlocked = bool(config.get_value(SAVE_SECTION, SAVE_KEY_UNLOCK_ALL, false))
+	level_page = int(config.get_value(SAVE_SECTION, SAVE_KEY_PAGE, -1))
 
 
 func save_progress() -> void:
@@ -199,6 +205,7 @@ func save_progress() -> void:
 	config.set_value(SAVE_SECTION, SAVE_KEY_SKIN, String(selected_skin))
 	config.set_value(SAVE_SECTION, SAVE_KEY_TIMES, _best_times)
 	config.set_value(SAVE_SECTION, SAVE_KEY_UNLOCK_ALL, _all_unlocked)
+	config.set_value(SAVE_SECTION, SAVE_KEY_PAGE, level_page)
 	var error := config.save(SAVE_PATH)
 	if error != OK:
 		push_warning("Could not save progress to %s (error %d)." % [SAVE_PATH, error])

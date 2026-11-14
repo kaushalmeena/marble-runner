@@ -21,6 +21,16 @@ var silver_time: float = 60.0
 var gravity_scale: float = 1.0
 
 
+## What is unusual about this level's world, for the level card and the HUD.
+func conditions() -> PackedStringArray:
+	var tags := PackedStringArray()
+	if gravity_scale < 0.99:
+		tags.append("LOW GRAVITY")
+	elif gravity_scale > 1.01:
+		tags.append("HIGH GRAVITY")
+	return tags
+
+
 func build(_b: LevelBuilder) -> void:
 	pass
 

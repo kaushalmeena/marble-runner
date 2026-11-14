@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://ui/main_menu.gd" id="1_main_menu"]
 [ext_resource type="Script" path="res://ui/menu_backdrop.gd" id="2_backdrop"]
@@ -12,15 +12,6 @@ gradient = SubResource("Gradient_sky")
 width = 8
 height = 256
 fill_to = Vector2(0, 1)
-
-[sub_resource type="Gradient" id="Gradient_rule"]
-offsets = PackedFloat32Array(0, 0.5, 1)
-colors = PackedColorArray(0.42, 0.74, 1, 0, 0.42, 0.74, 1, 0.85, 0.42, 0.74, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_rule"]
-gradient = SubResource("Gradient_rule")
-width = 256
-height = 4
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -44,137 +35,3 @@ grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_sky")
 expand_mode = 1
-
-[node name="Center" type="CenterContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Column" type="VBoxContainer" parent="Center"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Kicker" type="Label" parent="Center/Column"]
-layout_mode = 2
-text = "COURSES IN THE SKY AND BEYOND"
-horizontal_alignment = 1
-theme_type_variation = &"CaptionLabel"
-
-[node name="Title" type="Label" parent="Center/Column"]
-layout_mode = 2
-text = "MARBLE RUNNER"
-horizontal_alignment = 1
-theme_type_variation = &"TitleLabel"
-
-[node name="Rule" type="TextureRect" parent="Center/Column"]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_rule")
-expand_mode = 1
-
-[node name="Tagline" type="Label" parent="Center/Column"]
-layout_mode = 2
-text = "Roll. Jump. Collect every gem. Beat the clock."
-horizontal_alignment = 1
-theme_type_variation = &"HintLabel"
-
-[node name="GapTop" type="Control" parent="Center/Column"]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Buttons" type="VBoxContainer" parent="Center/Column"]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 12
-
-[node name="PlayButton" type="Button" parent="Center/Column/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Play"
-
-[node name="LevelsButton" type="Button" parent="Center/Column/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Levels"
-
-[node name="ShopButton" type="Button" parent="Center/Column/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Shop"
-
-[node name="QuitButton" type="Button" parent="Center/Column/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Quit"
-
-[node name="Purse" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -220.0
-offset_top = 28.0
-offset_right = -40.0
-offset_bottom = 96.0
-grow_horizontal = 0
-mouse_filter = 2
-theme_override_constants/separation = -4
-
-[node name="Caption" type="Label" parent="Purse"]
-layout_mode = 2
-text = "COINS"
-horizontal_alignment = 2
-theme_type_variation = &"CaptionLabel"
-
-[node name="CoinsValue" type="Label" parent="Purse"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "0"
-horizontal_alignment = 2
-theme_type_variation = &"ValueLabel"
-
-[node name="StarsValue" type="Label" parent="Purse"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "0 / 36 STARS"
-horizontal_alignment = 2
-theme_type_variation = &"CaptionLabel"
-
-[node name="Controls" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -520.0
-offset_top = -76.0
-offset_right = 520.0
-offset_bottom = -34.0
-grow_horizontal = 2
-grow_vertical = 0
-mouse_filter = 2
-alignment = 1
-theme_override_constants/separation = 30
-
-[node name="Roll" type="Label" parent="Controls"]
-layout_mode = 2
-text = "W A S D / ARROWS    ROLL"
-theme_type_variation = &"CaptionLabel"
-
-[node name="Jump" type="Label" parent="Controls"]
-layout_mode = 2
-text = "SPACE    JUMP"
-theme_type_variation = &"CaptionLabel"
-
-[node name="Camera" type="Label" parent="Controls"]
-layout_mode = 2
-text = "Q E / MOUSE    CAMERA"
-theme_type_variation = &"CaptionLabel"
