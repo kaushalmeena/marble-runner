@@ -25,19 +25,19 @@
   <rect width="256" height="256" rx="56" fill="url(#sky)"/>
 
   <!-- The platform: two side faces, then four checker tiles on top. -->
-  <path d="M30 140 L128 182 L128 208 L30 166 Z" fill="#2F6B3C"/>
-  <path d="M128 182 L226 140 L226 166 L128 208 Z" fill="#245231"/>
-  <path d="M128 98 L177 119 L128 140 L79 119 Z" fill="#9BE07F"/>
-  <path d="M177 119 L226 140 L177 161 L128 140 Z" fill="#6FC360"/>
-  <path d="M79 119 L128 140 L79 161 L30 140 Z" fill="#6FC360"/>
-  <path d="M128 140 L177 161 L128 182 L79 161 Z" fill="#9BE07F"/>
+  <path d="M30 152 L128 194 L128 220 L30 178 Z" fill="#2F6B3C"/>
+  <path d="M128 194 L226 152 L226 178 L128 220 Z" fill="#245231"/>
+  <path d="M128 110 L177 131 L128 152 L79 131 Z" fill="#9BE07F"/>
+  <path d="M177 131 L226 152 L177 173 L128 152 Z" fill="#6FC360"/>
+  <path d="M79 131 L128 152 L79 173 L30 152 Z" fill="#6FC360"/>
+  <path d="M128 152 L177 173 L128 194 L79 173 Z" fill="#9BE07F"/>
 
   <!-- The marble, its shadow, and the veins that make it a marble. -->
-  <ellipse cx="128" cy="146" rx="36" ry="13" fill="#3C7F47"/>
-  <circle cx="128" cy="96" r="48" fill="url(#ball)"/>
-  <path d="M86 108 C104 88 128 120 150 98 C158 90 164 92 168 88" fill="none"
+  <ellipse cx="128" cy="158" rx="36" ry="13" fill="#3C7F47"/>
+  <circle cx="128" cy="108" r="48" fill="url(#ball)"/>
+  <path d="M86 120 C104 100 128 132 150 110 C158 102 164 104 168 100" fill="none"
         stroke="#CFE9FF" stroke-width="5" stroke-linecap="round"/>
-  <path d="M98 130 C114 120 126 136 146 126" fill="none"
+  <path d="M98 142 C114 132 126 148 146 138" fill="none"
         stroke="#9CD0FF" stroke-width="4" stroke-linecap="round"/>
-  <ellipse cx="110" cy="74" rx="15" ry="9" fill="#FFFFFF"/>
+  <ellipse cx="110" cy="86" rx="15" ry="9" fill="#FFFFFF"/>
 </svg>
