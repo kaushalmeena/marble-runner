@@ -72,14 +72,32 @@ func _build_icon(color: Color) -> void:
 	var pale := Mats.glow(Color(1.0, 1.0, 1.0), 0.5)
 	match kind:
 		PowerUps.Kind.SUPER_JUMP:
-			# A coiled spring: three rings stacked.
-			for height: float in [-0.26, 0.0, 0.26]:
-				var coil := TorusMesh.new()
-				coil.inner_radius = 0.22
-				coil.outer_radius = 0.38
-				var ring_mesh := Mats.mesh(coil, lit if height != 0.0 else pale, Vector3.UP * height)
-				ring_mesh.scale.y = 0.7
-				_body.add_child(ring_mesh)
+			# A coil spring: wire wound in a helix between two end plates.
+			const TURNS := 3.0
+			const COIL_RADIUS := 0.27
+			const COIL_HEIGHT := 0.62
+			const STEPS := 42
+			var wire := CylinderMesh.new()
+			wire.top_radius = 0.05
+			wire.bottom_radius = 0.05
+			wire.radial_segments = 6
+			# Each piece is a little longer than the gap it spans, so the
+			# wire reads as one continuous strand.
+			wire.height = TAU * COIL_RADIUS * TURNS / STEPS * 1.2
+			var previous := _helix_point(0.0, TURNS, COIL_RADIUS, COIL_HEIGHT)
+			for step in range(1, STEPS + 1):
+				var point := _helix_point(float(step) / STEPS, TURNS, COIL_RADIUS, COIL_HEIGHT)
+				var piece := Mats.mesh(wire, lit, (previous + point) / 2.0)
+				# A cylinder's axis is its local Y; lay it along the strand.
+				piece.basis = Basis(Quaternion(Vector3.UP, (point - previous).normalized()))
+				_body.add_child(piece)
+				previous = point
+			var plate := CylinderMesh.new()
+			plate.top_radius = COIL_RADIUS + 0.09
+			plate.bottom_radius = COIL_RADIUS + 0.09
+			plate.height = 0.07
+			for end: float in [-1.0, 1.0]:
+				_body.add_child(Mats.mesh(plate, pale, Vector3.UP * end * (COIL_HEIGHT / 2.0 + 0.05)))
 		PowerUps.Kind.BOOST:
 			# Two triangles side by side and pointing along: super jump turned
 			# on its side, a fast-forward sign.
@@ -169,6 +187,12 @@ func _build_icon(color: Color) -> void:
 			var crown := BoxMesh.new()
 			crown.size = Vector3(0.16, 0.16, 0.14)
 			_body.add_child(Mats.mesh(crown, pale, Vector3(0.0, 0.58, 0.0)))
+
+
+## A point [param along] (0..1) a helix wound round the Y axis.
+func _helix_point(along: float, turns: float, radius: float, height: float) -> Vector3:
+	var angle := along * turns * TAU
+	return Vector3(cos(angle) * radius, (along - 0.5) * height, sin(angle) * radius)
 
 
 func _on_body_entered(body: Node3D) -> void:
