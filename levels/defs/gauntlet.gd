@@ -25,7 +25,7 @@ func build(b: LevelBuilder) -> void:
 	b.gem(Vector3(-2.5, 0, -39))
 	b.gem(Vector3(2.5, 0, -39))
 
-	b.mover(Vector3(0, 0, -49.2), Vector2(4, 4), Vector3(0, 0, -10), 6.0)
+	b.mover(Vector3(0, 0, -49.2), Vector2(4, 4), Vector3(0, 0, -10), 8.0)
 	b.gem(Vector3(0, 0, -54))
 	b.floor(0, -69.4, 6, 16, 0, ice)
 	b.bumper(Vector3(-1.5, 0, -66))

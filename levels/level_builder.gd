@@ -133,7 +133,7 @@ func wall(from: Vector3, to: Vector3, height: float = 0.7, thickness: float = 0.
 
 ## A platform that glides between its starting point and [param travel] away
 ## from it. [param top] is the centre of its walkable surface.
-func mover(top: Vector3, size: Vector2, travel: Vector3, period: float = 6.0,
+func mover(top: Vector3, size: Vector2, travel: Vector3, period: float = 8.0,
 		phase: float = 0.0) -> Mover:
 	var body := Mover.new()
 	body.travel = travel

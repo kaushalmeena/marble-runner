@@ -28,7 +28,7 @@ const GROUND_NORMAL_Y := 0.35
 ## Airborne for less than this is a bump over a seam, not a landing.
 const MIN_AIR_TIME := 0.14
 ## How quickly an idle marble comes to rest on a moving platform, per second.
-const PLATFORM_SETTLE := 6.0
+const PLATFORM_SETTLE := 14.0
 
 @export_group("Rolling")
 ## Torque applied while a direction is held. Against the marble's inertia this
@@ -168,9 +168,11 @@ func _read_ground(state: PhysicsDirectBodyState3D) -> void:
 			landed.emit(maxf(0.0, -_previous_velocity.y))
 		_air_time = 0.0
 	else:
-		_platform = null
 		_coyote -= state.step
 		_air_time += state.step
+		# A hop over a seam should not count as leaving the platform.
+		if _air_time > MIN_AIR_TIME:
+			_platform = null
 	grounded = on_ground
 
 
@@ -196,15 +198,13 @@ func _read_surface(state: PhysicsDirectBodyState3D, contact: int) -> void:
 ## as the platform pulls away. Handing it the remainder directly is what makes
 ## a platform something you can stand on.
 func _ride(state: PhysicsDirectBodyState3D, platform: Mover) -> void:
-	if platform != null:
-		# Stepping onto a platform that is already moving counts as it having
-		# accelerated from rest under the marble.
-		var before := _platform_velocity if platform == _platform else Vector3.ZERO
-		var change := platform.velocity - before
+	if platform != null and platform == _platform:
+		var change := platform.velocity - _platform_velocity
 		change.y = 0.0
 		state.linear_velocity += change * (5.0 / 7.0)
-		_platform_velocity = platform.velocity
 	_platform = platform
+	if platform != null:
+		_platform_velocity = platform.velocity
 
 
 func _roll(state: PhysicsDirectBodyState3D) -> void:
