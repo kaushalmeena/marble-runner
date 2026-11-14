@@ -27,11 +27,36 @@ const SCRIPTS: Array[GDScript] = [
 	preload("res://levels/defs/clockwork.gd"),
 	preload("res://levels/defs/lunar_garden.gd"),
 	preload("res://levels/defs/far_side.gd"),
+	preload("res://levels/defs/belt_line.gd"),
+	preload("res://levels/defs/lights_out.gd"),
+	preload("res://levels/defs/red_light.gd"),
+	preload("res://levels/defs/push_button.gd"),
+	preload("res://levels/defs/tar_pit.gd"),
+	preload("res://levels/defs/cannonball.gd"),
+	preload("res://levels/defs/sentry_row.gd"),
+	preload("res://levels/defs/booby_traps.gd"),
+	preload("res://levels/defs/night_watch.gd"),
+	preload("res://levels/defs/assembly_line.gd"),
+	preload("res://levels/defs/switchyard.gd"),
+	preload("res://levels/defs/graveyard_shift.gd"),
+	preload("res://levels/defs/crosswind.gd"),
+	preload("res://levels/defs/headwind.gd"),
+	preload("res://levels/defs/heavy_metal.gd"),
+	preload("res://levels/defs/gale_force.gd"),
+	preload("res://levels/defs/mire.gd"),
+	preload("res://levels/defs/blackout.gd"),
+	preload("res://levels/defs/barrage.gd"),
+	preload("res://levels/defs/lead_boots.gd"),
+	preload("res://levels/defs/stormglass.gd"),
+	preload("res://levels/defs/flooded_works.gd"),
+	preload("res://levels/defs/eye_of_storm.gd"),
+	preload("res://levels/defs/storm_peak.gd"),
 ]
 
 ## Levels shown per page of the level select, and what each page is called.
 const PAGE_SIZE := 12
-const PAGE_TITLES: Array[String] = ["SKY COURSES", "FAR SIDE"]
+const PAGE_TITLES: Array[String] = [
+	"SKY COURSES", "FAR SIDE", "NIGHT SHIFT", "STORM PEAK"]
 
 static var _levels: Array[LevelDef] = []
 

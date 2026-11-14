@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Biome" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://world/biome.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+biome_name = "Storm"
+ground_color = Color(0.5, 0.52, 0.6, 1)
+stripe_color = Color(0.1, 0.1, 0.14, 0.3)
+foliage_color = Color(0.55, 0.6, 0.95, 1)
+bark_color = Color(0.3, 0.26, 0.28, 1)
+rock_color = Color(0.3, 0.32, 0.42, 1)
+fog_color = Color(0.6, 0.62, 0.72, 1)
+sky_top_color = Color(0.2, 0.22, 0.34, 1)
+sky_horizon_color = Color(0.6, 0.62, 0.72, 1)
+sky_ground_color = Color(0.6, 0.62, 0.72, 1)
+sun_color = Color(0.9, 0.92, 1, 1)
