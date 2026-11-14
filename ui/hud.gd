@@ -16,7 +16,7 @@ const FROZEN_COLOR := Color(0.78, 0.6, 1.0)
 const EMPTY_SLOT := Color(1.0, 1.0, 1.0, 0.4)
 
 var _gems_value: Label
-var _clock: Label
+var _clock: ClockLabel
 var _best: Label
 var _slot_name: Label
 var _tip_panel: PanelContainer
@@ -99,7 +99,7 @@ func show_banner(text: String, seconds: float = 0.8, color := Color.WHITE) -> vo
 	_banner.text = text
 	_banner.modulate = color
 	_banner.pivot_offset = _banner.size / 2.0
-	_banner.scale = Vector2.ONE * 1.25
+	_banner.scale = Vector2.ONE * 1.15
 	if _banner_tween != null:
 		_banner_tween.kill()
 	_banner_tween = create_tween()
@@ -131,8 +131,8 @@ func _build_gems() -> void:
 
 func _build_clock() -> void:
 	var box := Ui.column(-12)
-	_clock = Ui.label("0:00.00", &"ScoreLabel", HORIZONTAL_ALIGNMENT_CENTER)
-	_clock.custom_minimum_size.x = 300.0
+	_clock = ClockLabel.new(&"ScoreLabel")
+	_clock.custom_minimum_size.x = 340.0
 	box.add_child(_clock)
 	_best = Ui.label("", &"CaptionLabel", HORIZONTAL_ALIGNMENT_CENTER)
 	box.add_child(_best)
@@ -184,14 +184,17 @@ func _build_tip() -> void:
 
 
 func _build_banner() -> void:
+	# Full width and centred by alignment, not by growing from a point: a
+	# label that grows from its centre is briefly mis-sized when its text
+	# changes, which put short banners half off the screen.
 	_banner = Ui.label("", &"TitleLabel", HORIZONTAL_ALIGNMENT_CENTER)
 	_banner.modulate.a = 0.0
-	add_child(_banner)
-	_banner.set_anchors_preset(Control.PRESET_CENTER)
-	_banner.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_banner.anchor_left = 0.0
+	_banner.anchor_right = 1.0
+	_banner.anchor_top = 0.3
+	_banner.anchor_bottom = 0.3
 	_banner.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_banner.offset_top = -120.0
-	_banner.offset_bottom = -120.0
+	add_child(_banner)
 	_flash = ColorRect.new()
 	_flash.color = Color(1, 1, 1, 0)
 	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE

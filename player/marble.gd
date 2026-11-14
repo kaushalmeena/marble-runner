@@ -36,7 +36,7 @@ const MIN_AIR_TIME := 0.14
 ## on rails made of treacle for the first half second.
 @export var ground_push: float = 5.0
 ## The same push in the air, where torque does nothing. This is the air control.
-@export var air_push: float = 6.0
+@export var air_push: float = 8.0
 ## Input stops adding speed past this. Ramps, pads and gravity can still exceed it.
 @export var max_speed: float = 13.0
 

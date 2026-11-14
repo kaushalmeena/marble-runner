@@ -33,10 +33,15 @@ extends Camera3D
 @export var shake_decay: float = 2.6
 @export var shake_frequency: float = 26.0
 
+## Closest the camera will be pushed in, and the gap it keeps from a wall.
+const MIN_DISTANCE := 1.2
+const WALL_GAP := 0.3
+
 var yaw: float = 0.0
 var target: Marble = null
 
 var _focus := Vector3.ZERO
+var _distance_now: float = 6.5
 var _manual_cooldown: float = 0.0
 var _trauma: float = 0.0
 var _time: float = 0.0
@@ -101,6 +106,19 @@ func _process(delta: float) -> void:
 	_place(delta)
 
 
+## How far back the camera can sit before something solid gets in the way.
+## Without this a marble at the foot of a cliff is watched from inside the cliff.
+func _clear_distance(pivot: Vector3, back: Vector3) -> float:
+	var query := PhysicsRayQueryParameters3D.create(pivot, pivot + back * (distance + WALL_GAP), 1)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var wanted := distance
+	if not hit.is_empty():
+		wanted = maxf(MIN_DISTANCE, pivot.distance_to(hit.position) - WALL_GAP)
+	# Pull in at once, ease back out, so the view never pops through a wall.
+	_distance_now = wanted if wanted < _distance_now else lerpf(_distance_now, wanted, 0.08)
+	return _distance_now
+
+
 func _auto_follow(delta: float) -> void:
 	if not Settings.auto_camera or _manual_cooldown > 0.0:
 		return
@@ -118,8 +136,8 @@ func _auto_follow(delta: float) -> void:
 
 func _place(delta: float) -> void:
 	var orbit := Basis.from_euler(Vector3(pitch, yaw, 0.0))
-	global_transform = Transform3D(
-		orbit, _focus + Vector3.UP * focus_height + orbit.z * distance)
+	var pivot := _focus + Vector3.UP * focus_height
+	global_transform = Transform3D(orbit, pivot + orbit.z * _clear_distance(pivot, orbit.z))
 
 	var speed := target.linear_velocity.length()
 	var wanted_fov := base_fov + speed_fov * clampf(speed / 22.0, 0.0, 1.0)

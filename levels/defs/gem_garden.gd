@@ -30,7 +30,7 @@ func build(b: LevelBuilder) -> void:
 	# A raised walkway across the back, with a ramp up at either end.
 	b.ramp(Vector3(10, 0, 6), Vector3(10, 3, -5), 4)
 	b.floor(10, -8, 6, 6, 3, LevelBuilder.Surface.FLOOR, 0.5)
-	b.floor(0, -8, 14, 2, 3, LevelBuilder.Surface.FLOOR, 0.5)
+	b.floor(0, -8, 14, 3, 3, LevelBuilder.Surface.FLOOR, 0.5)
 	b.floor(-10, -8, 6, 6, 3, LevelBuilder.Surface.FLOOR, 0.5)
 	b.ramp(Vector3(-10, 0, 6), Vector3(-10, 3, -5), 4)
 	b.gem_line(Vector3(-10, 3, -8), Vector3(10, 3, -8), 5)

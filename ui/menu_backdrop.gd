@@ -24,7 +24,7 @@ func _ready() -> void:
 	var level := LevelCatalog.at(index)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-50.0, 35.0, 0.0)
-	sun.light_energy = 1.1
+	sun.light_energy = 0.85
 	sun.shadow_enabled = true
 	add_child(sun)
 	var environment: Environment = ENVIRONMENT.duplicate(true)
