@@ -72,16 +72,12 @@ func _build_icon(color: Color) -> void:
 	var pale := Mats.glow(Color(1.0, 1.0, 1.0), 0.5)
 	match kind:
 		PowerUps.Kind.SUPER_JUMP:
-			# One upward arrow: a shaft and a head, no taller than the others.
-			var shaft := BoxMesh.new()
-			shaft.size = Vector3(0.2, 0.36, 0.2)
-			_body.add_child(Mats.mesh(shaft, lit, Vector3.UP * -0.2))
-			var head := CylinderMesh.new()
-			head.top_radius = 0.0
-			head.bottom_radius = 0.36
-			head.height = 0.42
-			head.radial_segments = 4
-			_body.add_child(Mats.mesh(head, lit, Vector3.UP * 0.18))
+			# Two triangles stacked and pointing up: the boost chevrons, stood
+			# on end.
+			for height: float in [-0.2, 0.2]:
+				var triangle := PrismMesh.new()
+				triangle.size = Vector3(0.62, 0.4, 0.2)
+				_body.add_child(Mats.mesh(triangle, lit, Vector3.UP * height))
 		PowerUps.Kind.BOOST:
 			# Three chevrons in a row, like the pads on the floor.
 			for index in 3:
@@ -133,17 +129,28 @@ func _build_icon(color: Color) -> void:
 					stroke.rotation.z = side * SLANT
 					feather.add_child(stroke)
 		PowerUps.Kind.MAGNET:
-			# A horseshoe: two legs, a bridge, and pale tips.
+			# A horseshoe: a round bend at the bottom, two legs, and pale tips.
+			const BEND_RADIUS := 0.3
+			const THICKNESS := 0.2
+			const DEPTH := 0.22
+			const SEGMENTS := 12
+			# The bend is a half circle of short blocks, overlapped so no gaps
+			# show on the outside of the curve.
+			var block := BoxMesh.new()
+			block.size = Vector3(PI * BEND_RADIUS / SEGMENTS * 1.5, THICKNESS, DEPTH)
+			for index in SEGMENTS + 1:
+				var angle := PI + PI * index / SEGMENTS
+				var piece := Mats.mesh(block, lit, Vector3(
+					cos(angle) * BEND_RADIUS, sin(angle) * BEND_RADIUS, 0.0))
+				piece.rotation.z = angle + PI / 2.0
+				_body.add_child(piece)
 			var leg := BoxMesh.new()
-			leg.size = Vector3(0.2, 0.62, 0.22)
+			leg.size = Vector3(THICKNESS, 0.3, DEPTH)
 			var tip := BoxMesh.new()
-			tip.size = Vector3(0.22, 0.18, 0.24)
+			tip.size = Vector3(THICKNESS + 0.02, 0.16, DEPTH + 0.02)
 			for side: float in [-1.0, 1.0]:
-				_body.add_child(Mats.mesh(leg, lit, Vector3(side * 0.3, 0.0, 0.0)))
-				_body.add_child(Mats.mesh(tip, pale, Vector3(side * 0.3, 0.4, 0.0)))
-			var bridge := BoxMesh.new()
-			bridge.size = Vector3(0.8, 0.2, 0.22)
-			_body.add_child(Mats.mesh(bridge, lit, Vector3(0.0, -0.36, 0.0)))
+				_body.add_child(Mats.mesh(leg, lit, Vector3(side * BEND_RADIUS, 0.15, 0.0)))
+				_body.add_child(Mats.mesh(tip, pale, Vector3(side * BEND_RADIUS, 0.38, 0.0)))
 		PowerUps.Kind.STOPWATCH:
 			# A clock face on edge, with hands and a crown.
 			var face := CylinderMesh.new()
