@@ -1,9 +1,9 @@
 # Marble Runner
 
 A Godot marble platformer: roll, jump, swim and glide a physics marble through
-sixty floating levels, collect every gem, reach the finish, beat the
-clock. Levels are
-short scripts, not scenes — adding one involves no editor work at all.
+sixty floating levels, collect every gem, reach the finish, beat the clock,
+and find the secret diamond hidden in each. Levels are short scripts, not
+scenes — adding one involves no editor work at all.
 
 ## Done means it runs
 
@@ -16,7 +16,8 @@ godot --headless --import            # surfaces script errors
 godot                                # play it
 ```
 
-A level is only done when it has been finished by hand, start to finish.
+A level is only done when it has been finished by hand, start to finish, and
+its secret diamond found by hand too.
 
 ## Reading the codebase
 

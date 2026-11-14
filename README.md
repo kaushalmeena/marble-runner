@@ -152,8 +152,8 @@ The camera also follows the marble on its own, so the movement keys and
 ### Cheats
 
 Type a word during a level. There is no prompt; the HUD confirms it. A run that
-used a cheat still finishes, but records no time, stars, gems or secret diamond and does not
-unlock the next level. The last two do not touch the run, so they are exempt.
+used a cheat still finishes, but records no time, stars, gems or secret
+diamond, and does not unlock the next level. The last two do not touch the run, so they are exempt.
 
 | Code | Effect |
 | --- | --- |

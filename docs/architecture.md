@@ -9,9 +9,10 @@ anything.
 autoload/      GameState (progress, gems, secret diamonds, skins), SceneManager, Audio, Controls
 game/          Gameplay root, the orbit camera and the cheat codes
 player/        The marble
-levels/        LevelDef, LevelBuilder, LevelCatalog, and one script per level
-gimmicks/      Gems, finish, checkpoints, pickups, pads, bumpers, movers, fans,
-               rival marbles, portals, keys and gates, water
+levels/        LevelDef, LevelBuilder, Trail, LevelCatalog, and one script per level
+gimmicks/      Gems, the secret diamond, finish, checkpoints, pickups, pads,
+               bumpers, movers, fans, belts, tar, beams, button bridges,
+               cannons, rival marbles, portals, keys and gates, water
 powerups/      The table describing each power-up
 effects/       Particle burst emitter
 world/         The tile shader, shared material helpers, biome palettes
@@ -59,6 +60,11 @@ A level is a `LevelDef` subclass. Its `build(b)` calls `LevelBuilder`:
 collision shape and material, and returns lists of the things the game needs to
 listen to. See [Levels](./levels.md).
 
+Long levels are laid out with `Trail`, a helper over the builder that keeps a
+cursor and builds one stretch at a time: run, turn, gap, climb, glide. The
+later levels of each course are hand-built for their first half and trailed
+for their second.
+
 `LevelCatalog` holds the scripts in unlock order. The menus build a real level
 behind themselves through the same builder, so there is no separate "menu art".
 
@@ -70,8 +76,8 @@ picture:
 - `Marble` knows nothing about levels, gems or the clock. Anything it bumps
   into that has an `on_marble_hit` method gets told; that is the whole contract.
 - Gimmicks act on the marble directly. A `BoostPad` calls `marble.boost()`.
-- Gems, pickups, checkpoints, hazards, rival marbles, keys, gates and the
-  finish emit a signal and do nothing else. `game.gd` connects them and
+- Gems, the secret diamond, pickups, checkpoints, hazards, rival marbles,
+  cannons, keys, gates and the finish emit a signal and do nothing else. `game.gd` connects them and
   decides what they mean.
 - `Cheats` recognises typed words and nothing more. What a code does is in
   `game.gd`. A run that used one is finished but not recorded.
