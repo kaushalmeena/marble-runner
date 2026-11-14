@@ -72,12 +72,14 @@ func _build_icon(color: Color) -> void:
 	var pale := Mats.glow(Color(1.0, 1.0, 1.0), 0.5)
 	match kind:
 		PowerUps.Kind.SUPER_JUMP:
-			# Two triangles stacked and pointing up: the boost chevrons, stood
-			# on end.
-			for height: float in [-0.2, 0.2]:
-				var triangle := PrismMesh.new()
-				triangle.size = Vector3(0.62, 0.4, 0.2)
-				_body.add_child(Mats.mesh(triangle, lit, Vector3.UP * height))
+			# A coiled spring: three rings stacked.
+			for height: float in [-0.26, 0.0, 0.26]:
+				var coil := TorusMesh.new()
+				coil.inner_radius = 0.22
+				coil.outer_radius = 0.38
+				var ring_mesh := Mats.mesh(coil, lit if height != 0.0 else pale, Vector3.UP * height)
+				ring_mesh.scale.y = 0.7
+				_body.add_child(ring_mesh)
 		PowerUps.Kind.BOOST:
 			# Two triangles side by side and pointing along: super jump turned
 			# on its side, a fast-forward sign.
@@ -143,14 +145,12 @@ func _build_icon(color: Color) -> void:
 			stud.scale.z = 0.6
 			_body.add_child(stud)
 		PowerUps.Kind.DOUBLE_JUMP:
-			# A coiled spring: three rings stacked.
-			for height: float in [-0.26, 0.0, 0.26]:
-				var coil := TorusMesh.new()
-				coil.inner_radius = 0.22
-				coil.outer_radius = 0.38
-				var ring_mesh := Mats.mesh(coil, lit if height != 0.0 else pale, Vector3.UP * height)
-				ring_mesh.scale.y = 0.7
-				_body.add_child(ring_mesh)
+			# Two triangles stacked and pointing up: boost stood on end, one
+			# arrow for each jump.
+			for height: float in [-0.2, 0.2]:
+				var triangle := PrismMesh.new()
+				triangle.size = Vector3(0.62, 0.4, 0.2)
+				_body.add_child(Mats.mesh(triangle, lit, Vector3.UP * height))
 		PowerUps.Kind.STOPWATCH:
 			# A clock face on edge, with hands and a crown.
 			var face := CylinderMesh.new()
