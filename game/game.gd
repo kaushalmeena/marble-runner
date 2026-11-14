@@ -23,8 +23,9 @@ const STOMP_BOUNCE := 8.0
 ## Top speed and torque multiplier while boost runs, and the shove on pickup.
 @export var boost_scale: float = 1.6
 @export var boost_kick: float = 16.0
-## Gravity multiplier while the feather runs.
-@export var feather_gravity: float = 0.3
+## Gravity multiplier on the way down while the umbrella is open. Going up is
+## untouched: it slows a fall, it does not make a jump higher.
+@export var umbrella_fall: float = 0.3
 ## Top speed multiplier while slowed, and what being heavy does to jumps and
 ## to gravity.
 @export var slow_scale: float = 0.45
@@ -70,6 +71,10 @@ var _lamp: OmniLight3D = null
 var _lit: bool = true
 var _light_tween: Tween
 var _wind_streaks: CPUParticles3D = null
+## Gravity on the marble before the umbrella has its say.
+var _gravity: float = 1.0
+## The little umbrella held over the marble while that power-up runs.
+var _canopy: Node3D = null
 
 
 func _ready() -> void:
@@ -127,6 +132,8 @@ func _connect_level() -> void:
 		portal.used.connect(_on_portal_used)
 	for key in _builder.keys:
 		key.collected.connect(_on_key_collected)
+	for cannon in _builder.cannons:
+		cannon.fired.connect(_on_cannon_fired)
 	for gate in _builder.gates:
 		gate.touched.connect(_on_gate_touched)
 	if _builder.finish != null:
@@ -163,6 +170,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process(_delta: float) -> void:
 	_hud.set_time(_time, _effects.has(PowerUps.Kind.STOPWATCH))
 	_hud.set_underwater(_marble.in_water)
+	if _canopy != null and _canopy.visible:
+		_canopy.global_position = _marble.global_position + Vector3.UP * 0.95
 	if _lamp != null:
 		_lamp.global_position = _marble.global_position + Vector3.UP * 1.8
 	if _wind_streaks != null:
@@ -180,6 +189,10 @@ func _physics_process(delta: float) -> void:
 	_tick_effects(delta)
 	if _effects.has(PowerUps.Kind.MAGNET):
 		_pull_gems(delta)
+	if _effects.has(PowerUps.Kind.UMBRELLA):
+		# Open only on the way down, and not under water.
+		var falling := _marble.linear_velocity.y < 0.0 and not _marble.in_water
+		_marble.gravity_scale = _gravity * (umbrella_fall if falling else 1.0)
 	if _level.wind != Vector3.ZERO and not _marble.in_water \
 			and not _effects.has(PowerUps.Kind.GRIP):
 		_marble.apply_central_force(_level.wind * _marble.mass)
@@ -299,6 +312,14 @@ func _on_gate_touched(gate: Gate) -> void:
 	Audio.play(&"unlock", -2.0)
 
 
+## A cannon's shot is worked out for a plain fall. An open umbrella would
+## carry the marble clean over the landing, so the blast folds it.
+func _on_cannon_fired() -> void:
+	if _effects.has(PowerUps.Kind.UMBRELLA):
+		_end_effect(PowerUps.Kind.UMBRELLA)
+		_marble.gravity_scale = _gravity
+
+
 ## Puts the marble back at the last checkpoint. The clock keeps running: a fall
 ## costs time, not the attempt.
 func _respawn() -> void:
@@ -370,9 +391,9 @@ func _end_effect(kind: int) -> void:
 func _apply_effects() -> void:
 	var has := func(kind: PowerUps.Kind) -> bool: return _effects.has(kind)
 	var heavy: bool = has.call(PowerUps.Kind.HEAVY)
-	_marble.gravity_scale = _base_gravity * (
-		feather_gravity if has.call(PowerUps.Kind.FEATHER) else 1.0) * (
-		heavy_gravity if heavy else 1.0)
+	_gravity = _base_gravity * (heavy_gravity if heavy else 1.0)
+	_marble.gravity_scale = _gravity
+	_show_umbrella(has.call(PowerUps.Kind.UMBRELLA))
 	_marble.jump_speed = _marble_jump_speed * (
 		super_jump_scale if has.call(PowerUps.Kind.SUPER_JUMP) else 1.0) * (
 		heavy_jump if heavy else 1.0)
@@ -434,6 +455,18 @@ func _pull_gems(delta: float) -> void:
 		var offset := target - gem.global_position
 		if offset.length() < magnet_radius:
 			gem.global_position += offset.limit_length(magnet_pull * delta)
+
+
+## Shows or hides the umbrella over the marble.
+func _show_umbrella(open: bool) -> void:
+	if _canopy == null:
+		if not open:
+			return
+		var color := PowerUps.color(PowerUps.Kind.UMBRELLA)
+		_canopy = PowerUpPickup.build_umbrella(Mats.glow(color, 0.5), Mats.glow(Color.WHITE, 0.4))
+		_canopy.scale = Vector3.ONE * 1.7
+		add_child(_canopy)
+	_canopy.visible = open
 
 
 # --- Night and wind -----------------------------------------------------------

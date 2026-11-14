@@ -40,8 +40,16 @@ var enemies: Array[Enemy] = []
 var portals: Array[Portal] = []
 var keys: Array[GateKey] = []
 var gates: Array[Gate] = []
+var cannons: Array[Cannon] = []
 ## True once any water has been placed, for the HUD's level conditions.
 var has_water: bool = false
+## The line a test bot follows through the level, as "x,z,flags" waypoints,
+## written by [Trail] as it lays the path. Nothing in the game reads it.
+var route := PackedStringArray()
+## Where that line begins, and how many gems were placed before it, for
+## levels whose first stretch was laid out by hand.
+var route_start := Vector3.ZERO
+var route_from_gem: int = 0
 ## Bounds of everything solid, for the fall limit and the scenery.
 var bounds := AABB()
 
@@ -387,6 +395,7 @@ func button(at: Vector3, targets: Array, seconds: float = 0.0) -> FloorButton:
 func cannon(at: Vector3, target: Vector3, flight: float = 1.6) -> Cannon:
 	var gun := Cannon.new(target - at, flight)
 	_place(gun, at)
+	cannons.append(gun)
 	return gun
 
 

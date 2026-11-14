@@ -1,6 +1,6 @@
 extends LevelDef
-## Air: fan columns that lift the marble to a hover, and the feather, which
-## turns a jump into a glide.
+## Air: fan columns that lift the marble to a hover, and the umbrella, which
+## turns a leap off a ledge into a glide.
 
 
 func _init() -> void:
@@ -23,11 +23,11 @@ func build(b: LevelBuilder) -> void:
 
 	b.floor(0, -17, 8, 8, 3, floor_kind, thin)
 	b.checkpoint(Vector3(0, 3, -15))
-	b.power_up(PowerUps.Kind.FEATHER, Vector3(0, 3, -17.5))
-	b.tip(Vector3(0, 3, -16), "The feather is running. Take a run up, jump, and float across.")
+	b.power_up(PowerUps.Kind.UMBRELLA, Vector3(0, 3, -17.5))
+	b.tip(Vector3(0, 3, -16), "The umbrella slows your fall. Take a run up, jump, and glide across.")
 	b.gem(Vector3(0, 3, -19.5))
 
-	b.floor(0, -44, 8, 16, 3, floor_kind, thin)
+	b.floor(0, -41.25, 8, 21.5, 3, floor_kind, thin)
 	b.checkpoint(Vector3(0, 3, -39))
 	b.gem(Vector3(-2, 3, -43))
 	b.fan(Vector3(7, -2, -41), 16)
@@ -39,4 +39,22 @@ func build(b: LevelBuilder) -> void:
 	b.fan(Vector3(14, 1, -48), 16)
 	b.gem(Vector3(14, 8, -48))
 	b.floor(14, -55, 8, 8, 8, floor_kind, thin)
-	b.finish_at(Vector3(14, 8, -56))
+	# The finish used to stand here. Now it is a checkpoint, and the level
+	# carries on: the second half is laid out as a trail.
+	b.checkpoint(Vector3(14, 8, -56))
+	var left := Trail.LEFT
+	var t := Trail.new(b, Vector3(14, 8, -59), 0)
+	t.fan(4)
+	t.run(9, 1)
+	t.glide(18, 5)
+	t.run(10, 1)
+	t.turn(left)
+	t.fan(5)
+	t.run(9)
+	t.beam(8, 1)
+	t.run(8)
+	t.glide(20, 6)
+	t.run(10, 1)
+	t.crumbles(3)
+	t.run(5)
+	t.finish()

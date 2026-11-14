@@ -15,7 +15,7 @@ extends RefCounted
 enum Kind {
 	SUPER_JUMP,
 	BOOST,
-	FEATHER,
+	UMBRELLA,
 	MAGNET,
 	STOPWATCH,
 	SHIELD,
@@ -32,7 +32,7 @@ const AILMENTS: Array[Kind] = [Kind.SLOW, Kind.DIZZY, Kind.HEAVY]
 const LABELS: Dictionary = {
 	Kind.SUPER_JUMP: "SUPER JUMP",
 	Kind.BOOST: "BOOST",
-	Kind.FEATHER: "FEATHER",
+	Kind.UMBRELLA: "UMBRELLA",
 	Kind.MAGNET: "MAGNET",
 	Kind.STOPWATCH: "STOPWATCH",
 	Kind.SHIELD: "SHIELD",
@@ -48,7 +48,7 @@ const LABELS: Dictionary = {
 const HINTS: Dictionary = {
 	Kind.SUPER_JUMP: "Your jumps go far higher for a while.",
 	Kind.BOOST: "A shove now, and a higher top speed for a while.",
-	Kind.FEATHER: "You fall slowly for a while. Jump and glide.",
+	Kind.UMBRELLA: "You fall slowly for a while. Leap off something high and glide.",
 	Kind.MAGNET: "Pulls nearby gems to you.",
 	Kind.STOPWATCH: "The clock is frozen.",
 	Kind.SHIELD: "Rival marbles and red bars cannot hurt you.",
@@ -63,7 +63,7 @@ const HINTS: Dictionary = {
 const COLORS: Dictionary = {
 	Kind.SUPER_JUMP: Color(1.0, 0.85, 0.25),
 	Kind.BOOST: Color(0.3, 1.0, 0.6),
-	Kind.FEATHER: Color(0.75, 0.9, 1.0),
+	Kind.UMBRELLA: Color(0.75, 0.9, 1.0),
 	Kind.MAGNET: Color(1.0, 0.5, 0.25),
 	Kind.STOPWATCH: Color(0.72, 0.5, 1.0),
 	Kind.SHIELD: Color(0.35, 0.65, 1.0),
@@ -79,7 +79,7 @@ const COLORS: Dictionary = {
 const DURATIONS: Dictionary = {
 	Kind.SUPER_JUMP: 12.0,
 	Kind.BOOST: 10.0,
-	Kind.FEATHER: 10.0,
+	Kind.UMBRELLA: 10.0,
 	Kind.MAGNET: 15.0,
 	Kind.STOPWATCH: 8.0,
 	Kind.SHIELD: 12.0,

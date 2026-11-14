@@ -4,7 +4,10 @@ extends Area3D
 ##
 ## The shot is worked out when it is fired, from wherever gravity stands at
 ## that moment, so the landing spot is the same on the moon, on a heavy world
-## or under a feather.
+## or weighed down by a trap.
+
+## The marble has just been fired.
+signal fired
 
 const COLOR := Color(1.0, 0.55, 0.15)
 const MUZZLE := Vector3(0.0, 1.0, 0.0)
@@ -79,3 +82,4 @@ func _on_body_entered(body: Node3D) -> void:
 		ProjectSettings.get_setting("physics/3d/default_linear_damp"))
 	marble.teleport(global_position + MUZZLE, _shot(marble.gravity_scale, drag))
 	Audio.play(&"boost", -2.0, 0.0, 0.7)
+	fired.emit()
