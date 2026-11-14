@@ -241,36 +241,36 @@ func _build_icon(color: Color) -> void:
 			_body.add_child(Mats.mesh(crown, pale, Vector3(0.0, 0.58, 0.0)))
 
 
-## A hang glider: a delta wing, a spine along it, and a ball slung beneath.
-## Shared with the game, which flies a small one over the marble while the
-## power-up runs. The nose points down -Z.
-static func build_glider(wing_material: Material, frame_material: Material) -> Node3D:
+## A paper plane: two wings folded up from a keel. Shared with the game,
+## which flies a small one over the marble while the power-up runs. The nose
+## points down -Z.
+static func build_glider(wing_material: Material, keel_material: Material) -> Node3D:
 	var glider := Node3D.new()
-	# The wing is a single sheet, seen from underneath as often as above.
-	var cloth := wing_material.duplicate() as BaseMaterial3D
-	cloth.cull_mode = BaseMaterial3D.CULL_DISABLED
-	var nose := Vector3(0.0, 0.12, -0.46)
-	var tail := Vector3(0.0, 0.1, 0.22)
+	# Folded paper is a single sheet, seen from underneath as often as above.
+	var paper := wing_material.duplicate() as BaseMaterial3D
+	paper.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var fold := keel_material.duplicate() as BaseMaterial3D
+	fold.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var nose := Vector3(0.0, 0.02, -0.52)
+	var back := Vector3(0.0, 0.1, 0.36)
+	var keel := Vector3(0.0, -0.2, 0.36)
+	# The wing tips sit a little above the centre crease, as a dart's do.
+	glider.add_child(Mats.mesh(_triangles([
+		nose, Vector3(-0.5, 0.16, 0.36), back,
+		nose, back, Vector3(0.5, 0.16, 0.36)]), paper))
+	glider.add_child(Mats.mesh(_triangles([nose, back, keel]), fold))
+	glider.rotation.x = 0.15
+	return glider
+
+
+## A flat-shaded mesh from a list of corners, three to a triangle.
+static func _triangles(corners: Array[Vector3]) -> ArrayMesh:
 	var tool := SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	# Wing tips sit higher than the spine, so the wing reads as a shallow V.
-	for corner: Vector3 in [nose, Vector3(-0.62, 0.22, 0.32), tail,
-			nose, tail, Vector3(0.62, 0.22, 0.32)]:
+	for corner in corners:
 		tool.add_vertex(corner)
 	tool.generate_normals()
-	glider.add_child(Mats.mesh(tool.commit(), cloth))
-	var spine := BoxMesh.new()
-	spine.size = Vector3(0.05, 0.05, 0.7)
-	glider.add_child(Mats.mesh(spine, frame_material, Vector3(0.0, 0.12, -0.12)))
-	var strut := BoxMesh.new()
-	strut.size = Vector3(0.03, 0.28, 0.03)
-	glider.add_child(Mats.mesh(strut, frame_material, Vector3(0.0, -0.03, -0.02)))
-	var pilot := SphereMesh.new()
-	pilot.radius = 0.12
-	pilot.height = 0.24
-	glider.add_child(Mats.mesh(pilot, frame_material, Vector3(0.0, -0.2, -0.02)))
-	glider.rotation.x = 0.2
-	return glider
+	return tool.commit()
 
 
 ## A point [param along] (0..1) a helix wound round the Y axis.

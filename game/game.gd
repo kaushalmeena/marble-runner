@@ -172,7 +172,7 @@ func _process(delta: float) -> void:
 	_hud.set_underwater(_marble.in_water)
 	if _wing != null and _wing.visible:
 		# Over the marble, nose to the way it is travelling.
-		_wing.global_position = _marble.global_position + Vector3.UP * 0.95
+		_wing.global_position = _marble.global_position + Vector3.UP * 1.05
 		var heading := Vector3(_marble.linear_velocity.x, 0.0, _marble.linear_velocity.z)
 		if heading.length() > 1.0:
 			_wing.rotation.y = lerp_angle(_wing.rotation.y, atan2(-heading.x, -heading.z),
