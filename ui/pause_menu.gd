@@ -5,17 +5,21 @@ extends Control
 ## receiving input after it has frozen everything else.
 
 @onready var _resume_button: Button = %ResumeButton
+@onready var _restart_button: Button = %RestartButton
+@onready var _levels_button: Button = %LevelsButton
 @onready var _menu_button: Button = %MenuButton
 
 
 func _ready() -> void:
 	hide()
 	_resume_button.pressed.connect(resume)
+	_restart_button.pressed.connect(SceneManager.restart_level)
+	_levels_button.pressed.connect(SceneManager.goto_level_select)
 	_menu_button.pressed.connect(SceneManager.goto_main_menu)
 
 
-## Alt-tabbing mid-run used to be a death sentence: the world kept scrolling
-## while the window was in the background.
+## Alt-tabbing mid-level pauses, so the clock does not run while the window is
+## in the background.
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_APPLICATION_FOCUS_OUT \
 			and what != NOTIFICATION_WM_WINDOW_FOCUS_OUT:
@@ -36,6 +40,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func pause() -> void:
 	get_tree().paused = true
+	# Free the pointer if mouse look had captured it, or the menu is unclickable.
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	show()
 	_resume_button.grab_focus()
 

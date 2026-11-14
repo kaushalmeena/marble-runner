@@ -4,16 +4,19 @@ extends Control
 @onready var _volume_slider: HSlider = %VolumeSlider
 @onready var _volume_value: Label = %VolumeValue
 @onready var _reduced_motion: CheckButton = %ReducedMotionToggle
+@onready var _auto_camera: CheckButton = %AutoCameraToggle
 @onready var _back_button: Button = %BackButton
 
 
 func _ready() -> void:
 	_volume_slider.value = Settings.sfx_volume * 100.0
 	_reduced_motion.button_pressed = Settings.reduced_motion
+	_auto_camera.button_pressed = Settings.auto_camera
 	_show_volume()
 
 	_volume_slider.value_changed.connect(_on_volume_changed)
 	_reduced_motion.toggled.connect(_on_reduced_motion_toggled)
+	_auto_camera.toggled.connect(_on_auto_camera_toggled)
 	_back_button.pressed.connect(_leave)
 	_back_button.grab_focus()
 
@@ -33,6 +36,10 @@ func _on_volume_changed(value: float) -> void:
 
 func _on_reduced_motion_toggled(pressed: bool) -> void:
 	Settings.reduced_motion = pressed
+
+
+func _on_auto_camera_toggled(pressed: bool) -> void:
+	Settings.auto_camera = pressed
 
 
 func _show_volume() -> void:
