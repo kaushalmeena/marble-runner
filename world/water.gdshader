@@ -17,14 +17,34 @@ void vertex() {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 }
 
+// Value noise: a random level at each grid corner, blended smoothly between.
+float hash(vec2 cell) {
+	return fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float noise(vec2 point) {
+	vec2 cell = floor(point);
+	vec2 f = fract(point);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(
+		mix(hash(cell), hash(cell + vec2(1.0, 0.0)), f.x),
+		mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0, 1.0)), f.x), f.y);
+}
+
 void fragment() {
-	float t = TIME * 0.8;
-	// Two crossing swells and a finer chop, from position so neighbouring
-	// pools would line up.
-	float swell = sin(world_position.x * 1.7 + t) * sin(world_position.z * 1.3 - t * 1.2)
-		+ 0.5 * sin((world_position.x + world_position.z) * 2.9 + t * 1.7);
-	float crest = smoothstep(0.8, 1.25, swell);
-	ALBEDO = mix(deep, shallow, clamp(0.5 + 0.3 * swell, 0.0, 1.0)) + crest * 0.22;
+	float t = TIME * 0.35;
+	vec2 at = world_position.xz;
+	// Sine swells repeat, and across a wide pool the eye picks the repeat out
+	// at once. Noise does not: one slow layer bends the position the finer
+	// layers are read at, and the layers drift in different directions, so no
+	// patch of water ever looks like the patch beside it.
+	vec2 bend = vec2(noise(at * 0.23 + vec2(t, -t * 0.7)), noise(at * 0.23 + vec2(-t * 0.6, t) + 7.3));
+	vec2 warped = at + (bend - 0.5) * 3.0;
+	float swell = noise(warped * 0.55 + vec2(t * 0.9, t * 0.4)) * 0.6
+		+ noise(warped * 1.3 - vec2(t * 0.7, -t * 1.1)) * 0.3
+		+ noise(warped * 2.9 + vec2(-t * 1.6, t * 1.3)) * 0.1;
+	float crest = smoothstep(0.62, 0.74, swell);
+	ALBEDO = mix(deep, shallow, smoothstep(0.25, 0.75, swell)) + crest * 0.2;
 	ALPHA = opacity;
 	ROUGHNESS = 0.08;
 	SPECULAR = 0.6;
