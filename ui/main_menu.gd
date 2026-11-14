@@ -4,7 +4,6 @@ extends Control
 @onready var _play_button: Button = %PlayButton
 @onready var _levels_button: Button = %LevelsButton
 @onready var _shop_button: Button = %ShopButton
-@onready var _settings_button: Button = %SettingsButton
 @onready var _quit_button: Button = %QuitButton
 @onready var _coins_value: Label = %CoinsValue
 @onready var _stars_value: Label = %StarsValue
@@ -20,7 +19,6 @@ func _ready() -> void:
 	_play_button.pressed.connect(SceneManager.continue_game)
 	_levels_button.pressed.connect(SceneManager.goto_level_select)
 	_shop_button.pressed.connect(SceneManager.goto_shop)
-	_settings_button.pressed.connect(SceneManager.goto_settings)
 	_quit_button.pressed.connect(SceneManager.quit_game)
 	# A browser tab cannot be quit from inside the page.
 	_quit_button.visible = not OS.has_feature("web")

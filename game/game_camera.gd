@@ -13,10 +13,12 @@ extends Camera3D
 @export_range(-80.0, 10.0, 1.0, "radians_as_degrees") var pitch: float = deg_to_rad(-22.0)
 ## Radians per second while a camera key is held.
 @export var key_turn_speed: float = 2.4
-## Radians per pixel of mouse travel, before the sensitivity setting.
+## Radians per pixel of mouse travel.
 @export var mouse_turn_speed: float = 0.0035
 
 @export_group("Auto follow")
+## Lets the view drift round behind the marble on its own.
+@export var auto_follow: bool = true
 ## How eagerly the view swings behind the marble. Deliberately lazy: a camera
 ## that snaps to the velocity makes a sideways roll spiral.
 @export var follow_rate: float = 1.5
@@ -66,8 +68,6 @@ func follow(marble: Marble, heading: float) -> void:
 
 ## Adds to the shake, clamped so repeated hits cannot stack into nausea.
 func add_trauma(amount: float) -> void:
-	if Settings.reduced_motion:
-		return
 	_trauma = clampf(_trauma + amount, 0.0, 1.0)
 
 
@@ -81,7 +81,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var motion := event as InputEventMouseMotion
 	if motion == null or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
-	var scale := mouse_turn_speed * Settings.mouse_sensitivity
+	var scale := mouse_turn_speed
 	yaw -= motion.relative.x * scale
 	pitch = clampf(pitch - motion.relative.y * scale, deg_to_rad(-75.0), deg_to_rad(5.0))
 	_manual_cooldown = manual_hold
@@ -120,7 +120,7 @@ func _clear_distance(pivot: Vector3, back: Vector3) -> float:
 
 
 func _auto_follow(delta: float) -> void:
-	if not Settings.auto_camera or _manual_cooldown > 0.0:
+	if not auto_follow or _manual_cooldown > 0.0:
 		return
 	var velocity := target.linear_velocity
 	velocity.y = 0.0

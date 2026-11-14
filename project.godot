@@ -21,7 +21,6 @@ config/icon="res://icon.svg"
 
 GameState="*res://autoload/game_state.gd"
 SceneManager="*res://autoload/scene_manager.gd"
-Settings="*res://autoload/settings.gd"
 Audio="*res://autoload/audio.gd"
 Controls="*res://autoload/controls.gd"
 
@@ -43,9 +42,9 @@ theme/custom="res://resources/theme/marble_runner_theme.tres"
 [physics]
 
 3d/physics_engine="Jolt Physics"
-3d/default_gravity=20.0
 jolt_physics_3d/simulation/penetration_slop=0.002
 jolt_physics_3d/simulation/speculative_contact_distance=0.002
+3d/default_gravity=20.0
 common/physics_interpolation=true
 
 [rendering]

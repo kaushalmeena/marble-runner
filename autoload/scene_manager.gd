@@ -5,7 +5,6 @@ const MAIN_MENU := "res://ui/main_menu.tscn"
 const LEVEL_SELECT := "res://ui/level_select.tscn"
 const GAME := "res://game/game.tscn"
 const SHOP_MENU := "res://ui/shop_menu.tscn"
-const SETTINGS := "res://ui/settings_menu.tscn"
 
 
 func goto_main_menu() -> void:
@@ -33,10 +32,6 @@ func continue_game() -> void:
 
 func goto_shop() -> void:
 	_change_scene(SHOP_MENU)
-
-
-func goto_settings() -> void:
-	_change_scene(SETTINGS)
 
 
 func quit_game() -> void:

@@ -2,7 +2,7 @@ class_name CrumbleTile
 extends StaticBody3D
 ## A tile that drops away shortly after it is touched, then grows back.
 
-const WARN_SECONDS := 0.55
+const WARN_SECONDS := 0.9
 const GONE_SECONDS := 3.0
 
 var _mesh: MeshInstance3D

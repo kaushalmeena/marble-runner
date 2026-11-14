@@ -27,7 +27,7 @@ func build(b: LevelBuilder) -> void:
 	b.tip(Vector3(0, 3, -16), "Take a run up, jump, then SHIFT to float across.")
 	b.gem(Vector3(0, 3, -19.5))
 
-	b.floor(0, -41, 8, 10, 3, floor_kind, thin)
+	b.floor(0, -44, 8, 16, 3, floor_kind, thin)
 	b.checkpoint(Vector3(0, 3, -39))
 	b.gem(Vector3(-2, 3, -43))
 	b.fan(Vector3(7, -2, -41), 16)

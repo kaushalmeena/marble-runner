@@ -72,14 +72,16 @@ func _build_icon(color: Color) -> void:
 	var pale := Mats.glow(Color(1.0, 1.0, 1.0), 0.5)
 	match kind:
 		PowerUps.Kind.SUPER_JUMP:
-			# Two stacked arrowheads pointing up.
-			for height: float in [-0.22, 0.28]:
-				var head := CylinderMesh.new()
-				head.top_radius = 0.0
-				head.bottom_radius = 0.46
-				head.height = 0.5
-				head.radial_segments = 4
-				_body.add_child(Mats.mesh(head, lit, Vector3.UP * height))
+			# One upward arrow: a shaft and a head, no taller than the others.
+			var shaft := BoxMesh.new()
+			shaft.size = Vector3(0.2, 0.36, 0.2)
+			_body.add_child(Mats.mesh(shaft, lit, Vector3.UP * -0.2))
+			var head := CylinderMesh.new()
+			head.top_radius = 0.0
+			head.bottom_radius = 0.36
+			head.height = 0.42
+			head.radial_segments = 4
+			_body.add_child(Mats.mesh(head, lit, Vector3.UP * 0.18))
 		PowerUps.Kind.BOOST:
 			# Three chevrons in a row, like the pads on the floor.
 			for index in 3:
@@ -89,19 +91,37 @@ func _build_icon(color: Color) -> void:
 				chevron.rotation.x = -PI / 2.0
 				_body.add_child(chevron)
 		PowerUps.Kind.FEATHER:
-			# A pair of spread wings.
-			for side: float in [-1.0, 1.0]:
-				var wing := SphereMesh.new()
-				wing.radius = 0.5
-				wing.height = 1.0
-				var part := Mats.mesh(wing, pale, Vector3(side * 0.36, 0.06, 0.0))
-				part.scale = Vector3(0.9, 0.16, 0.5)
-				part.rotation.z = side * 0.5
-				_body.add_child(part)
-			var body := SphereMesh.new()
-			body.radius = 0.16
-			body.height = 0.32
-			_body.add_child(Mats.mesh(body, lit))
+			# A feather: a leaf-shaped vane leaning on a quill that pokes out
+			# below it.
+			var feather := Node3D.new()
+			feather.rotation.z = -0.45
+			_body.add_child(feather)
+			var vane := SphereMesh.new()
+			vane.radius = 0.5
+			vane.height = 1.0
+			# Two vanes at right angles: a single flat one vanishes edge-on
+			# every half turn.
+			for turn: float in [0.0, PI / 2.0]:
+				var blade := Mats.mesh(vane, pale, Vector3.UP * 0.12)
+				blade.scale = Vector3(0.36, 0.72, 0.07)
+				blade.rotation.y = turn
+				feather.add_child(blade)
+			var quill := CylinderMesh.new()
+			quill.top_radius = 0.012
+			quill.bottom_radius = 0.035
+			quill.height = 1.05
+			feather.add_child(Mats.mesh(quill, lit, Vector3.UP * -0.05))
+			# Barbs: short strokes off the quill, so it does not read as a leaf.
+			var barb := BoxMesh.new()
+			barb.size = Vector3(0.3, 0.025, 0.09)
+			for index in 4:
+				for side: float in [-1.0, 1.0]:
+					for turn: float in [0.0, PI / 2.0]:
+						var stroke := Mats.mesh(barb, lit)
+						stroke.position = Basis(Vector3.UP, turn) * Vector3(
+							side * 0.1, -0.12 + index * 0.17, 0.0)
+						stroke.rotation = Vector3(0.0, turn, side * 0.6)
+						feather.add_child(stroke)
 		PowerUps.Kind.MAGNET:
 			# A horseshoe: two legs, a bridge, and pale tips.
 			var leg := BoxMesh.new()
