@@ -16,6 +16,8 @@ func build(b: LevelBuilder) -> void:
 	var thin := 0.5
 	var floor_kind := LevelBuilder.Surface.FLOOR
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the lip of the starting pad, on the right.
+	b.secret_nook(Vector3(4, 0, -3), Vector3.RIGHT)
 	b.tip(Vector3(0, 0, 0), "Rings are doors. You come out as fast as you went in.")
 	b.floor(0, -3, 8, 10)
 	b.portal_pair(Vector3(0, 0, -6.5), 180, Vector3(29, 6, -39.5), 0)

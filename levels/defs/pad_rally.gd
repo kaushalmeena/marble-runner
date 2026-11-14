@@ -16,6 +16,8 @@ func build(b: LevelBuilder) -> void:
 	var thin := 0.5
 	var floor_kind := LevelBuilder.Surface.FLOOR
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the lip of the first lane, on the right, well down it.
+	b.secret_nook(Vector3(3, 0, -36), Vector3.RIGHT)
 	b.floor(0, -22, 6, 48)
 	b.power_up(PowerUps.Kind.SHIELD, Vector3(0, 0, -2.5))
 	b.tip(Vector3(0, 0, -1), "Shield up before the pad if you want a clean run.")

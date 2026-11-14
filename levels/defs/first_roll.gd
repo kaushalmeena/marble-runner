@@ -13,6 +13,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 1))
+	# The secret diamond: on a ledge behind the start, over the kerb.
+	b.secret_ledge(Vector3(0, -2.5, 7.5))
 	b.tip(Vector3(0, 0, 1), "W A S D or the arrow keys roll the marble.")
 	b.floor(0, -7, 8, 22)
 	b.wall(Vector3(-3.8, 0, 3.8), Vector3(3.8, 0, 3.8))

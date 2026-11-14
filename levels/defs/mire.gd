@@ -16,7 +16,9 @@ func build(b: LevelBuilder) -> void:
 	b.floor(0, -30, 16, 64)
 	b.power_up(PowerUps.Kind.GRIP, Vector3(0, 0, -6))
 	b.mud(0, -16, 16, 12)
-	b.chaser(Vector3(0, 0, -17), 7.0, 3.2)
+	# The secret diamond: the first hunter is carrying it. Pop the hunter.
+	var keeper := b.chaser(Vector3(0, 0, -17), 7.0, 3.2)
+	keeper.reveals = [b.secret(Vector3(0, 0, -12), true)]
 	b.gem(Vector3(-5, 0, -14))
 	b.gem(Vector3(5, 0, -18))
 	b.checkpoint(Vector3(0, 0, -26))

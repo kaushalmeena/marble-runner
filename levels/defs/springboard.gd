@@ -17,6 +17,8 @@ func build(b: LevelBuilder) -> void:
 	var floor_kind := LevelBuilder.Surface.FLOOR
 	var double_jump := PowerUps.Kind.DOUBLE_JUMP
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: a ledge above the top deck, a double jump up and to the left.
+	b.secret_ledge(Vector3(-7, 9.4, -39))
 	b.floor(0, -3, 10, 10)
 	b.power_up(double_jump, Vector3(0, 0, -4))
 	b.tip(Vector3(0, 0, -2), "With DOUBLE JUMP running, press SPACE again in mid-air.")

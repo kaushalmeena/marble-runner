@@ -18,6 +18,7 @@ func build(b: LevelBuilder) -> void:
 	var t := Trail.new(b)
 	t.gravity_scale = 1.4
 	t.start()
+	t.secret_behind()
 	t.run(8, 1)
 	t.step(0.6)
 	t.run(6)

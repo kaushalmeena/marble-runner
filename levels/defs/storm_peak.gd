@@ -55,7 +55,7 @@ func build(b: LevelBuilder) -> void:
 	t.turn(right)
 	t.bridge(14, 5.5, 2)
 	t.run(6)
-	t.patrol()
+	t.secret_guard()
 	t.turn(left)
 	t.beam(12, 2, 2.0)
 	t.run(5)

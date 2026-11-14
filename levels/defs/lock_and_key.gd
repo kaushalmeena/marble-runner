@@ -15,6 +15,8 @@ func _init() -> void:
 func build(b: LevelBuilder) -> void:
 	var thin := 0.5
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: a ledge past the far side of the deck the bounce pad throws you onto.
+	b.secret_ledge(Vector3(-16.5, 3, -15))
 	b.tip(Vector3(0, 0, 0), "Gates open for a key. One key, one gate.")
 	b.floor(0, -8, 10, 20)
 

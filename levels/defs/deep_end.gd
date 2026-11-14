@@ -16,6 +16,8 @@ func build(b: LevelBuilder) -> void:
 	var floor_kind := LevelBuilder.Surface.FLOOR
 	var wall := LevelBuilder.Surface.WALL
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: on the bottom of the first pool, in the corner under the starting cliff.
+	b.secret(Vector3(-4, -5, -7))
 	b.tip(Vector3(0, 0, 0), "Roll in. You sink slowly, and SPACE swims you up.")
 	b.floor(0, -2, 10, 8, 0, floor_kind, 5.5)
 

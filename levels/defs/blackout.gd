@@ -15,6 +15,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the lip of the middle floor, on the upwind side.
+	b.secret_nook(Vector3(-3, 0, -30), Vector3.LEFT)
 	b.floor(0, -6, 6, 16)
 	var first := b.bridge(0, -19, 4, 10)
 	b.button(Vector3(0, 0, -11), [first])

@@ -13,6 +13,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the far lip of the side floor the last button stands on.
+	b.secret_nook(Vector3(12, 0, -47), Vector3.RIGHT)
 	b.floor(0, -4, 8, 12)
 	b.tip(Vector3(0, 0, -3), "Roll over the button. It builds the bridge.")
 	var first := b.bridge(0, -14, 4, 8)

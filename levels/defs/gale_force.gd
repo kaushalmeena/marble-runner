@@ -14,6 +14,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: a ledge downwind of the third platform. Let the wind take you.
+	b.secret_ledge(Vector3(-7, -2.5, -28))
 	b.floor(0, -4, 8, 12)
 	b.tip(Vector3(0, 0, -3), "The wind blows left. Aim your jumps a little right.")
 	b.floor(0, -17, 6, 8)

@@ -20,6 +20,7 @@ func build(b: LevelBuilder) -> void:
 	t.run(4)
 	t.ice(12, 2)
 	t.run(5)
+	t.secret_below(Trail.LEFT)
 	t.checkpoint()
 	t.turn(left)
 	t.beam(14, 2, 1.6)

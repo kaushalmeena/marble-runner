@@ -20,6 +20,8 @@ func build(b: LevelBuilder) -> void:
 	const RISE := 0.7
 	const TURN := 32.0
 	b.start(Vector3(0, 0, 13), 0)
+	# The secret diamond: on the ground behind the tower, where the climb never takes you.
+	b.secret(Vector3(0, 0, -13))
 	b.tip(Vector3(0, 0, 13), "Up. Hold SPACE and keep turning with the tower.")
 	b.floor(0, 0, 30, 30)
 	var top := RISE * STEPS

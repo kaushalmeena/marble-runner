@@ -20,6 +20,7 @@ func build(b: LevelBuilder) -> void:
 	t.run(6, 1)
 	t.cannon(26, 4)
 	t.run(18, 2)
+	t.secret_side(Trail.RIGHT)
 	t.checkpoint()
 	t.lasers(2)
 	t.turn(left)

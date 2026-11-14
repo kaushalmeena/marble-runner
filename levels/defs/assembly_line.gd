@@ -46,6 +46,7 @@ func build(b: LevelBuilder) -> void:
 	t.turn(right)
 	t.belt(12, true)
 	t.run(5)
+	t.secret_below(Trail.LEFT)
 	t.crumbles(4)
 	t.run(5)
 	t.bridge(12, 5.0, 2)

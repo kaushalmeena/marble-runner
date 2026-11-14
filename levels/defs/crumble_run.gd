@@ -51,6 +51,7 @@ func build(b: LevelBuilder) -> void:
 	var t := Trail.new(b, Vector3(0, 3.6, -87), 0)
 	t.crumbles(4)
 	t.run(5)
+	t.secret_below(Trail.LEFT)
 	t.turn(right)
 	t.gap(3)
 	t.run(4)

@@ -12,6 +12,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the lip of the first floor, on the right.
+	b.secret_nook(Vector3(3, 0, -4), Vector3.RIGHT)
 	b.tip(Vector3(0, 0, 0), "SPACE jumps. You can steer in the air.")
 	b.floor(0, -4, 6, 12)
 	b.gem(Vector3(0, 0, -7))

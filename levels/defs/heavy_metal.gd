@@ -15,6 +15,8 @@ func _init() -> void:
 func build(b: LevelBuilder) -> void:
 	var floor_kind := LevelBuilder.Surface.FLOOR
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: on a ledge behind and below the start.
+	b.secret_ledge(Vector3(0, -2, 5))
 	b.floor(0, -6, 8, 16)
 	b.tip(Vector3(0, 0, -3), "Heavy gravity. Your jumps are low and short.")
 	b.gem(Vector3(0, 0, -10))

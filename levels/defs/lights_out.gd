@@ -14,6 +14,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: a ledge off the dead end of the first corner, out in the dark.
+	b.secret_ledge(Vector3(-7.5, -2, -18))
 	b.floor(0, -6, 8, 16)
 	b.tip(Vector3(0, 0, -3), "It is night. Your marble lights the way, and gems glow.")
 	b.gem_line(Vector3(0, 0, -5), Vector3(0, 0, -12), 3)

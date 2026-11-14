@@ -39,6 +39,7 @@ func build(b: LevelBuilder) -> void:
 	t.lasers(2)
 	t.mover(8)
 	t.run(6)
+	t.secret_side(Trail.RIGHT)
 	t.turn(right)
 	t.slalom(2)
 	t.gap(3)

@@ -35,6 +35,7 @@ func build(b: LevelBuilder) -> void:
 	t.power(PowerUps.Kind.GRIP)
 	t.ice(12, 2)
 	t.run(5)
+	t.secret_below(Trail.LEFT)
 	t.turn(left)
 	t.beam(10, 1, 3.0)
 	t.run(5)

@@ -48,7 +48,7 @@ func build(b: LevelBuilder) -> void:
 	var right := Trail.RIGHT
 	var t := Trail.new(b, Vector3(0, 0, -54), 0)
 	t.run(8, 1)
-	t.patrol()
+	t.secret_guard()
 	t.turn(right)
 	t.beam(10, 1)
 	t.run(5)

@@ -22,7 +22,9 @@ func build(b: LevelBuilder) -> void:
 	b.sentry(Vector3(4, 0, -27), 11.0)
 	b.gem(Vector3(-3, 0, -27))
 	b.checkpoint(Vector3(0, 0, -34))
-	b.sentry(Vector3(0, 0, -46), 10.0, 1.8)
+	# The secret diamond: the sentry in the middle of the row is sitting on it.
+	var keeper := b.sentry(Vector3(0, 0, -46), 10.0, 1.8)
+	keeper.reveals = [b.secret(Vector3(0, 0, -46), true)]
 	b.gem(Vector3(-4, 0, -42))
 	b.gem(Vector3(4, 0, -50))
 	b.sentry(Vector3(-4, 0, -56), 9.0)

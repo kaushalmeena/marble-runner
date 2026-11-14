@@ -16,6 +16,7 @@ func build(b: LevelBuilder) -> void:
 	var right := Trail.RIGHT
 	var t := Trail.new(b)
 	t.start()
+	t.secret_behind()
 	t.tip("This one is long. Checkpoints hold your place.")
 	t.run(10, 2)
 	t.gap(3)

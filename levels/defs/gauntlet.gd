@@ -62,7 +62,7 @@ func build(b: LevelBuilder) -> void:
 	t.bumpers(3)
 	t.crumbles(3)
 	t.run(6)
-	t.patrol()
+	t.secret_guard()
 	t.step(0.8)
 	t.run(5)
 	t.slalom(2)

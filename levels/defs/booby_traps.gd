@@ -13,6 +13,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the lip of the first floor, on the left, just before the beam.
+	b.secret_nook(Vector3(-4, 0, -27), Vector3.LEFT)
 	b.floor(0, -14, 8, 32)
 	b.tip(Vector3(0, 0, -3), "Pickups in a dark bubble are traps. Go round them.")
 	b.trap(PowerUps.Kind.SLOW, Vector3(-2, 0, -9))

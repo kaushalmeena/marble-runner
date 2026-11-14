@@ -18,6 +18,7 @@ func build(b: LevelBuilder) -> void:
 	var t := Trail.new(b)
 	t.start()
 	t.run(8, 1)
+	t.secret_below(Trail.RIGHT)
 	t.beam(10, 1, 3.0)
 	t.run(5)
 	t.gap(3)

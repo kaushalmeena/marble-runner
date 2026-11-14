@@ -14,6 +14,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: outside the spinner hall, over its right wall.
+	b.secret_ledge(Vector3(11.5, -2.5, -40))
 	b.floor(0, -3, 8, 10)
 	b.floor(0, -20, 10, 24)
 	b.wall(Vector3(-4.8, 0, -8), Vector3(-4.8, 0, -32), 1.0)

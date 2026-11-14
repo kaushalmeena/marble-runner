@@ -13,6 +13,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: a button in the corner past the finish brings it out back among the beams.
+	b.button(Vector3(2, 0, -49.2), [b.secret(Vector3(-2, 0, -25), true)])
 	b.floor(0, -24, 6, 52)
 	b.tip(Vector3(0, 0, -4), "A beam flickers just before it lights. Cross while it is dark.")
 	b.laser(Vector3(-3, 0, -10), Vector3(3, 0, -10), 1.5, 1.5)

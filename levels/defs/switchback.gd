@@ -25,6 +25,7 @@ func build(b: LevelBuilder) -> void:
 	t.turn(right)
 	t.ramp(12, 3)
 	t.run(6)
+	t.secret_below(Trail.RIGHT)
 	t.checkpoint()
 	t.beam(10, 1)
 	t.run(4)

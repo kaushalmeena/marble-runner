@@ -33,7 +33,7 @@ func build(b: LevelBuilder) -> void:
 	t.turn(right)
 	t.bridge(14, 5.5, 2)
 	t.run(6)
-	t.patrol()
+	t.secret_guard()
 	t.mover(8)
 	t.run(6)
 	t.checkpoint()

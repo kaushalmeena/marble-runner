@@ -17,7 +17,9 @@ func build(b: LevelBuilder) -> void:
 	b.tip(Vector3(0, 0, -3.5), "Purple marbles hunt you, but only on their own patch.")
 	b.floor(0, -12, 20, 20)
 	_ring_walls(b, -12)
-	b.chaser(Vector3(0, 0, -13), 9, 4.5)
+	# The secret diamond: the first hunter is carrying it. Pop the hunter.
+	var keeper := b.chaser(Vector3(0, 0, -13), 9, 4.5)
+	keeper.reveals = [b.secret(Vector3(0, 0, -19), true)]
 	b.gem_ring(Vector3(0, 0, -12), 7, 6)
 	b.bumper(Vector3(-4, 0, -9))
 	b.bumper(Vector3(4, 0, -15))

@@ -13,6 +13,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: a ledge high on the left of the start, a super jump up.
+	b.secret_ledge(Vector3(-7, 3.8, -3))
 	b.floor(0, -3, 8, 10)
 	b.power_up(PowerUps.Kind.SUPER_JUMP, Vector3(0, 0, -4))
 	b.tip(Vector3(0, 0, -2), "Power-ups switch on as you touch them. This one lifts your jumps.")

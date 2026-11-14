@@ -15,6 +15,8 @@ func _init() -> void:
 func build(b: LevelBuilder) -> void:
 	var pad := Vector2(4, 4)
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: a ledge beside the lift, half way up. Step off as it passes.
+	b.secret_ledge(Vector3(-25.4, 2.5, -29.6))
 	b.tip(Vector3(0, 0, 0), "Platforms pause at each end. Board them there.")
 	b.floor(0, -2, 6, 8)
 	b.mover(Vector3(0, 0, -8.2), pad, Vector3(0, 0, -9), 8.0)

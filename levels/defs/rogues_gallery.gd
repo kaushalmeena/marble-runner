@@ -20,7 +20,7 @@ func build(b: LevelBuilder) -> void:
 	t.power(PowerUps.Kind.SHIELD)
 	t.arena(14, 6, 1)
 	t.run(8)
-	t.patrol()
+	t.secret_guard()
 	t.checkpoint()
 	t.turn(right)
 	t.run(12, 2)

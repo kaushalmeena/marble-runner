@@ -14,6 +14,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 13))
+	# The secret diamond: a button in the shadow under the left deck brings it out under the right one.
+	b.button(Vector3(-10, 0, -8), [b.secret(Vector3(10, 0, -8), true)])
 	b.tip(Vector3(0, 0, 13), "The finish is in the middle. It opens when the last gem is yours.")
 	b.floor(0, 0, 32, 32)
 	b.wall(Vector3(-15.8, 0, -15.8), Vector3(15.8, 0, -15.8))

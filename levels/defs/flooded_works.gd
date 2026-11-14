@@ -44,7 +44,7 @@ func build(b: LevelBuilder) -> void:
 	t.run(5)
 	t.beam(10, 1)
 	t.run(6)
-	t.patrol()
+	t.secret_guard()
 	t.slalom(2)
 	t.run(5)
 	t.finish()

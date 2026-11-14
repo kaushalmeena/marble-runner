@@ -19,7 +19,9 @@ func build(b: LevelBuilder) -> void:
 	b.floor(0, -40, 12, 26)
 	b.checkpoint(Vector3(0, 0, -33))
 	b.power_up(PowerUps.Kind.SHIELD, Vector3(0, 0, -37))
-	b.sentry(Vector3(-4.5, 0, -44), 11.0)
+	# The secret diamond: the left sentry on the second island is sitting on it.
+	var keeper := b.sentry(Vector3(-4.5, 0, -44), 11.0)
+	keeper.reveals = [b.secret(Vector3(-4.5, 0, -44), true)]
 	b.sentry(Vector3(4.5, 0, -44), 11.0)
 	b.gem(Vector3(-4.5, 0, -40))
 	b.gem(Vector3(4.5, 0, -40))

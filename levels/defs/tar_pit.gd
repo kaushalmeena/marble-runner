@@ -19,7 +19,9 @@ func build(b: LevelBuilder) -> void:
 	b.gem(Vector3(0, 0, -10))
 	b.power_up(PowerUps.Kind.GRIP, Vector3(0, 0, -17))
 	b.mud(0, -26, 10, 10)
-	b.patroller(Vector3(-4, 0, -26), Vector3(8, 0, 0), 4.0)
+	# The secret diamond: the guard in the tar is carrying it. Pop the guard.
+	var keeper := b.patroller(Vector3(-4, 0, -26), Vector3(8, 0, 0), 4.0)
+	keeper.reveals = [b.secret(Vector3(0, 0, -26), true)]
 	b.gem(Vector3(-3, 0, -23))
 	b.gem(Vector3(3, 0, -29))
 	b.checkpoint(Vector3(0, 0, -34))

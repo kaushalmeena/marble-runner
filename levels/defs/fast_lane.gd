@@ -14,6 +14,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the lip of the first landing strip, on the left.
+	b.secret_nook(Vector3(-4, 0, -30), Vector3.LEFT)
 	b.tip(Vector3(0, 0, 0), "Green pads fling you forward. Line up with the ramp first.")
 	b.floor(0, -5, 6, 14)
 	b.boost_pad(Vector3(0, 0, -5), 0, 22)

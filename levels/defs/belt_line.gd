@@ -13,6 +13,8 @@ func _init() -> void:
 
 func build(b: LevelBuilder) -> void:
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the lip of the starting pad, on the left.
+	b.secret_nook(Vector3(-4, 0, -4), Vector3.LEFT)
 	b.floor(0, -4, 8, 12)
 	b.tip(Vector3(0, 0, -7), "Belts carry you the way their arrows point.")
 	b.floor(0, -16, 4, 12)

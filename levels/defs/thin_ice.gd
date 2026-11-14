@@ -15,6 +15,8 @@ func _init() -> void:
 func build(b: LevelBuilder) -> void:
 	var ice := LevelBuilder.Surface.ICE
 	b.start(Vector3(0, 0, 0))
+	# The secret diamond: under the lip of the starting pad, on the left.
+	b.secret_nook(Vector3(-4, 0, -2), Vector3.LEFT)
 	b.floor(0, -2, 8, 8)
 	b.power_up(PowerUps.Kind.MAGNET, Vector3(0, 0, -4))
 	b.tip(Vector3(0, 0, -1), "Pale floor is ice. Take the MAGNET: gems come to you.")
