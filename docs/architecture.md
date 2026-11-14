@@ -16,7 +16,7 @@ powerups/      The table describing each power-up
 effects/       Particle burst emitter
 world/         The tile shader, shared material helpers, biome palettes
 skins/         Marble skins and their catalogue
-ui/            HUD, results card, level select, menus, shop
+ui/            Ui helpers, drawn icons, HUD, results card, level select, menus, shop
 resources/     Biomes, the sky, skins, the UI theme
 assets/        Raw imported font and generated audio
 ```

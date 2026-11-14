@@ -1,7 +1,7 @@
 # Marble Runner
 
 A Godot marble platformer: roll, jump, swim and glide a physics marble through
-twenty-four floating levels, collect every gem, reach the finish, beat the
+forty-eight floating levels, collect every gem, reach the finish, beat the
 clock. Levels are
 short scripts, not scenes — adding one involves no editor work at all.
 
@@ -42,6 +42,10 @@ checkpoints, hazards, the finish.
 up, and about 4 units across from a short run-up. Change `jump_speed` or gravity
 and every level needs replaying.
 
+**Menus are built in code.** Every screen is assembled in its script through
+`Ui`, with drawn `Icon`s instead of font glyphs. Scene changes go through
+`SceneManager`, which fades between them.
+
 **Styling goes in the theme.** `resources/theme/marble_runner_theme.tres` is
 applied project-wide — prefer a theme type variation over a per-node font or
 colour override. Interface built in code goes through `Ui`.
@@ -77,5 +81,12 @@ Silent failures that cost real debugging time here:
   single sheet just below the rim, never a box filling the pool.
 - `Key` is a global enum (keycodes). A class named `Key` fails to parse with a
   baffling "cannot assign Key to Key". The pickup is `GateKey`.
+- A container owns its children's position and scale and takes them back
+  whenever it re-sorts. Menu animations tween only opacity on anything a
+  container lays out; things that slide sit in a plain `Control` first.
+- The marble has air damping. Anything that throws it a set distance (the
+  cannon) has to solve for it, or a two second flight lands a quarter short.
+- A light at the centre of the marble lights everything but the marble. The
+  night lamp is held above it.
 - A ball free to roll receives only 2/7 of a moving platform's acceleration
   through friction. The marble is handed the rest directly, or it is left behind.

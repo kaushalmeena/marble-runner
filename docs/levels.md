@@ -57,7 +57,13 @@ func build(b: LevelBuilder) -> void:
 | `bumper`, `spinner` | A post that kicks back; a bar that sweeps round a hub. |
 | `fan` | A column of rising air. The marble hovers halfway up it. |
 | `hazard` | A red block that sends the marble back to its checkpoint. |
-| `patroller`, `chaser` | Rival marbles: one on a fixed line, one that hunts inside a leash. |
+| `patroller`, `chaser`, `sentry` | Rival marbles: one on a fixed line, one that hunts inside a leash, one that stays put and fires slow shots. |
+| `conveyor` | A belt that carries the marble along its arrows, up to belt speed. |
+| `mud` | A patch of tar that drags the marble down to a crawl. |
+| `laser` | A beam that is lit, then dark, on a timer. Lit, it is a hazard. |
+| `bridge`, `button` | A slab of hard light that is only solid while a floor button wired to it is down. A button with `seconds` springs back up. A button can also put out a laser. |
+| `cannon` | Lobs the marble onto a set landing spot, whatever the gravity. |
+| `trap` | A pickup that harms: one of `PowerUps.AILMENTS`. |
 | `portal_pair` | Two linked rings. Speed passes through; each yaw is the way out. |
 | `key`, `gate` | A key is carried; a gate opens for one key. |
 | `water` | A box of water: slow sinking, drag, and jump becomes a swim stroke. |
@@ -82,11 +88,25 @@ Levels are measured against how the marble moves. With the shipped tuning:
 | In water | sinks at a fifth of normal gravity; a stroke lifts about 0.6 |
 | Leaving water | by a ramp. A stroke at the surface will not clear a ledge |
 | Moon gravity (0.35) | jump about 4 high, in the air for about 2 s |
+| Heavy gravity (1.4) | jump about 1 high; a 15 bounce pad lifts about 4 |
+| Conveyor at speed 5 | carries a resting marble at 5; rolling against it is slow but possible |
+| In tar | about a third of normal pace |
+| Laser | flickers for 0.5 s before it lights |
+| Cannon flight of 2.2 s | lands at about 11 units/s over 25 units: leave 10 of run-out |
+| Sentry shot | 7 units/s, aimed where the marble was when it fired |
 
 Change `jump_speed`, gravity or the marble's speed and these all move.
 
-A level can also set `gravity_scale` in `_init`. The moon levels use `0.35`,
-which makes a jump about 4 units high and two seconds long.
+## Level-wide conditions
+
+Set in `_init`, in force for the whole level, and named on the HUD and the
+level card (`LevelDef.conditions`):
+
+| Field | Effect |
+| --- | --- |
+| `gravity_scale` | `0.35` is the moon: a jump about 4 high and two seconds long. `1.4` is heavy: a jump about 1 high, gaps of 1.5, steps of 0.6. |
+| `wind` | A steady acceleration on the marble, e.g. `Vector3(3, 0, 0)`. Not felt under water or with grip. On ice the wind wins outright, so give a kerb or the grip power-up. Do not put a cannon in a windy level: its shot is not corrected for wind. |
+| `dark` | Night. The sun is all but out and the marble carries a lamp. Glowing things (gems, pads, beams) still show. |
 
 ## Rival marbles
 
@@ -114,6 +134,17 @@ time, up to three pickups' worth. There is no button to spend one.
 | Stopwatch | 8 s | The clock stops |
 | Shield | 12 s | Rival marbles and hazards cannot hurt |
 | Double jump | 18 s | One more jump in mid-air |
+| Grip | 14 s | Ice grips, and tar and wind do nothing |
+| Flare | 14 s | Lights a night level like day |
+
+Three more kinds are *ailments*, placed with `trap`. They use the same
+machinery but work against the player, and a shield turns them away:
+
+| Ailment | Lasts | Effect |
+| --- | --- | --- |
+| Slowed | 6 s | Under half the usual top speed |
+| Dizzy | 6 s | Steering is reversed |
+| Heavy | 7 s | Gravity up by half, jumps cut by a third |
 
 `_apply_effects` in `game.gd` sets everything a power-up changes on the marble
 from what is running now. It is derived from scratch each time rather than

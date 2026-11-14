@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
 
-**A marble platformer across twenty-four courses in the sky and beyond.**
+**A marble platformer across forty-eight levels in the sky and beyond.**
 
 Roll, jump, swim and glide a physics marble through floating levels. Collect
 every gem to open the finish, then do it again faster for the stars.
@@ -42,26 +42,33 @@ every gem to open the finish, then do it again faster for the stars.
 
 - **A marble you roll, not steer** — it is a physics body driven by torque, so
   it has real momentum: it carries speed off ramps and slides on ice.
-- **Twenty-four levels, easy to hard** — two pages of twelve. Each level
-  teaches a single idea, and the later ones put them together.
+- **Forty-eight levels, easy to hard** — four courses of twelve: Sky Courses,
+  Far Side, Night Shift and Storm Peak. Each level teaches a single idea, and
+  the later ones put them together.
 - **Gems open the finish** — every level is a collection problem as well as a
   route, and the open ones let you choose the order.
 - **Things in the way** — moving platforms, bumpers, sweeping bars, boost and
-  bounce pads, fans, ice, crumbling tiles and laser bars.
+  bounce pads, fans, ice, crumbling tiles, conveyor belts, tar, blinking laser
+  beams, cannons, and floor buttons that build bridges of hard light.
 - **Rival marbles** — red ones roll a fixed line, purple ones hunt you on
-  their own patch. Drop on one from above, or shield up, and it pops.
+  their own patch, orange ones stay put and shoot. Drop on one from above, or
+  shield up, and it pops.
 - **Portals, keys and gates** — rings that pass your speed through, and gates
   that open for one key each.
-- **Water and the moon** — pools you sink and swim in, and low-gravity levels
-  where one jump lasts two seconds.
-- **Seven power-ups** — super jump, boost, feather, magnet, stopwatch, shield
-  and double jump. They switch on as you touch them, run side by side, and
-  picking up another of the same adds its time.
+- **Worlds with weather** — pools you sink and swim in, low gravity on the
+  moon, heavy gravity in the foundry, a wind that never stops, and night
+  levels lit only by the marble. The HUD names what is in force.
+- **Nine power-ups** — super jump, boost, feather, magnet, stopwatch, shield,
+  double jump, grip and flare. They switch on as you touch them, run side by
+  side, and picking up another of the same adds its time.
+- **Traps** — pickups in a dark bubble that slow you, reverse your steering
+  or weigh you down for a few seconds. A shield soaks them up.
 - **Stars and best times** — three stars per level against gold and silver
   targets. Checkpoints mean a fall costs time, not the attempt.
 - **Coins and skins** — gems and new stars pay coins, spent on marbles in the
   shop.
-- **Six palettes** — meadow, desert, tundra, dusk, reef and moon.
+- **Ten palettes** — meadow, desert, tundra, dusk, reef, moon, night, storm,
+  foundry and canyon.
 - **Cheat codes** — typed during play, no menu. See below.
 
 ## Tech Stack
