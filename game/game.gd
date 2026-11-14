@@ -35,6 +35,7 @@ const STOMP_BOUNCE := 8.0
 @onready var _level_root: Node3D = $Level
 @onready var _hud: Hud = $HUDLayer/Hud
 @onready var _results: ResultsCard = $ResultsLayer/ResultsCard
+@onready var _cheats: Cheats = $Cheats
 
 var _level: LevelDef
 var _builder: LevelBuilder
@@ -48,6 +49,11 @@ var _held: int = EMPTY
 var _effects: Dictionary[int, float] = {}
 var _seen_kinds: Dictionary[int, bool] = {}
 var _keys: int = 0
+## Set by the first cheat that touches the run. A cheated run is not recorded.
+var _cheated: bool = false
+## Gravity multiplier for this run: the level's own, unless a cheat changed it.
+var _base_gravity: float = 1.0
+var _endless_air_jumps: bool = false
 
 
 func _ready() -> void:
@@ -64,7 +70,8 @@ func _ready() -> void:
 
 	_respawn_position = _builder.start_position
 	_marble.global_position = _respawn_position
-	_marble.gravity_scale = _level.gravity_scale
+	_base_gravity = _level.gravity_scale
+	_marble.gravity_scale = _base_gravity
 	_marble.landed.connect(_on_marble_landed)
 	_marble.jumped.connect(_on_marble_jumped)
 	_camera.follow(_marble, _builder.start_yaw)
@@ -74,6 +81,7 @@ func _ready() -> void:
 	_results.next_pressed.connect(_on_next_pressed)
 	_results.retry_pressed.connect(SceneManager.restart_level)
 	_results.levels_pressed.connect(SceneManager.goto_level_select)
+	_cheats.entered.connect(_on_cheat_entered)
 	_run_countdown()
 
 
@@ -132,6 +140,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	_hud.set_time(_time, _effects.has(PowerUps.Kind.STOPWATCH))
+	_hud.set_underwater(_marble.in_water)
 	for kind in Hud.EFFECT_KINDS:
 		_hud.set_effect(kind, _effects.get(kind, 0.0) / PowerUps.duration(kind))
 
@@ -182,7 +191,10 @@ func _on_finish_reached(pad: FinishPad) -> void:
 	Audio.play(&"finish")
 	_hud.flash(Color(1, 1, 1, 0.35))
 	_bursts.burst(pad.global_position + Vector3.UP, FinishPad.OPEN_COLOR)
-	var outcome := GameState.complete_level(_level, _time, _builder.gems.size())
+	# A cheated run finishes the level but leaves no trace: no time, no stars,
+	# no coins, and it does not unlock the next level.
+	var outcome := GameState.unrecorded_outcome(_level) if _cheated \
+		else GameState.complete_level(_level, _time, _builder.gems.size())
 	await get_tree().create_timer(FINISH_HOLD_SECONDS).timeout
 	if not is_inside_tree():
 		return
@@ -317,7 +329,7 @@ func _start_effect(kind: PowerUps.Kind) -> void:
 	_effects[kind] = PowerUps.duration(kind)
 	match kind:
 		PowerUps.Kind.FEATHER:
-			_marble.gravity_scale = _level.gravity_scale * feather_gravity
+			_marble.gravity_scale = _base_gravity * feather_gravity
 		PowerUps.Kind.SHIELD:
 			_marble.set_shielded(true)
 		PowerUps.Kind.DOUBLE_JUMP:
@@ -328,11 +340,11 @@ func _end_effect(kind: int) -> void:
 	_effects.erase(kind)
 	match kind:
 		PowerUps.Kind.FEATHER:
-			_marble.gravity_scale = _level.gravity_scale
+			_marble.gravity_scale = _base_gravity
 		PowerUps.Kind.SHIELD:
 			_marble.set_shielded(false)
 		PowerUps.Kind.DOUBLE_JUMP:
-			_marble.air_jumps = 0
+			_marble.air_jumps = 99 if _endless_air_jumps else 0
 
 
 func _tick_effects(delta: float) -> void:
@@ -357,6 +369,55 @@ func _pull_gems(delta: float) -> void:
 		var offset := target - gem.global_position
 		if offset.length() < magnet_radius:
 			gem.global_position += offset.limit_length(magnet_pull * delta)
+
+
+# --- Cheats -----------------------------------------------------------------
+
+
+func _on_cheat_entered(code: StringName) -> void:
+	if _finished:
+		return
+	if Cheats.voids_run(code):
+		_cheated = true
+		_hud.mark_cheated()
+	_hud.show_banner("CHEAT ACTIVATED", 0.9, Color(1.0, 0.85, 0.3))
+	_hud.show_tip(Cheats.CODES[code])
+	Audio.play(&"unlock", -2.0, 0.0, 1.2)
+	match code:
+		&"MOONBOOTS":
+			_base_gravity = 0.35
+			_marble.gravity_scale = _base_gravity
+		&"BUBBLE":
+			_start_effect(PowerUps.Kind.SHIELD)
+			_effects[PowerUps.Kind.SHIELD] = 60.0
+		&"SKYHOOK":
+			_endless_air_jumps = true
+			_marble.air_jumps = 99
+		&"ZOOMZOOM":
+			_marble.max_speed *= 1.6
+			_marble.roll_torque *= 1.5
+		&"TICKTOCK":
+			_effects[PowerUps.Kind.STOPWATCH] = 60.0
+		&"ALLGEMS":
+			for gem in _builder.gems:
+				if not gem.taken:
+					gem.collect()
+		&"SKELETONKEY":
+			_keys += 3
+			_hud.set_keys(_keys)
+		&"BOWLING":
+			for enemy in _builder.enemies:
+				enemy.defeat()
+		&"TOOLKIT":
+			_held = (_held + 1) % PowerUps.Kind.size()
+			if PowerUps.is_instant(_held as PowerUps.Kind):
+				_held = (_held + 1) % PowerUps.Kind.size()
+			_hud.set_power_up(_held)
+		&"GOLDMINE":
+			GameState.coins += 500
+			GameState.save_progress()
+		&"ALLACCESS":
+			GameState.unlock_all()
 
 
 # --- Feel -------------------------------------------------------------------

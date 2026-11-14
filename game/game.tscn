@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://game/game.gd" id="1_game"]
 [ext_resource type="Environment" path="res://resources/environments/day_sky.tres" id="2_environment"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://ui/touch_controls.gd" id="7_touch"]
 [ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="8_pause"]
 [ext_resource type="Script" path="res://ui/results_card.gd" id="9_results"]
+[ext_resource type="Script" path="res://game/cheats.gd" id="10_cheats"]
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_game")
@@ -36,6 +37,9 @@ script = ExtResource("3_camera")
 script = ExtResource("5_bursts")
 burst_count = 6
 particle_amount = 18
+
+[node name="Cheats" type="Node" parent="."]
+script = ExtResource("10_cheats")
 
 [node name="HUDLayer" type="CanvasLayer" parent="."]
 layer = 1

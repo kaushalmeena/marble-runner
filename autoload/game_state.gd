@@ -18,6 +18,7 @@ const SAVE_KEY_COINS := "coins"
 const SAVE_KEY_UNLOCKED := "unlocked_skins"
 const SAVE_KEY_SKIN := "selected_skin"
 const SAVE_KEY_TIMES := "best_times"
+const SAVE_KEY_UNLOCK_ALL := "all_unlocked"
 
 ## Coins for each gem, paid every time a level is finished. Replaying is the
 ## steady income.
@@ -57,6 +58,8 @@ var selected_skin: StringName = &"classic":
 ## Best finishing time per level id, in seconds. A level with no entry has not
 ## been finished.
 var _best_times: Dictionary = {}
+## Set by the cheat that opens every level. Saved, so it sticks.
+var _all_unlocked: bool = false
 
 
 func _ready() -> void:
@@ -87,6 +90,8 @@ func total_stars() -> int:
 
 ## A level opens once the one before it has been finished.
 func is_unlocked(index: int) -> bool:
+	if _all_unlocked:
+		return true
 	return index <= 0 or is_completed(LevelCatalog.at(index - 1))
 
 
@@ -119,6 +124,26 @@ func complete_level(level: LevelDef, time: float, gem_count: int) -> Dictionary:
 		"previous_best": previous,
 		"coins": earned,
 	}
+
+
+## What a finished run that must not count reports to the results screen:
+## no stars, no coins, nothing saved.
+func unrecorded_outcome(level: LevelDef) -> Dictionary:
+	return {
+		"stars": 0,
+		"new_stars": 0,
+		"new_best": false,
+		"previous_best": best_time(level),
+		"coins": 0,
+		"cheated": true,
+	}
+
+
+## Opens every level, or with [param open] false goes back to unlocking them
+## one at a time.
+func unlock_all(open: bool = true) -> void:
+	_all_unlocked = open
+	save_progress()
 
 
 ## True when the player owns [param skin], or it costs nothing.
@@ -160,6 +185,7 @@ func load_progress() -> void:
 	var times: Variant = config.get_value(SAVE_SECTION, SAVE_KEY_TIMES, {})
 	if times is Dictionary:
 		_best_times = times
+	_all_unlocked = bool(config.get_value(SAVE_SECTION, SAVE_KEY_UNLOCK_ALL, false))
 
 
 func save_progress() -> void:
@@ -172,6 +198,7 @@ func save_progress() -> void:
 	config.set_value(SAVE_SECTION, SAVE_KEY_UNLOCKED, unlocked_skins)
 	config.set_value(SAVE_SECTION, SAVE_KEY_SKIN, String(selected_skin))
 	config.set_value(SAVE_SECTION, SAVE_KEY_TIMES, _best_times)
+	config.set_value(SAVE_SECTION, SAVE_KEY_UNLOCK_ALL, _all_unlocked)
 	var error := config.save(SAVE_PATH)
 	if error != OK:
 		push_warning("Could not save progress to %s (error %d)." % [SAVE_PATH, error])

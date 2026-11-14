@@ -48,7 +48,13 @@ func _process(delta: float) -> void:
 
 
 func _on_body_entered(body: Node3D) -> void:
-	if taken or not body is Marble:
+	if body is Marble:
+		collect()
+
+
+## Takes the gem, wherever the marble is.
+func collect() -> void:
+	if taken:
 		return
 	taken = true
 	hide()

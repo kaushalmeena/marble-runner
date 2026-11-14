@@ -71,7 +71,9 @@ func present(level: LevelDef, time: float, outcome: Dictionary, has_next: bool) 
 	_time.text = LevelDef.format_time(time)
 	_stars.filled = outcome.stars
 	var previous: float = outcome.previous_best
-	if outcome.new_best and previous >= 0.0:
+	if outcome.get("cheated", false):
+		_detail.text = "CHEATS USED   NOT RECORDED"
+	elif outcome.new_best and previous >= 0.0:
 		_detail.text = "NEW BEST   -%.2fs" % (previous - time)
 	elif outcome.new_best:
 		_detail.text = "FIRST CLEAR"
