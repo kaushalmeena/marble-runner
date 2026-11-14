@@ -6,11 +6,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/) [![GDScript](https://img.shields.io/badge/GDScript-2-5F3DC4?logo=godotengine&logoColor=white)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html)
 
-**An endless runner that gets faster every metre you survive.**
+**A marble platformer across twelve courses in the sky.**
 
-Roll a marble down a winding five-lane track. Dodge what you can't jump, grab
-fruit to build a multiplier, and pick your pickups carefully, because some of
-them are traps.
+Roll, jump and glide a physics marble through floating levels. Collect every
+gem to open the finish, then do it again faster for the stars.
 
 [**Try it live**](https://kaushalmeena.github.io/marble-runner/)
 
@@ -23,7 +22,7 @@ them are traps.
 <table>
   <tr>
     <td width="50%"><img src="screenshots/MainMenu.png" alt="Title screen"></td>
-    <td width="50%"><img src="screenshots/GamePlay.png" alt="Mid-run on a curved desert stretch"></td>
+    <td width="50%"><img src="screenshots/GamePlay.png" alt="A level with fan columns at dusk"></td>
   </tr>
 </table>
 
@@ -33,7 +32,7 @@ them are traps.
 <table>
   <tr>
     <td width="50%"><img src="screenshots/Shop.png" alt="Marble shop"></td>
-    <td width="50%"><img src="screenshots/GameOver.png" alt="End of run summary"></td>
+    <td width="50%"><img src="screenshots/Levels.png" alt="Level select"></td>
   </tr>
 </table>
 
@@ -41,27 +40,29 @@ them are traps.
 
 ## Features
 
-- **A road that bends** — the track winds, but the bend is zero where you are
-  standing, so a lane is always a lane.
-- **Nine obstacles** — trees, bushes, rocks, logs and crystals across one to
-  three lanes, plus a hazard that drifts sideways as it comes at you.
-- **Jump the low ones** — rocks and logs clear, bushes and trees don't. Height
-  decides that, not a flag on the prop.
-- **Eight pickups, three of them bad** — rounded and cool-coloured helps you,
-  spiked and red does not.
-- **Streaks and near misses** — five fruit in a row steps the multiplier to ×5,
-  and shaving past an obstacle pays a bonus.
-- **Coins** — spend them on marbles in the shop, or on one more chance when you
-  crash.
-- **Four biomes** that cross-fade as the run gets longer.
+- **A marble you roll, not steer** — it is a physics body driven by torque, so
+  it has real momentum: it carries speed off ramps and slides on ice.
+- **Twelve levels, easy to hard** — each one teaches a single idea, and the
+  last two put them together.
+- **Gems open the finish** — every level is a collection problem as well as a
+  route, and the open ones let you choose the order.
+- **Things in the way** — moving platforms, bumpers, sweeping bars, boost and
+  bounce pads, fans, ice, crumbling tiles and laser bars.
+- **A power-up slot** — pick up a super jump, boost, feather or magnet and
+  spend it when you choose. The stopwatch freezes the clock on the spot.
+- **Stars and best times** — three stars per level against gold and silver
+  targets. Checkpoints mean a fall costs time, not the attempt.
+- **Coins and skins** — gems and new stars pay coins, spent on marbles in the
+  shop.
+- **Four palettes** — meadow, desert, tundra and dusk.
 
 ## Tech Stack
 
 | Area           | Tools                                                                                                         |
 | -------------- | --------------------------------------------------------------------------------------------------------------- |
-| **Engine**     | [Godot 4.7](https://godotengine.org/), Compatibility renderer for the web build                                |
+| **Engine**     | [Godot 4.7](https://godotengine.org/), Jolt physics, Compatibility renderer for the web build                  |
 | **Language**   | [GDScript 2](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html), statically typed  |
-| **Art**        | Primitive meshes, shared materials, one shader for the curved ground                                           |
+| **Art**        | Primitive meshes built in code, one position-projected tile shader                                         |
 | **Typography** | [Outfit](https://fonts.google.com/specimen/Outfit)                                                             |
 | **Audio**      | Generated with Python's [`wave`](https://docs.python.org/3/library/wave.html) module                           |
 | **Hosting**    | [GitHub Pages](https://pages.github.com/)                                                                      |
@@ -117,11 +118,17 @@ fresh clone once the matching export templates are installed.
 
 ## Usage
 
-| Action       | Keyboard             | Touch or mouse   |
-| -------------- | -------------------- | ---------------- |
-| Switch lanes | `←` `→` or `A` `D`   | Swipe left/right |
-| Jump         | `Space`, `↑` or `W`  | Swipe up, or tap |
-| Pause        | `Esc` or `P`         | —                |
+| Action          | Keyboard                    | Gamepad      |
+| --------------- | --------------------------- | ------------ |
+| Roll            | `W` `A` `S` `D` or arrows   | Left stick   |
+| Jump            | `Space` (hold to keep hopping) | `A`       |
+| Turn the camera | `Q` `E`, or click and move the mouse | Right stick |
+| Use power-up    | `Shift` or `F`              | `X`          |
+| Restart level   | `R`                         | `Back`       |
+| Pause           | `Esc` or `P`                | `Start`      |
+
+The camera also follows the marble on its own, so the movement keys and
+`Space` are enough to play. On a touchscreen a stick and two buttons appear.
 
 ## Deployment
 
@@ -138,11 +145,10 @@ GitHub Actions for that to land.
 
 Full documentation is available in the [`/docs`](./docs) directory.
 
-- [Architecture](./docs/architecture.md) — how the world scrolls past a
-  stationary marble, and which parts know about each other.
-- [Adding an Obstacle](./docs/adding-obstacles.md) — the scene, the spawn entry,
-  and why height alone decides what can be jumped.
-- [Biomes](./docs/biomes.md) — how the palette cross-fades with distance.
+- [Architecture](./docs/architecture.md) — how the marble is rolled rather than
+  steered, and which parts know about each other.
+- [Levels](./docs/levels.md) — adding a level, what the builder can place, and
+  the jump numbers levels are measured against.
 
 ## Contributing
 
