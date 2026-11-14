@@ -67,6 +67,11 @@ var steer_yaw: float = 0.0
 var grounded: bool = false
 ## True while the thing under the marble is ice.
 var on_ice: bool = false
+## Reverses the controls. Set while the dizzy ailment runs.
+var steer_flipped: bool = false
+## Ice grips like any floor, and tar and wind do nothing. Set by the grip
+## power-up; the tar and the wind read it.
+var sure_footed: bool = false
 ## Jumps allowed in mid-air before landing again. The double jump power-up
 ## sets this to one.
 var air_jumps: int = 0:
@@ -169,6 +174,8 @@ func boost(direction: Vector3, speed: float, align: bool = false) -> void:
 ## Horizontal direction the player is holding, in world space, length 0..1.
 func wish_direction() -> Vector3:
 	var input := Input.get_vector(&"move_left", &"move_right", &"move_forward", &"move_back")
+	if steer_flipped:
+		input = -input
 	return Basis(Vector3.UP, steer_yaw) * Vector3(input.x, 0.0, input.y)
 
 
@@ -247,7 +254,7 @@ func _read_surface(state: PhysicsDirectBodyState3D, contact: int) -> void:
 	if body != null:
 		var owner_id := body.shape_find_owner(state.get_contact_collider_shape(contact))
 		var shape := body.shape_owner_get_owner(owner_id) as Node
-		icy = shape != null and shape.has_meta(META_ICE)
+		icy = shape != null and shape.has_meta(META_ICE) and not sure_footed
 	if icy == on_ice:
 		return
 	on_ice = icy

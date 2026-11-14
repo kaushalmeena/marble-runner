@@ -25,6 +25,11 @@ const STOMP_BOUNCE := 8.0
 @export var boost_kick: float = 16.0
 ## Gravity multiplier while the feather runs.
 @export var feather_gravity: float = 0.3
+## Top speed multiplier while slowed, and what being heavy does to jumps and
+## to gravity.
+@export var slow_scale: float = 0.45
+@export var heavy_jump: float = 0.62
+@export var heavy_gravity: float = 1.5
 ## How far the magnet reaches for gems, and how fast it drags them in.
 @export var magnet_radius: float = 7.0
 @export var magnet_pull: float = 16.0
@@ -60,6 +65,11 @@ var _speed_cheat: float = 1.0
 var _marble_jump_speed: float = 0.0
 var _marble_max_speed: float = 0.0
 var _marble_roll_torque: float = 0.0
+## Night levels: the light the marble carries, and whether a flare is up.
+var _lamp: OmniLight3D = null
+var _lit: bool = true
+var _light_tween: Tween
+var _wind_streaks: CPUParticles3D = null
 
 
 func _ready() -> void:
@@ -84,6 +94,10 @@ func _ready() -> void:
 	_marble.jumped.connect(_on_marble_jumped)
 	_camera.follow(_marble, _builder.start_yaw)
 
+	if _level.dark:
+		_build_night()
+	if _level.wind != Vector3.ZERO:
+		_build_wind()
 	_hud.setup(GameState.current_level + 1, _level, _builder.gems.size(),
 		GameState.best_time(_level))
 	_apply_effects()
@@ -108,6 +122,7 @@ func _connect_level() -> void:
 	for enemy in _builder.enemies:
 		enemy.target = _marble
 		enemy.touched.connect(_on_enemy_touched)
+		enemy.shot_struck.connect(_on_hazard_entered.bind(null))
 	for portal in _builder.portals:
 		portal.used.connect(_on_portal_used)
 	for key in _builder.keys:
@@ -148,6 +163,11 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process(_delta: float) -> void:
 	_hud.set_time(_time, _effects.has(PowerUps.Kind.STOPWATCH))
 	_hud.set_underwater(_marble.in_water)
+	if _lamp != null:
+		_lamp.global_position = _marble.global_position + Vector3.UP * 1.8
+	if _wind_streaks != null:
+		_wind_streaks.global_position = _marble.global_position + Vector3.UP * 2.0 \
+			- _level.wind.normalized() * 9.0
 	for kind in Hud.EFFECT_KINDS:
 		_hud.set_effect(kind, minf(1.0, _effects.get(kind, 0.0) / PowerUps.duration(kind)))
 
@@ -160,6 +180,9 @@ func _physics_process(delta: float) -> void:
 	_tick_effects(delta)
 	if _effects.has(PowerUps.Kind.MAGNET):
 		_pull_gems(delta)
+	if _level.wind != Vector3.ZERO and not _marble.in_water \
+			and not _effects.has(PowerUps.Kind.GRIP):
+		_marble.apply_central_force(_level.wind * _marble.mass)
 	if _marble.global_position.y < _builder.fall_limit():
 		_respawn()
 
@@ -223,6 +246,7 @@ func _on_checkpoint_reached(checkpoint: Checkpoint) -> void:
 	Audio.play(&"checkpoint", -4.0)
 
 
+## Red blocks, lit beams and a sentry's shots all end the same way.
 func _on_hazard_entered(_zone: TriggerZone) -> void:
 	if _running and not _effects.has(PowerUps.Kind.SHIELD):
 		_respawn()
@@ -300,7 +324,17 @@ func _on_tip_entered(zone: TriggerZone) -> void:
 func _on_pickup_taken(pickup: PowerUpPickup) -> void:
 	var kind := pickup.kind
 	_bursts.burst(pickup.global_position + Vector3.UP, PowerUps.color(kind))
-	Audio.play(&"power_up")
+	if PowerUps.is_ailment(kind):
+		# A trap. The shield turns it away; otherwise it lands like a blow.
+		if _effects.has(PowerUps.Kind.SHIELD):
+			_hud.show_tip("Your shield soaked up the trap.")
+			Audio.play(&"bumper", -6.0, 0.0, 1.3)
+			return
+		Audio.play(&"power_down", -2.0, 0.0, 0.8)
+		_camera.add_trauma(0.35)
+		_hud.flash(Color(PowerUps.color(kind), 0.3))
+	else:
+		Audio.play(&"power_up")
 	if not _seen_kinds.has(kind):
 		_seen_kinds[kind] = true
 		_hud.show_tip("%s: %s" % [PowerUps.label(kind), PowerUps.hint(kind)])
@@ -335,11 +369,18 @@ func _end_effect(kind: int) -> void:
 ## effects ending in either order can never leave a value stuck.
 func _apply_effects() -> void:
 	var has := func(kind: PowerUps.Kind) -> bool: return _effects.has(kind)
+	var heavy: bool = has.call(PowerUps.Kind.HEAVY)
 	_marble.gravity_scale = _base_gravity * (
-		feather_gravity if has.call(PowerUps.Kind.FEATHER) else 1.0)
+		feather_gravity if has.call(PowerUps.Kind.FEATHER) else 1.0) * (
+		heavy_gravity if heavy else 1.0)
 	_marble.jump_speed = _marble_jump_speed * (
-		super_jump_scale if has.call(PowerUps.Kind.SUPER_JUMP) else 1.0)
-	var pace := _speed_cheat * (boost_scale if has.call(PowerUps.Kind.BOOST) else 1.0)
+		super_jump_scale if has.call(PowerUps.Kind.SUPER_JUMP) else 1.0) * (
+		heavy_jump if heavy else 1.0)
+	var pace := _speed_cheat * (boost_scale if has.call(PowerUps.Kind.BOOST) else 1.0) * (
+		slow_scale if has.call(PowerUps.Kind.SLOW) else 1.0)
+	_marble.steer_flipped = has.call(PowerUps.Kind.DIZZY)
+	_marble.sure_footed = has.call(PowerUps.Kind.GRIP)
+	_set_lit(not _level.dark or has.call(PowerUps.Kind.FLARE))
 	_marble.max_speed = _marble_max_speed * pace
 	_marble.roll_torque = _marble_roll_torque * pace
 	_marble.set_shielded(has.call(PowerUps.Kind.SHIELD))
@@ -358,6 +399,12 @@ func _environment_tags() -> PackedStringArray:
 	var tags := PackedStringArray()
 	if _base_gravity < 0.99:
 		tags.append("LOW GRAVITY")
+	elif _base_gravity > 1.01:
+		tags.append("HIGH GRAVITY")
+	if _level.wind != Vector3.ZERO:
+		tags.append("WIND")
+	if _level.dark:
+		tags.append("DARK")
 	if _builder.has_water:
 		tags.append("WATER")
 	if _speed_cheat > 1.0:
@@ -387,6 +434,70 @@ func _pull_gems(delta: float) -> void:
 		var offset := target - gem.global_position
 		if offset.length() < magnet_radius:
 			gem.global_position += offset.limit_length(magnet_pull * delta)
+
+
+# --- Night and wind -----------------------------------------------------------
+
+
+## Puts the level in the dark and gives the marble a light of its own.
+func _build_night() -> void:
+	_lamp = OmniLight3D.new()
+	_lamp.light_color = Color(1.0, 0.93, 0.8)
+	_lamp.light_energy = 2.4
+	_lamp.omni_range = 13.0
+	_lamp.omni_attenuation = 1.3
+	# Held above the marble, not inside it: a light at the centre of a ball
+	# lights everything but the ball.
+	add_child(_lamp)
+	_lit = true
+	_set_lit(false, 0.0)
+
+
+## Fades the world between night and lit. A flare is daylight for a while.
+func _set_lit(lit: bool, seconds: float = 0.6) -> void:
+	if lit == _lit or _lamp == null:
+		return
+	_lit = lit
+	var environment := _world.environment
+	var level := 1.0 if lit else 0.0
+	if _light_tween != null:
+		_light_tween.kill()
+	if seconds <= 0.0:
+		_sun.light_energy = lerpf(0.04, 0.75, level)
+		environment.ambient_light_energy = lerpf(0.18, 1.0, level)
+		environment.background_energy_multiplier = lerpf(0.16, 0.8, level)
+		environment.fog_light_energy = lerpf(0.12, 0.8, level)
+		return
+	_light_tween = create_tween().set_parallel()
+	_light_tween.tween_property(_sun, ^"light_energy", lerpf(0.04, 0.75, level), seconds)
+	_light_tween.tween_property(environment, ^"ambient_light_energy",
+		lerpf(0.18, 1.0, level), seconds)
+	_light_tween.tween_property(environment, ^"background_energy_multiplier",
+		lerpf(0.16, 0.8, level), seconds)
+	_light_tween.tween_property(environment, ^"fog_light_energy", lerpf(0.12, 0.8, level), seconds)
+
+
+## Streaks of air blowing past the marble, so the wind can be seen.
+func _build_wind() -> void:
+	var streaks := CPUParticles3D.new()
+	streaks.amount = 36
+	streaks.lifetime = 1.3
+	streaks.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	streaks.emission_box_extents = Vector3(9.0, 3.0, 9.0)
+	streaks.direction = _level.wind.normalized()
+	streaks.spread = 3.0
+	streaks.gravity = Vector3.ZERO
+	streaks.initial_velocity_min = 13.0
+	streaks.initial_velocity_max = 17.0
+	streaks.particle_flag_align_y = true
+	var streak := BoxMesh.new()
+	streak.size = Vector3(0.04, 1.4, 0.04)
+	streak.material = Mats.ghost(Color(0.9, 0.96, 1.0), 0.22)
+	streaks.mesh = streak
+	# Top level: the streaks blow through the world, not along with the marble.
+	streaks.top_level = true
+	add_child(streaks)
+	_wind_streaks = streaks
 
 
 # --- Cheats -----------------------------------------------------------------
@@ -423,8 +534,9 @@ func _on_cheat_entered(code: StringName) -> void:
 			for enemy in _builder.enemies:
 				enemy.defeat()
 		&"TOOLKIT":
-			for kind in PowerUps.Kind.values():
-				_start_effect(kind)
+			for kind: PowerUps.Kind in PowerUps.Kind.values():
+				if not PowerUps.is_ailment(kind):
+					_start_effect(kind)
 		&"GOLDMINE":
 			GameState.coins += 500
 			GameState.save_progress()

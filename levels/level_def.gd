@@ -19,6 +19,11 @@ var gold_time: float = 30.0
 var silver_time: float = 60.0
 ## Multiplier on gravity for the whole level. Below 1 is the moon.
 var gravity_scale: float = 1.0
+## A steady wind over the whole level, as an acceleration. It pushes the
+## marble whenever it is not under water or wearing the grip power-up.
+var wind := Vector3.ZERO
+## Night: the sun is all but out, and the marble carries its own light.
+var dark: bool = false
 
 
 ## What is unusual about this level's world, for the level card and the HUD.
@@ -28,6 +33,10 @@ func conditions() -> PackedStringArray:
 		tags.append("LOW GRAVITY")
 	elif gravity_scale > 1.01:
 		tags.append("HIGH GRAVITY")
+	if wind != Vector3.ZERO:
+		tags.append("WIND")
+	if dark:
+		tags.append("DARK")
 	return tags
 
 

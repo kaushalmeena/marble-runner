@@ -15,7 +15,8 @@ const TIP_SECONDS := 4.5
 const EFFECT_KINDS: Array[PowerUps.Kind] = [
 	PowerUps.Kind.SUPER_JUMP, PowerUps.Kind.BOOST, PowerUps.Kind.FEATHER,
 	PowerUps.Kind.MAGNET, PowerUps.Kind.STOPWATCH, PowerUps.Kind.SHIELD,
-	PowerUps.Kind.DOUBLE_JUMP]
+	PowerUps.Kind.DOUBLE_JUMP, PowerUps.Kind.GRIP, PowerUps.Kind.FLARE,
+	PowerUps.Kind.SLOW, PowerUps.Kind.DIZZY, PowerUps.Kind.HEAVY]
 const COMPLETE_COLOR := Color(1.0, 0.79, 0.24)
 const FROZEN_COLOR := Color(0.78, 0.6, 1.0)
 

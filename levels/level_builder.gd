@@ -315,6 +315,81 @@ func gate(at: Vector3, width: float = 4.0, yaw_degrees: float = 0.0) -> Gate:
 	return node
 
 
+## A guard that stays where it is and fires slow shots at a marble within
+## [param reach].
+func sentry(at: Vector3, reach: float = 12.0, period: float = 2.2) -> Enemy:
+	var guard := Enemy.new(Enemy.Mode.SENTRY)
+	guard.leash = reach
+	guard.fire_period = period
+	_place(guard, at)
+	enemies.append(guard)
+	return guard
+
+
+## A trap: a pickup that does the marble harm for a few seconds. [param kind]
+## is one of [constant PowerUps.AILMENTS].
+func trap(kind: PowerUps.Kind, at: Vector3) -> PowerUpPickup:
+	return power_up(kind, at)
+
+
+## A belt [param size] wide and long that carries the marble. Zero
+## [param yaw_degrees] runs down -Z; 90 runs down -X.
+func conveyor(at: Vector3, size := Vector2(3.0, 8.0), yaw_degrees: float = 0.0,
+		speed: float = 5.0) -> Conveyor:
+	var belt := Conveyor.new(size, speed)
+	_place(belt, at)
+	belt.rotation.y = deg_to_rad(yaw_degrees)
+	return belt
+
+
+## A patch of tar on the floor at height [param y].
+func mud(x: float, z: float, width: float, depth: float, y: float = 0.0) -> Mud:
+	var patch := Mud.new(Vector2(width, depth))
+	_place(patch, Vector3(x, y, z))
+	return patch
+
+
+## A beam across the floor from [param from] to [param to] that is lit for
+## [param on_seconds] and dark for [param off_seconds], starting [param phase]
+## seconds into that cycle.
+func laser(from: Vector3, to: Vector3, on_seconds: float = 1.5, off_seconds: float = 1.5,
+		phase: float = 0.0) -> Laser:
+	var run := to - from
+	var beam := Laser.new(run.length(), on_seconds, off_seconds, phase)
+	_place(beam, (from + to) / 2.0)
+	beam.rotation.y = atan2(run.x, run.z)
+	hazards.append(beam)
+	return beam
+
+
+## A slab of hard light whose walkable top is at [param y]. It is only solid
+## while a [method button] wired to it is down.
+func bridge(x: float, z: float, width: float, depth: float, y: float = 0.0) -> Bridge:
+	var extent := Vector3(width, 0.4, depth)
+	var slab := Bridge.new(extent)
+	slab.physics_material_override = _grip
+	_place(slab, Vector3(x, y - 0.2, z))
+	_grow_bounds(slab.position, extent)
+	return slab
+
+
+## A floor button wired to [param targets] (bridges, lasers). It stays down
+## for [param seconds], or for good at zero.
+func button(at: Vector3, targets: Array, seconds: float = 0.0) -> FloorButton:
+	var pad := FloorButton.new(seconds)
+	pad.targets = targets
+	_place(pad, at)
+	return pad
+
+
+## A cannon standing on [param at] that lobs the marble onto [param target],
+## taking [param flight] seconds to get there.
+func cannon(at: Vector3, target: Vector3, flight: float = 1.6) -> Cannon:
+	var gun := Cannon.new(target - at, flight)
+	_place(gun, at)
+	return gun
+
+
 ## A box of water, by centre and size. Its top face is the surface.
 func water(center: Vector3, size: Vector3) -> WaterZone:
 	var pool := WaterZone.new(size)

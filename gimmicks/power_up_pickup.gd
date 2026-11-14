@@ -32,6 +32,14 @@ func _init(power_up: PowerUps.Kind = PowerUps.Kind.SUPER_JUMP) -> void:
 	add_child(_body)
 	_build_icon(color)
 	_body.scale = Vector3.ONE * 1.3
+	if PowerUps.is_ailment(kind):
+		# Traps sit in a dark bubble, so they never pass for something to want.
+		var shell := SphereMesh.new()
+		shell.radius = 0.6
+		shell.height = 1.2
+		var bubble := Mats.mesh(shell, Mats.ghost(Color(0.05, 0.0, 0.08), 0.5))
+		bubble.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_body.add_child(bubble)
 	# A ring on the floor marks the spot from above and from a distance.
 	var ring := TorusMesh.new()
 	ring.inner_radius = 0.62
@@ -160,6 +168,64 @@ func _build_icon(color: Color) -> void:
 				var triangle := PrismMesh.new()
 				triangle.size = Vector3(0.62, 0.4, 0.2)
 				_body.add_child(Mats.mesh(triangle, lit, Vector3.UP * height))
+		PowerUps.Kind.GRIP:
+			# A studded tyre, face on.
+			var tyre := TorusMesh.new()
+			tyre.inner_radius = 0.24
+			tyre.outer_radius = 0.44
+			var wheel := Mats.mesh(tyre, lit)
+			wheel.rotation.x = PI / 2.0
+			_body.add_child(wheel)
+			var stud := BoxMesh.new()
+			stud.size = Vector3(0.12, 0.14, 0.24)
+			for index in 8:
+				var angle := TAU * index / 8.0
+				var tread := Mats.mesh(stud, pale, Vector3(cos(angle), sin(angle), 0.0) * 0.47)
+				tread.rotation.z = angle - PI / 2.0
+				_body.add_child(tread)
+		PowerUps.Kind.FLARE:
+			# A little sun: a ball with rays.
+			var ball := SphereMesh.new()
+			ball.radius = 0.24
+			ball.height = 0.48
+			_body.add_child(Mats.mesh(ball, pale))
+			var ray := BoxMesh.new()
+			ray.size = Vector3(0.08, 0.2, 0.08)
+			for index in 8:
+				var angle := TAU * index / 8.0
+				var beam := Mats.mesh(ray, lit, Vector3(cos(angle), sin(angle), 0.0) * 0.44)
+				beam.rotation.z = angle - PI / 2.0
+				_body.add_child(beam)
+		PowerUps.Kind.SLOW:
+			# Double jump turned over: two triangles pointing down.
+			for height: float in [-0.2, 0.2]:
+				var triangle := PrismMesh.new()
+				triangle.size = Vector3(0.62, 0.4, 0.2)
+				var arrow := Mats.mesh(triangle, lit, Vector3.UP * height)
+				arrow.rotation.z = PI
+				_body.add_child(arrow)
+		PowerUps.Kind.DIZZY:
+			# A spiral, wound outward from the middle.
+			var path := PackedVector3Array()
+			for step in 73:
+				var along := step / 72.0
+				var angle := along * TAU * 2.25
+				path.append(Vector3(cos(angle), sin(angle), 0.0) * (0.06 + 0.4 * along))
+			_body.add_child(Mats.mesh(Mats.tube(path, 0.055, 10), lit))
+		PowerUps.Kind.HEAVY:
+			# A scale weight: a squat block with a ring to lift it by.
+			var block := CylinderMesh.new()
+			block.top_radius = 0.26
+			block.bottom_radius = 0.42
+			block.height = 0.5
+			block.radial_segments = 6
+			_body.add_child(Mats.mesh(block, lit, Vector3.UP * -0.12))
+			var loop := TorusMesh.new()
+			loop.inner_radius = 0.1
+			loop.outer_radius = 0.19
+			var handle := Mats.mesh(loop, pale, Vector3.UP * 0.26)
+			handle.rotation.x = PI / 2.0
+			_body.add_child(handle)
 		PowerUps.Kind.STOPWATCH:
 			# A clock face on edge, with hands and a crown.
 			var face := CylinderMesh.new()
