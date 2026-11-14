@@ -10,8 +10,8 @@ bounce = 0.3
 [sub_resource type="SphereMesh" id="SphereMesh_marble"]
 radius = 0.5
 height = 1.0
-radial_segments = 32
-rings = 16
+radial_segments = 64
+rings = 32
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_body"]
 radius = 0.5

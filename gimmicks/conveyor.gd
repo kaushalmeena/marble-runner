@@ -11,7 +11,7 @@ const CHEVRON_GAP := 1.5
 ## Speed a marble at rest is carried at, along the belt's forward (-Z) axis.
 var speed: float = 5.0
 ## How hard the belt pulls, as an acceleration.
-var pull: float = 9.0
+var pull: float = 13.0
 
 var _length: float
 var _chevrons: Array[MeshInstance3D] = []

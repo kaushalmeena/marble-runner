@@ -29,6 +29,17 @@ const GROUND_NORMAL_Y := 0.35
 const MIN_AIR_TIME := 0.14
 ## How quickly an idle marble comes to rest on a moving platform, per second.
 const PLATFORM_SETTLE := 14.0
+## Grip assist on level ground. Left to friction alone a rolling ball coasts
+## for ever and swings wide on every turn; these bleed off the motion the
+## player is not asking for, which is what makes it feel held rather than
+## loose. Per second: with nothing held, and across the held direction.
+const COAST_BRAKE := 2.2
+const SIDE_BRAKE := 3.0
+## Extra push while steering against the way the marble is moving.
+const REVERSE_PUSH := 1.8
+## Ground flatter than this (normal Y) gets the assist. Slopes are left alone,
+## so a marble still runs away downhill.
+const LEVEL_NORMAL_Y := 0.96
 ## Share of the marble's weight that water carries. Under 1 so it still sinks.
 const WATER_BUOYANCY := 0.8
 ## How quickly water bleeds off speed, per second.
@@ -279,6 +290,7 @@ func _ride(state: PhysicsDirectBodyState3D, platform: Mover) -> void:
 
 func _roll(state: PhysicsDirectBodyState3D) -> void:
 	var wish := wish_direction()
+	_steady(state, wish)
 	if wish.length_squared() < 0.0001:
 		_settle_on_platform(state)
 		return
@@ -293,7 +305,32 @@ func _roll(state: PhysicsDirectBodyState3D) -> void:
 		# The direct push is the air control. On ice it is cut right down, or
 		# it would steer the marble as if the ice were not there.
 		var push := air_push if not grounded else (ground_push * 0.25 if on_ice else ground_push)
+		if grounded and not on_ice and state.linear_velocity.dot(wish) < 0.0:
+			push *= REVERSE_PUSH
 		state.apply_central_force(wish * push)
+
+
+## Sheds the motion the player is not asking for: all of it when nothing is
+## held, the sideways part when a direction is. Only on level, grippy ground
+## and at ordinary speeds, so ice stays ice, slopes stay slopes, and a marble
+## flung by a pad keeps what it was given.
+func _steady(state: PhysicsDirectBodyState3D, wish: Vector3) -> void:
+	if not grounded or on_ice or in_water or _platform != null \
+			or _ground_normal.y < LEVEL_NORMAL_Y:
+		return
+	var flat := Vector3(state.linear_velocity.x, 0.0, state.linear_velocity.z)
+	if flat.length() > max_speed * 1.05:
+		return
+	var shed: Vector3
+	if wish.length_squared() < 0.0001:
+		shed = flat * minf(1.0, COAST_BRAKE * state.step)
+	else:
+		var along := wish.normalized()
+		shed = (flat - along * flat.dot(along)) * minf(1.0, SIDE_BRAKE * state.step)
+	state.linear_velocity -= shed
+	# The spin that goes with that motion comes off too, or friction would
+	# hand it straight back.
+	state.angular_velocity -= Vector3.UP.cross(shed) / RADIUS
 
 
 ## With no direction held, a marble on a moving platform is eased to rest
