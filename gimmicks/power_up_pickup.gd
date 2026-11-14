@@ -76,22 +76,13 @@ func _build_icon(color: Color) -> void:
 			const TURNS := 3.0
 			const COIL_RADIUS := 0.27
 			const COIL_HEIGHT := 0.62
-			const STEPS := 42
-			var wire := CylinderMesh.new()
-			wire.top_radius = 0.05
-			wire.bottom_radius = 0.05
-			wire.radial_segments = 6
-			# Each piece is a little longer than the gap it spans, so the
-			# wire reads as one continuous strand.
-			wire.height = TAU * COIL_RADIUS * TURNS / STEPS * 1.2
-			var previous := _helix_point(0.0, TURNS, COIL_RADIUS, COIL_HEIGHT)
-			for step in range(1, STEPS + 1):
-				var point := _helix_point(float(step) / STEPS, TURNS, COIL_RADIUS, COIL_HEIGHT)
-				var piece := Mats.mesh(wire, lit, (previous + point) / 2.0)
-				# A cylinder's axis is its local Y; lay it along the strand.
-				piece.basis = Basis(Quaternion(Vector3.UP, (point - previous).normalized()))
-				_body.add_child(piece)
-				previous = point
+			const STEPS := 96
+			# One continuous tube, not a chain of straight pieces: a chain
+			# shows a ridge at every joint.
+			var path := PackedVector3Array()
+			for step in STEPS + 1:
+				path.append(_helix_point(float(step) / STEPS, TURNS, COIL_RADIUS, COIL_HEIGHT))
+			_body.add_child(Mats.mesh(Mats.tube(path, 0.05, 12), lit))
 			var plate := CylinderMesh.new()
 			plate.top_radius = COIL_RADIUS + 0.09
 			plate.bottom_radius = COIL_RADIUS + 0.09
