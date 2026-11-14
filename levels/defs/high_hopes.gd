@@ -7,8 +7,8 @@ func _init() -> void:
 	title = "High Hopes"
 	hint = "Some walls are too tall to jump. Almost."
 	biome = preload("res://resources/biomes/desert.tres")
-	gold_time = 24.0
-	silver_time = 42.0
+	gold_time = 18.0
+	silver_time = 30.0
 
 
 func build(b: LevelBuilder) -> void:

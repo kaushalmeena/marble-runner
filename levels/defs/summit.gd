@@ -8,15 +8,15 @@ func _init() -> void:
 	title = "Summit"
 	hint = "It is a long way down from the top."
 	biome = preload("res://resources/biomes/dusk.tres")
-	gold_time = 70.0
-	silver_time = 120.0
+	gold_time = 55.0
+	silver_time = 90.0
 
 
 func build(b: LevelBuilder) -> void:
 	const STEPS := 26
 	const RADIUS := 9.0
 	const RISE := 0.7
-	const TURN := 36.0
+	const TURN := 32.0
 	b.start(Vector3(0, 0, 13), 0)
 	b.tip(Vector3(0, 0, 13), "Up. Hold SPACE and keep turning with the tower.")
 	b.floor(0, 0, 30, 30)

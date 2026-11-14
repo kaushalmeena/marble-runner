@@ -7,8 +7,8 @@ func _init() -> void:
 	title = "The Gauntlet"
 	hint = "You have seen all of this before. Not in a row."
 	biome = preload("res://resources/biomes/dusk.tres")
-	gold_time = 50.0
-	silver_time = 85.0
+	gold_time = 70.0
+	silver_time = 105.0
 
 
 func build(b: LevelBuilder) -> void:

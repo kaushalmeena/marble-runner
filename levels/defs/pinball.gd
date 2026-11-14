@@ -8,7 +8,7 @@ func _init() -> void:
 	title = "Pinball"
 	hint = "Red posts hit back."
 	biome = preload("res://resources/biomes/tundra.tres")
-	gold_time = 30.0
+	gold_time = 32.0
 	silver_time = 50.0
 
 

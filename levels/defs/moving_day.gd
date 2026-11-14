@@ -8,8 +8,8 @@ func _init() -> void:
 	title = "Moving Day"
 	hint = "The platforms will not wait. Neither should you."
 	biome = preload("res://resources/biomes/tundra.tres")
-	gold_time = 34.0
-	silver_time = 55.0
+	gold_time = 50.0
+	silver_time = 75.0
 
 
 func build(b: LevelBuilder) -> void:

@@ -6,8 +6,8 @@ func _init() -> void:
 	id = &"mind_the_gap"
 	title = "Mind the Gap"
 	hint = "Space jumps. Hold it to keep hopping."
-	gold_time = 17.0
-	silver_time = 30.0
+	gold_time = 20.0
+	silver_time = 32.0
 
 
 func build(b: LevelBuilder) -> void:

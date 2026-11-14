@@ -8,8 +8,8 @@ func _init() -> void:
 	title = "Updraft"
 	hint = "Roll off the edge. Trust the fan."
 	biome = preload("res://resources/biomes/dusk.tres")
-	gold_time = 32.0
-	silver_time = 55.0
+	gold_time = 26.0
+	silver_time = 42.0
 
 
 func build(b: LevelBuilder) -> void:

@@ -8,8 +8,8 @@ func _init() -> void:
 	title = "Gem Garden"
 	hint = "Ten gems, any order you like."
 	biome = preload("res://resources/biomes/desert.tres")
-	gold_time = 30.0
-	silver_time = 50.0
+	gold_time = 28.0
+	silver_time = 45.0
 
 
 func build(b: LevelBuilder) -> void:

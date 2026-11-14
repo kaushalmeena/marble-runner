@@ -8,7 +8,7 @@ func _init() -> void:
 	title = "Fast Lane"
 	hint = "Hit the ramps straight and let go."
 	biome = preload("res://resources/biomes/desert.tres")
-	gold_time = 20.0
+	gold_time = 22.0
 	silver_time = 36.0
 
 

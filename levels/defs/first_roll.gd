@@ -7,8 +7,8 @@ func _init() -> void:
 	id = &"first_roll"
 	title = "First Roll"
 	hint = "Find your feet. Well, your roll."
-	gold_time = 14.0
-	silver_time = 24.0
+	gold_time = 12.0
+	silver_time = 20.0
 
 
 func build(b: LevelBuilder) -> void:
