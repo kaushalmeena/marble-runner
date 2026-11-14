@@ -1,12 +1,19 @@
 extends Control
-## The level grid: one card per level, with its stars and best time.
+## The level grid: one card per level, with its stars and best time, a page of
+## twelve at a time.
 ##
-## Cards are built from [LevelCatalog], so adding a level adds a card.
+## Cards are built from [LevelCatalog], so adding a level adds a card, and a
+## thirteenth level adds a page.
 
 const COLUMNS := 4
 const CARD_SIZE := Vector2(244.0, 118.0)
 
-var _first_open: Button = null
+var _page: int = 0
+var _grid: GridContainer
+var _page_title: Label
+var _previous: Button
+var _next: Button
+var _back: Button
 
 
 func _ready() -> void:
@@ -24,29 +31,82 @@ func _ready() -> void:
 	box.add_child(Ui.label("%d OF %d STARS" % [
 		GameState.total_stars(), LevelCatalog.count() * StarRow.COUNT],
 		&"CaptionLabel", HORIZONTAL_ALIGNMENT_CENTER))
-	box.add_child(Ui.label("LEVELS", &"HeadingLabel", HORIZONTAL_ALIGNMENT_CENTER))
+	_page_title = Ui.label("", &"HeadingLabel", HORIZONTAL_ALIGNMENT_CENTER)
+	box.add_child(_page_title)
 	box.add_child(Ui.gap(8))
 
-	var grid := GridContainer.new()
-	grid.columns = COLUMNS
-	grid.add_theme_constant_override(&"h_separation", 14)
-	grid.add_theme_constant_override(&"v_separation", 14)
-	box.add_child(grid)
-	for index in LevelCatalog.count():
-		grid.add_child(_build_card(index))
+	_grid = GridContainer.new()
+	_grid.columns = COLUMNS
+	_grid.add_theme_constant_override(&"h_separation", 14)
+	_grid.add_theme_constant_override(&"v_separation", 14)
+	box.add_child(_grid)
 
 	box.add_child(Ui.gap(14))
-	var back := Ui.button("Back", 240.0)
-	back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	back.pressed.connect(SceneManager.goto_main_menu)
-	box.add_child(back)
-	(_first_open if _first_open != null else back).grab_focus()
+	var footer := Ui.row(14)
+	footer.alignment = BoxContainer.ALIGNMENT_CENTER
+	_previous = Ui.button("Previous", 200.0)
+	_back = Ui.button("Back", 200.0)
+	_next = Ui.button("Next", 200.0)
+	_previous.pressed.connect(_turn_page.bind(-1))
+	_next.pressed.connect(_turn_page.bind(1))
+	_back.pressed.connect(SceneManager.goto_main_menu)
+	footer.add_child(_previous)
+	footer.add_child(_back)
+	footer.add_child(_next)
+	box.add_child(footer)
+	box.add_child(Ui.gap(2))
+	box.add_child(Ui.label("Q  E     CHANGE PAGE", &"ChipLabel", HORIZONTAL_ALIGNMENT_CENTER))
+
+	# Open on the page the player is up to.
+	_show_page(LevelCatalog.page_of(GameState.next_unbeaten()))
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
-		get_viewport().set_input_as_handled()
 		SceneManager.goto_main_menu()
+	elif event.is_action_pressed(&"camera_left") or event.is_action_pressed(&"ui_page_up"):
+		_turn_page(-1)
+	elif event.is_action_pressed(&"camera_right") or event.is_action_pressed(&"ui_page_down"):
+		_turn_page(1)
+	else:
+		return
+	get_viewport().set_input_as_handled()
+
+
+func _turn_page(step: int) -> void:
+	var page := clampi(_page + step, 0, LevelCatalog.page_count() - 1)
+	if page == _page:
+		return
+	Audio.play(&"jump", -14.0, 0.04)
+	_show_page(page)
+
+
+func _show_page(page: int) -> void:
+	_page = page
+	for child in _grid.get_children():
+		_grid.remove_child(child)
+		child.queue_free()
+	var first := page * LevelCatalog.PAGE_SIZE
+	var focus: Button = null
+	for slot in LevelCatalog.PAGE_SIZE:
+		var index := first + slot
+		if index >= LevelCatalog.count():
+			# An empty cell the size of a card, so a short page is the same
+			# size as a full one and nothing below the grid moves.
+			var blank := Control.new()
+			blank.custom_minimum_size = CARD_SIZE
+			_grid.add_child(blank)
+			continue
+		var card := _build_card(index)
+		_grid.add_child(card)
+		# Focus lands on the level the player is up to, else the first open one.
+		if not card.disabled and (focus == null or index == GameState.next_unbeaten()):
+			focus = card
+	_page_title.text = "%s   %d / %d" % [
+		LevelCatalog.page_title(page), page + 1, LevelCatalog.page_count()]
+	_previous.disabled = page <= 0
+	_next.disabled = page >= LevelCatalog.page_count() - 1
+	(focus if focus != null else _back).grab_focus()
 
 
 func _build_card(index: int) -> Button:
@@ -80,8 +140,4 @@ func _build_card(index: int) -> Button:
 	box.add_child(footer)
 	if not open:
 		box.modulate.a = 0.5
-	# Focus lands on the level the player is up to, not on level one.
-	if open and (_first_open == null or not GameState.is_completed(level)):
-		if _first_open == null or GameState.is_completed(LevelCatalog.at(index - 1)):
-			_first_open = card
 	return card

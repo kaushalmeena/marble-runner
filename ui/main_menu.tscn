@@ -60,7 +60,7 @@ theme_override_constants/separation = 4
 
 [node name="Kicker" type="Label" parent="Center/Column"]
 layout_mode = 2
-text = "TWELVE COURSES IN THE SKY"
+text = "COURSES IN THE SKY AND BEYOND"
 horizontal_alignment = 1
 theme_type_variation = &"CaptionLabel"
 
