@@ -80,7 +80,7 @@ func set_gems(collected: int, total: int) -> void:
 ## Replaces the target under the clock with a warning that this run will not
 ## be recorded.
 func mark_cheated() -> void:
-	_best.text = "CHEATS ON   NOT RECORDED"
+	_best.text = "CHEATS ON   NOT SAVED"
 	_best.modulate = Color(1.0, 0.55, 0.45)
 
 
