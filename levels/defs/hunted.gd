@@ -19,7 +19,7 @@ func build(b: LevelBuilder) -> void:
 	_ring_walls(b, -12)
 	# The secret diamond: the first hunter is carrying it. Pop the hunter.
 	var keeper := b.chaser(Vector3(0, 0, -13), 9, 4.5)
-	keeper.reveals = [b.secret(Vector3(0, 0, -19), true)]
+	keeper.reveals = [b.secret(Vector3(0, 0, -12), true)]
 	b.gem_ring(Vector3(0, 0, -12), 7, 6)
 	b.bumper(Vector3(-4, 0, -9))
 	b.bumper(Vector3(4, 0, -15))

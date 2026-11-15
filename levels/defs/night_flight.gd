@@ -17,7 +17,9 @@ func build(b: LevelBuilder) -> void:
 	var right := Trail.RIGHT
 	var t := Trail.new(b)
 	t.start()
-	t.run(6, 1)
+	# Two stretches, so the gem stands well short of the cannon.
+	t.run(2, 1)
+	t.run(4)
 	t.cannon(26, 4)
 	t.run(18, 2)
 	t.secret_side(Trail.RIGHT)

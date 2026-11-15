@@ -36,7 +36,7 @@ func build(b: LevelBuilder) -> void:
 	b.wall(Vector3(5, 0, -32.2), Vector3(8.8, 0, -32.2))
 	b.wall(Vector3(-8.8, 0, -47.8), Vector3(-1.7, 0, -47.8))
 	b.wall(Vector3(1.7, 0, -47.8), Vector3(8.8, 0, -47.8))
-	b.checkpoint(Vector3(0, 0, -34))
+	b.checkpoint(Vector3(0, 0, -31))
 	b.tip(Vector3(0, 0, -34), "Jump the bar, or run round with it.")
 	b.spinner(Vector3(0, 0, -40), 15, 1.3)
 	b.gem_ring(Vector3(0, 0, -40), 6, 6)

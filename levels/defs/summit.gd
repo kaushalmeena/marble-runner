@@ -44,7 +44,9 @@ func build(b: LevelBuilder) -> void:
 		else:
 			b.box(Vector3(x, y - 0.25, z), Vector3(3.6, 0.5, 3.6), LevelBuilder.Surface.FLOOR, yaw)
 		if step % 3 == 0:
-			b.gem(Vector3(x, y, z))
+			# On a landing the gem stands clear of the checkpoint's ring.
+			var out := 1.5 if step % 8 == 7 else 0.0
+			b.gem(Vector3(x + sin(angle) * out, y, z + cos(angle) * out))
 
 	var summit := top + RISE
 	b.floor(0, 0, 11, 11, summit, LevelBuilder.Surface.FLOOR, 0.5)

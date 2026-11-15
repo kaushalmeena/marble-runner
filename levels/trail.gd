@@ -20,6 +20,8 @@ const SIDE: Array[Vector3] = [Vector3.RIGHT, Vector3.FORWARD, Vector3.LEFT, Vect
 const LEFT := -1
 const RIGHT := 1
 const GRAVITY := 20.0
+## Nothing a trail stands on the path goes closer than this to what is there.
+const CLEARANCE := 1.45
 
 var b: LevelBuilder
 ## Middle of the path's leading edge, at floor height.
@@ -144,8 +146,9 @@ func turn(direction: int) -> void:
 
 
 func checkpoint() -> void:
-	b.checkpoint(pt(-1.5))
-	_visit(-1.5)
+	var back := _clear_back(1.5)
+	b.checkpoint(pt(-back))
+	_visit(-back)
 
 
 func tip(text: String) -> void:
@@ -217,8 +220,9 @@ func fan(rise: float) -> void:
 ## without it the marble reaches about two thirds as far.
 func glide(distance: float, fall: float) -> void:
 	_clear_end()
-	b.power_up(PowerUps.Kind.PLANE, pt(-5.0))
-	way(-5.0)
+	var back := _clear_back(5.0)
+	b.power_up(PowerUps.Kind.PLANE, pt(-back))
+	way(-back)
 	way(-0.5, 0.0, "f")
 	at = pt(distance, 0.0, -fall)
 	way(3.0, 0.0, "j")
@@ -377,13 +381,14 @@ func arena(size: float = 14.0, gems: int = 6, guards: int = 0) -> void:
 
 ## A power-up a little behind the cursor.
 func power(kind: PowerUps.Kind, side: float = 0.0) -> void:
-	b.power_up(kind, pt(-2.5, side))
-	_visit(-2.5, side)
+	var back := _clear_back(2.5, side)
+	b.power_up(kind, pt(-back, side))
+	_visit(-back, side)
 
 
 ## A trap [param back] behind the cursor. The bot does not go near it.
 func trap(kind: PowerUps.Kind, side: float = 0.0, back: float = 3.0) -> void:
-	b.trap(kind, pt(-back, side))
+	b.trap(kind, pt(-_clear_back(back, side), side))
 
 
 ## A rival rolling from side to side across the path, [param back] behind.
@@ -435,7 +440,7 @@ func secret_side(side: int) -> void:
 func secret_guard(back: float = 3.0, period: float = 3.6) -> void:
 	var keeper := b.patroller(pt(-back, -width / 2.0 + 0.8), SIDE[heading] * (width - 1.6),
 		period)
-	keeper.reveals = [b.secret(pt(-back), true)]
+	keeper.reveals = [b.secret(pt(-_clear_back(back)), true)]
 
 
 ## A button on a ledge below the stretch just laid. It brings out the diamond
@@ -448,10 +453,38 @@ func secret_switch(side: int) -> void:
 
 ## Where the diamond appears once the hidden button is down.
 func secret_reveal() -> void:
-	b.button(_switch_spot, [b.secret(pt(-2.0), true)])
+	b.button(_switch_spot, [b.secret(pt(-_clear_back(2.0)), true)])
 
 
 # --- Internals ----------------------------------------------------------------
+
+
+## How far behind the cursor to stand something so that it does not sit on top
+## of a gem, a pickup, a checkpoint, a cannon or the diamond already placed
+## there: [param back] if that spot is free, else the nearest free spot along
+## the path. Two things in one place read as one, and the player takes both
+## without having seen either.
+func _clear_back(back: float, side: float = 0.0) -> float:
+	for shift: float in [0.0, -0.5, -1.5, 1.5, -3.0, 3.0]:
+		var candidate := back + shift
+		if candidate >= 1.0 and _is_clear(pt(-candidate, side)):
+			return candidate
+	return back
+
+
+func _is_clear(point: Vector3) -> bool:
+	var taken: Array = []
+	taken.append_array(b.gems)
+	taken.append_array(b.pickups)
+	taken.append_array(b.checkpoints)
+	taken.append_array(b.cannons)
+	taken.append_array(b.keys)
+	if b.secret_diamond != null:
+		taken.append(b.secret_diamond)
+	for node: Node3D in taken:
+		if node.position.distance_to(point) < CLEARANCE:
+			return false
+	return true
 
 
 ## Lays floor from the cursor for [param length] and moves the cursor on.

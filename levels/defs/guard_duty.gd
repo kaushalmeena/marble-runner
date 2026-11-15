@@ -16,7 +16,7 @@ func build(b: LevelBuilder) -> void:
 	b.floor(0, -6, 8, 16)
 	# The secret diamond: the first guard is carrying it. Pop the guard.
 	var keeper := b.patroller(Vector3(-3, 0, -9), Vector3(6, 0, 0), 4.0)
-	keeper.reveals = [b.secret(Vector3(0, 0, -9), true)]
+	keeper.reveals = [b.secret(Vector3(0, 0, -10), true)]
 	b.gem_line(Vector3(0, 0, -4), Vector3(0, 0, -12), 3)
 
 	b.floor(0, -22, 8, 12)
